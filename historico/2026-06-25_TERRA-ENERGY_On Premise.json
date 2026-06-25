@@ -1,0 +1,512 @@
+{
+  "cliente": {
+    "nombre": "TERRA ENERGY",
+    "sector": "Retail",
+    "contacto": "Carlos Mendoza",
+    "telefono": "+1 (829) 383-6347",
+    "fecha": "23 de junio de 2026",
+    "validez": "17 de julio de 2026",
+    "fechaISO": "2026-06-23",
+    "validezISO": "2026-07-17",
+    "licencia": "On Premise",
+    "moneda": "US$",
+    "responsable": "Lisbeth Luzon",
+    "logo": ""
+  },
+  "situacion": [
+    "Aumento de la confiabilidad del sistema",
+    "Disminuir el trabajo manual",
+    "Disponibilidad de información financiera ágil",
+    "Integración entre el core financiero y los sistemas verticales",
+    "Unificar los sistemas de Información",
+    "Agilizar las operaciones y reportería"
+  ],
+  "modulos": {
+    "00": {
+      "name": "Funciones comunes",
+      "items": [
+        "Gestión de notificaciones",
+        "Consultas formateadas (lógica personalizada)",
+        "Seguridad y control de acceso",
+        "KPIs y dashboards personalizados",
+        "Formatos de impresión estándar y personalizados",
+        "Aplicación de norma fiscal (DGII)"
+      ],
+      "note": ""
+    },
+    "01": {
+      "name": "Compras",
+      "items": [
+        "Datos maestros de proveedores",
+        "Portafolio de productos y servicios",
+        "Compras locales",
+        "Compras internacionales",
+        "Devoluciones a proveedores"
+      ],
+      "note": ""
+    },
+    "02": {
+      "name": "Inventario",
+      "items": [
+        "Clasificación de productos (grupos de artículos)",
+        "Recuento de inventario",
+        "Grupos de unidades de medida",
+        "Gestión de precios",
+        "Recepción de productos",
+        "Traslado de mercancía entre stocks",
+        "Reportes personalizados",
+        "Modelo Drop Shipping"
+      ],
+      "note": ""
+    },
+    "03": {
+      "name": "Ventas y CRM",
+      "items": [
+        "Datos maestros de clientes",
+        "Gestión de oportunidades",
+        "Reportes personalizados de ventas"
+      ],
+      "note": ""
+    },
+    "04": {
+      "name": "Gestión de servicios",
+      "items": [
+        "Reparaciones y garantía"
+      ],
+      "note": ""
+    },
+    "05": {
+      "name": "Recursos humanos",
+      "items": [
+        "Carga de datos maestros de empleados"
+      ],
+      "note": ""
+    },
+    "06": {
+      "name": "Contabilidad y finanzas",
+      "items": [
+        "Plan de cuentas",
+        "Contabilidad de costos",
+        "Gestión de activos fijos",
+        "Gestión de procesos bancarios",
+        "Gestión de efectivo",
+        "Reembolso de gastos",
+        "Reportes contables y financieros personalizados"
+      ],
+      "note": ""
+    },
+    "07": {
+      "name": "Socios de negocio",
+      "items": [
+        "Prospectos",
+        "Clientes",
+        "Proveedores"
+      ],
+      "note": ""
+    },
+    "08": {
+      "name": "Bancos / Tesorería",
+      "items": [
+        "Pagos entrantes y salientes",
+        "Depósitos"
+      ],
+      "note": ""
+    },
+    "09": {
+      "name": "Norma fiscal (DGII)",
+      "items": [
+        "Normas Fiscales estándares Panamá y Estados Unidos"
+      ],
+      "note": ""
+    }
+  },
+  "fuera": [],
+  "empresasData": [
+    {
+      "nombre": "Quality Appliances Group",
+      "pais": "Estados Unidos",
+      "ciudad": "",
+      "logo": "",
+      "vars": [
+        "Incluye Integración con AMAZON"
+      ]
+    },
+    {
+      "nombre": "Quality Appliances Latinoamérica:",
+      "pais": "Estados Unidos",
+      "ciudad": "",
+      "logo": "",
+      "vars": [
+        "-Localización Estándar SAP",
+        "Reportería estándar SAP"
+      ]
+    },
+    {
+      "nombre": "WW Appliances",
+      "pais": "Panamá",
+      "ciudad": "",
+      "logo": "",
+      "vars": [
+        "Facturación Electrónica",
+        "Localización Estándar SAP"
+      ]
+    }
+  ],
+  "addons": [
+    {
+      "id": "custom-addon-1",
+      "name": "Integración con AMAZON",
+      "tipo": "ceo",
+      "proveedor": "",
+      "desc": "",
+      "on": true,
+      "video": ""
+    },
+    {
+      "id": "custom-addon-2",
+      "name": "Certificado SSL",
+      "tipo": "ceo",
+      "proveedor": "",
+      "desc": "",
+      "on": true,
+      "video": ""
+    }
+  ],
+  "presupuesto": [
+    {
+      "name": "SAP Business One",
+      "subsegmentos": [
+        {
+          "name": "Licenciamiento",
+          "lines": [
+            {
+              "type": "concepto",
+              "desc": "SAP Business One Professional User",
+              "cant": "1",
+              "unit": "usuario",
+              "punit": "2700",
+              "total": "2,700.00",
+              "pagoTipo": "unico"
+            },
+            {
+              "type": "concepto",
+              "desc": "SAP Business One Limited User",
+              "cant": "6",
+              "unit": "usuario",
+              "punit": "1400",
+              "total": "8,400.00",
+              "pagoTipo": "unico"
+            },
+            {
+              "type": "concepto",
+              "desc": "SAP Business One Indirect Access User",
+              "cant": "1",
+              "unit": "Aplicación",
+              "punit": "250",
+              "total": "250.00",
+              "pagoTipo": "unico"
+            },
+            {
+              "type": "concepto",
+              "desc": "SAP Business One Engine for SAP HANA (64GB)",
+              "cant": "1",
+              "unit": "/64GB",
+              "punit": "2000",
+              "total": "2,000.00",
+              "pagoTipo": "unico"
+            }
+          ],
+          "pago": "Licenciamiento perpetuo y mantenimiento:\n• 50% con la firma del contrato\n• 25% a los 30 días\n• 25% restante a los 60 días",
+          "itbis": false,
+          "subtotal": "US$ 13,350.00",
+          "total": "US$ 13,350.00"
+        }
+      ]
+    },
+    {
+      "name": "Servicio de consultoría",
+      "subsegmentos": [
+        {
+          "name": "Implementación SAP",
+          "lines": [
+            {
+              "type": "concepto",
+              "desc": "Servicio de Consultoría SAP Business One",
+              "cant": "400",
+              "unit": "hora",
+              "punit": "75",
+              "total": "30,000.00",
+              "pagoTipo": "unico"
+            }
+          ],
+          "pago": "Plan A: Depósito del 10% de los servicios para dar inicio al proyecto. El resto será facturado proporcional a las horas trabajadas mensualmente por el equipo de consultoría.\n\nPlan B: Depósito de un monto entre el 15-30% del total. El porcentaje pagado será reflejado como descuento de servicio en todas las facturas emitidas. El resto será facturado proporcional a las horas trabajadas mensualmente.",
+          "itbis": false,
+          "subtotal": "US$ 30,000.00",
+          "total": "US$ 30,000.00"
+        }
+      ]
+    },
+    {
+      "name": "Add-ons CEO Consultoría",
+      "subsegmentos": [
+        {
+          "name": "Desarrollo",
+          "lines": [
+            {
+              "type": "separador",
+              "text": "Integración con Amazon - Solo aplica para empresa de Estados Unidos"
+            },
+            {
+              "type": "texto",
+              "text": "1 Amazon Seller Account, USA, FBA + 1 SAP B1 Company Database using Service Layer"
+            },
+            {
+              "type": "concepto",
+              "desc": "Platform and 5 Flows",
+              "cant": "1",
+              "unit": "año",
+              "punit": "4500",
+              "total": "4,500.00",
+              "pagoTipo": "anual"
+            },
+            {
+              "type": "texto",
+              "text": "Standard Flows: 1- Item Mapping between Amazon and SAP B1 through ASIN 2- B2C Order add from Amazon to SAP B1 under a default business partner, addresses will not be available due to Amazon PII restriction in FBA, Amazon will manage the shipment 3- FBA Inventory report in SAP B1 showing Inventory despatch, received, in transit, damaged during shipping, sold, returned, available, etc. 4- FBA Stock Transfer from SAP B1 Physical Warehouse to Virtual Warehouse based on 5- FBA Merchant Shipping to Amazon 6- FC Invoice and Payment add in SAP B1 based on Amazon Payments 7- A/R Credit Memo add in SAP B1 based on Amazon expenses (Fees, commissions, Refunds) 8- Payment Reconciliation Report in SAP B1 showing Order wise Fees, Commissions, Refunds; giving an idea on Net Revenue on a daily basis"
+            },
+            {
+              "type": "concepto",
+              "desc": "Additional Flow",
+              "cant": "1",
+              "unit": "2flujos/año",
+              "punit": "750",
+              "total": "750.00",
+              "pagoTipo": "anual"
+            },
+            {
+              "type": "concepto",
+              "desc": "Onboarding Fee",
+              "cant": "1",
+              "unit": "empresa",
+              "punit": "2000",
+              "total": "2,000.00",
+              "pagoTipo": "unico"
+            }
+          ],
+          "pago": "Desarrollo de add-ons:\n• 50% con la firma y 50% contra entrega de integración.",
+          "itbis": false,
+          "subtotal": "US$ 7,250.00",
+          "total": "US$ 7,250.00"
+        }
+      ]
+    },
+    {
+      "name": "Facturación Electrónica",
+      "subsegmentos": [
+        {
+          "name": "Implementación Panamá - TOP MANAGE",
+          "lines": [
+            {
+              "type": "concepto",
+              "desc": "FE · Servicio de Implementación - Panamá",
+              "cant": "1",
+              "unit": "empresa",
+              "punit": "2000",
+              "total": "2,000.00",
+              "pagoTipo": "unico"
+            },
+            {
+              "type": "concepto",
+              "desc": "Mensualidad por 1,500 facturas",
+              "cant": "1",
+              "unit": "mes",
+              "punit": "100",
+              "total": "100.00",
+              "pagoTipo": "mensual"
+            }
+          ],
+          "pago": "100% al inicio de la implementación",
+          "itbis": false,
+          "subtotal": "US$ 2,100.00",
+          "total": "US$ 2,100.00"
+        }
+      ]
+    },
+    {
+      "name": "Mantenimiento anual SAP",
+      "subsegmentos": [
+        {
+          "name": "Mantenimiento anual 2026",
+          "lines": [
+            {
+              "type": "concepto",
+              "desc": "Mantenimiento 2026",
+              "cant": "1",
+              "unit": "año",
+              "punit": "1134.75",
+              "total": "1,134.75",
+              "pagoTipo": "anual"
+            }
+          ],
+          "pago": "El mantenimiento anual se factura al inicio de cada período anual. El monto corresponde al 17% del total de licencias adquiridas y aumentará proporcionalmente al incrementar nuevas licencias. Mantenimiento 2027:  $2,269.50 \n",
+          "itbis": false,
+          "subtotal": "US$ 1,134.75",
+          "total": "US$ 1,134.75"
+        }
+      ]
+    },
+    {
+      "name": "Infraestructura y equipos",
+      "subsegmentos": [
+        {
+          "name": "Hardware y servidores",
+          "lines": [
+            {
+              "type": "separador",
+              "text": "infraestructura azure"
+            },
+            {
+              "type": "concepto",
+              "desc": "AZURE",
+              "cant": "1",
+              "unit": "Infraestructura",
+              "punit": "900",
+              "total": "900.00",
+              "pagoTipo": "mensual"
+            },
+            {
+              "type": "texto",
+              "text": "1- 1 E8s v5 (8 vCPUs, 64 GB RAM) (1 year reserved), Linux, SUSE Linux Enterprise + Patching only (Pay as you go); 1 managed disk – P30; Inter Region transfer type, 5 GB outbound data transfer from East US to East Asia\n\n1 B8ms (8 Cores, 32 GB RAM) (1 year reserved), Windows (License included), OS Only; 1 managed disk – P10; Inter Region transfer type, 5 GB outbound data transfer from East US to East Asia\n\n\n1 B2s (2 Cores, 4 GB RAM) (1 year reserved), Windows (License included), OS Only; 1 managed disk – P10; Inter Region transfer type, 5 GB outbound data transfer from East US to East Asia\n\n\nBasic (Classic), 0 Dynamic IP Addresses X 730 Hours, 2 Static IP Addresses X 730 Hours\n\nSAP HANA in Azure VMs, 1 Instance(s) x 50 GB, LRS Redundancy, Low Average Daily Churn, 697 GB Average monthly backup data in Standard Tier, 69 GB Average monthly backup data in Archive Tier\n\n\nAzure VMs, Standard Backup policy, 1 Instance(s) x 100 GB, LRS Redundancy, Low Average Daily Churn, 117 GB Average monthly backup data in Standard Tier, 8 GB Average monthly backup data in Archive Tier\n"
+            }
+          ],
+          "pago": "",
+          "itbis": false,
+          "subtotal": "US$ 900.00",
+          "total": "US$ 900.00"
+        }
+      ]
+    }
+  ],
+  "grandTotal": 54736.71,
+  "metodologia": {
+    "duracion": "4 a 6 meses",
+    "jefe": "Carlos Mendoza"
+  },
+  "supuestosExtra": [],
+  "marca": {
+    "color": "#FF8A1E",
+    "filename": "Propuesta Terra Energy OP"
+  },
+  "moneda": "US$",
+  "industria": {
+    "sector": "retail",
+    "video": "https://ceodo-my.sharepoint.com/personal/lisbeth_ceo_do/_layouts/15/embed.aspx?UniqueId=08872b38-ef97-4687-8037-75de2379d429&embed=%7B%22ust%22%3Afalse%2C%22hv%22%3A%22CopyEmbedCode%22%7D&referrer=StreamWebApp&referrerScenario=EmbedDialog.Create",
+    "selectedVideoId": "vid-default",
+    "videoLib": [
+      {
+        "id": "vid-default",
+        "nombre": "SAP Business One — Overview general (Default)",
+        "industria": "default",
+        "url": "https://ceodo-my.sharepoint.com/:v:/g/personal/lisbeth_ceo_do/IQA4K4cIl--HRoA3dd4jedQpAYfhpiImg7-fceX0FutRW2w?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJTdHJlYW1XZWJBcHAiLCJyZWZlcnJhbFZpZXciOiJTaGFyZURpYWxvZy1MaW5rIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXcifX0%3D&e=4oLyi9",
+        "embedUrl": "https://ceodo-my.sharepoint.com/personal/lisbeth_ceo_do/_layouts/15/embed.aspx?UniqueId=08872b38-ef97-4687-8037-75de2379d429&embed=%7B%22ust%22%3Afalse%2C%22hv%22%3A%22CopyEmbedCode%22%7D&referrer=StreamWebApp&referrerScenario=EmbedDialog.Create"
+      },
+      {
+        "id": "vid-retail",
+        "nombre": "SAP B1 — Retail / Comercio",
+        "industria": "retail",
+        "url": "https://ceodo-my.sharepoint.com/:v:/g/personal/lisbeth_ceo_do/IQCIpwK6YuRhQ7-1gcklhJ80AU10ygIVmH5nnzBiw5dHBa0?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJTdHJlYW1XZWJBcHAiLCJyZWZlcnJhbFZpZXciOiJTaGFyZURpYWxvZy1MaW5rIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXcifX0%3D&e=C9bydt",
+        "embedUrl": "https://ceodo-my.sharepoint.com/personal/lisbeth_ceo_do/_layouts/15/embed.aspx?UniqueId=ba02a788-e462-4361-bfb5-81c925849f34&embed=%7B%22ust%22%3Afalse%2C%22hv%22%3A%22CopyEmbedCode%22%7D&referrer=StreamWebApp&referrerScenario=EmbedDialog.Create"
+      }
+    ],
+    "refClients": [
+      {
+        "on": true,
+        "nombre": "Grupo Alterra",
+        "sector": "Retail · Alimenticios y ferreteros (Ferremix · Supermix)",
+        "contacto": "Alberto Pappaterra · Presidente",
+        "desc": "Implementación SAP B1 multi-empresa (Ferremix y Supermix). Consolidación financiera y operativa.",
+        "industria": "retail",
+        "logo": ""
+      },
+      {
+        "on": true,
+        "nombre": "Grupo Bonanza",
+        "sector": "Importación y distribución · Vehículos y electrodomésticos",
+        "contacto": "Gerencia General",
+        "desc": "Implementación SAP B1 para operaciones de importación, distribución y servicios post-venta.",
+        "industria": "distribucion",
+        "logo": ""
+      },
+      {
+        "on": true,
+        "nombre": "Cementos Cibao",
+        "sector": "Manufactura · Cemento y materiales de construcción",
+        "contacto": "Gerencia General",
+        "desc": "Implementación SAP B1 cubriendo producción, inventario y distribución regional.",
+        "industria": "manufactura",
+        "logo": ""
+      },
+      {
+        "on": true,
+        "nombre": "Grupo Delgado",
+        "sector": "Industria · Farmacéuticos y pinturas",
+        "contacto": "Gerencia General",
+        "desc": "Implementación SAP B1 para producción y distribución de productos farmacéuticos y pinturas.",
+        "industria": "manufactura",
+        "logo": ""
+      },
+      {
+        "on": true,
+        "nombre": "CooProHarina",
+        "sector": "Agroindustria · Industria panificadora",
+        "contacto": "Gerencia General",
+        "desc": "Implementación SAP B1 para cooperativa de producción y comercialización agroindustrial.",
+        "industria": "agroindustria",
+        "logo": ""
+      },
+      {
+        "on": true,
+        "nombre": "Jaysa Muebles",
+        "sector": "Distribución · Muebles de oficina",
+        "contacto": "Gerencia General",
+        "desc": "Implementación SAP B1 para importación y distribución de muebles corporativos.",
+        "industria": "distribucion",
+        "logo": ""
+      }
+    ],
+    "paises": {
+      "rd": true,
+      "usa": true,
+      "pr": false,
+      "gtm": true,
+      "pan": true,
+      "nic": false,
+      "hon": false,
+      "jam": false,
+      "bvi": false
+    },
+    "provincias": [
+      "Distrito Nacional",
+      "Duarte",
+      "El Seibo",
+      "Hermanas Mirabal",
+      "Hato Mayor",
+      "La Altagracia",
+      "La Romana",
+      "La Vega",
+      "María Trinidad Sánchez",
+      "Monte Plata",
+      "Monseñor Nouel",
+      "Puerto Plata",
+      "San Cristóbal",
+      "San Pedro de Macorís",
+      "Santiago",
+      "Santo Domingo",
+      "Valverde"
+    ]
+  },
+  "_historico": {
+    "fecha_entrega": "2026-06-25",
+    "version": "v6",
+    "entregado": true
+  }
+}
