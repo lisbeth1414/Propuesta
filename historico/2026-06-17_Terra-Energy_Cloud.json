@@ -1,0 +1,680 @@
+{
+  "cliente": {
+    "nombre": "TERRA ENERGY",
+    "sector": "DISTRIBUCIÓN",
+    "contacto": "CARLOS MENDOZA",
+    "telefono": "+1 (829) 383-6347",
+    "fecha": "11 de junio de 2026",
+    "validez": "30 de junio de 2026",
+    "licencia": "On Premise",
+    "moneda": "US$",
+    "responsable": "Lisbeth Luzon",
+    "logo": ""
+  },
+  "situacion": [
+    "Aumento de la confiabilidad del sistema",
+    "Disminuir el trabajo manual",
+    "Disponibilidad de información financiera ágil",
+    "Integración entre el core financiero y los sistemas verticales",
+    "Mayor Trazabilidad en las operaciones",
+    "Unificar la plataforma tecnológica de las empresas"
+  ],
+  "modulos": {
+    "00": {
+      "name": "Funciones comunes",
+      "items": [
+        "Gestión de notificaciones",
+        "Consultas formateadas (lógica personalizada)",
+        "Seguridad y control de acceso",
+        "KPIs y dashboards personalizados",
+        "Formatos de impresión estándar y personalizados",
+        "Aplicación de norma fiscal (DGII)"
+      ],
+      "note": ""
+    },
+    "01": {
+      "name": "Compras",
+      "items": [
+        "Datos maestros de proveedores",
+        "Portafolio de productos y servicios",
+        "Compras locales",
+        "Compras internacionales",
+        "Devoluciones a proveedores"
+      ],
+      "note": ""
+    },
+    "02": {
+      "name": "Inventario",
+      "items": [
+        "Clasificación de productos (grupos de artículos)",
+        "Recuento de inventario",
+        "Grupos de unidades de medida",
+        "Gestión de precios",
+        "Recepción de productos",
+        "Traslado de mercancía entre stocks",
+        "Reportes personalizados"
+      ],
+      "note": ""
+    },
+    "03": {
+      "name": "Ventas y CRM",
+      "items": [
+        "Datos maestros de clientes",
+        "Gestión de oportunidades",
+        "Reportes personalizados de ventas"
+      ],
+      "note": ""
+    },
+    "04": {
+      "name": "Gestión de servicios",
+      "items": [
+        "Reparaciones y garantía"
+      ],
+      "note": ""
+    },
+    "05": {
+      "name": "Recursos humanos",
+      "items": [
+        "Carga de datos maestros de empleados"
+      ],
+      "note": ""
+    },
+    "06": {
+      "name": "Contabilidad y finanzas",
+      "items": [
+        "Plan de cuentas",
+        "Contabilidad de costos",
+        "Gestión de procesos bancarios",
+        "Gestión de efectivo",
+        "Reportes contables y financieros personalizados"
+      ],
+      "note": ""
+    },
+    "07": {
+      "name": "Socios de negocio",
+      "items": [
+        "Prospectos",
+        "Clientes",
+        "Proveedores"
+      ],
+      "note": ""
+    },
+    "08": {
+      "name": "Bancos / Tesorería",
+      "items": [
+        "Pagos entrantes y salientes",
+        "Depósitos"
+      ],
+      "note": ""
+    },
+    "09": {
+      "name": "Norma fiscal (DGII)",
+      "items": [
+        "Reportes fiscales norma 07-18",
+        "Informes IR-17, IR-2, entre otros",
+        "Formatos 606, 607, 608 y 609"
+      ],
+      "note": ""
+    }
+  },
+  "fuera": [
+    "Gestión de Activos Fijos",
+    "MRP"
+  ],
+  "empresasData": [
+    {
+      "nombre": "Quality Appliances Group",
+      "pais": "Estados Unidos",
+      "ciudad": "",
+      "logo": "",
+      "vars": [
+        "Integración con Amazon"
+      ]
+    },
+    {
+      "nombre": "Quality Appliances Latinoamérica",
+      "pais": "",
+      "ciudad": "",
+      "logo": "",
+      "vars": [
+        "Facturación electrónica",
+        "Localización estándar SAP",
+        "Catálogo de Cuentas SAP",
+        "Modelo Dropshipping"
+      ]
+    },
+    {
+      "nombre": "WW Appliances",
+      "pais": "",
+      "ciudad": "",
+      "logo": "",
+      "vars": [
+        "Facturación Electrónica",
+        "Localización Estándar SAP",
+        "Catálogo de Cuentas SAP",
+        "Modelo Dropshipping"
+      ]
+    },
+    {
+      "nombre": "Terra Energy",
+      "pais": "República Dominicana",
+      "ciudad": "",
+      "logo": "",
+      "vars": [
+        "Segunda etapa: Implementación con Punto de Venta WMS"
+      ]
+    }
+  ],
+  "addons": [
+    {
+      "id": "conciliacion",
+      "name": "Conciliación bancaria",
+      "desc": "Herramienta que permite cargar los estados bancarios digitales exportados desde cada banco (Banreservas, BHD , Popular, etc.) directamente al sistema, aplicando reconciliación automática, semiautomática o manual.",
+      "on": true,
+      "video": ""
+    },
+    {
+      "id": "custom-addon-1",
+      "name": "Add-on personalizado 1",
+      "desc": "Guatemala - Panamá y República Dominicana",
+      "on": true,
+      "video": ""
+    },
+    {
+      "id": "custom-addon-2",
+      "name": "Add-on personalizado 2",
+      "desc": "",
+      "on": true,
+      "video": ""
+    },
+    {
+      "id": "custom-addon-3",
+      "name": "Add-on personalizado 3",
+      "desc": "",
+      "on": true,
+      "video": ""
+    },
+    {
+      "id": "custom-addon-4",
+      "name": "Add-on personalizado 4",
+      "desc": "",
+      "on": true,
+      "video": ""
+    },
+    {
+      "id": "custom-addon-1",
+      "name": "Facturación Electrónica",
+      "desc": "Guatemala - Panamá y República Dominicana",
+      "video": "",
+      "on": true
+    },
+    {
+      "id": "custom-addon-2",
+      "name": "Integración con Amazon - Solo para Estados Unidos",
+      "desc": "",
+      "video": "",
+      "on": true
+    },
+    {
+      "id": "custom-addon-3",
+      "name": "Certificado SSL",
+      "desc": "",
+      "video": "",
+      "on": true
+    },
+    {
+      "id": "custom-addon-4",
+      "name": "Actualización de Tasa Cambiaria",
+      "desc": "",
+      "video": "",
+      "on": true
+    }
+  ],
+  "presupuesto": [
+    {
+      "name": "SAP Business One",
+      "subsegmentos": [
+        {
+          "name": "Licenciamiento",
+          "lines": [
+            {
+              "type": "concepto",
+              "desc": "Licencia SAP Business One Profesional",
+              "cant": "9",
+              "unit": "usuarios",
+              "punit": "2700",
+              "total": "24,300.00"
+            },
+            {
+              "type": "concepto",
+              "desc": "Licencia SAP Business One Limitada",
+              "cant": "10",
+              "unit": "usuarios",
+              "punit": "1400",
+              "total": "14,000.00"
+            },
+            {
+              "type": "concepto",
+              "desc": "Licencia SAP Business One Acceso Indirecto",
+              "cant": "2",
+              "unit": "",
+              "punit": "250",
+              "total": "500.00"
+            },
+            {
+              "type": "descuento",
+              "desc": "Descuento",
+              "discType": "$",
+              "discVal": "7760.00"
+            },
+            {
+              "type": "concepto",
+              "desc": "Licencia HANA",
+              "cant": "1",
+              "unit": "unidad",
+              "punit": "2000",
+              "total": "2,000.00"
+            }
+          ],
+          "pago": "Licenciamiento perpetuo y mantenimiento:\n• 50% con la firma del contrato\n• 25% a los 30 días\n• 25% restante a los 60 días",
+          "nota": "Los costos presentados no incluyen ITBIS.",
+          "subtotal": "US$ 40,800.00",
+          "total": "US$ 33,040.00"
+        }
+      ]
+    },
+    {
+      "name": "Add-ons CEO Consultoría",
+      "subsegmentos": [
+        {
+          "name": "Integración con Amazon - Solo aplica para empresa de Estados Unidos",
+          "lines": [
+            {
+              "type": "texto",
+              "text": "1 Amazon Seller Account, USA, FBA + 1 SAP B1 Company Database using Service Layer"
+            },
+            {
+              "type": "concepto",
+              "desc": "Platform and 5 Flows",
+              "cant": "1",
+              "unit": "año",
+              "punit": "4500",
+              "total": "4,500.00"
+            },
+            {
+              "type": "texto",
+              "text": "Standard Flows: \n1- Item Mapping between Amazon and SAP B1 through ASIN \n2- B2C Order add from Amazon to SAP B1 under a default business partner, addresses will not be available due to Amazon PII restriction in FBA, Amazon will manage the shipment \n3- FBA Inventory report in SAP B1 showing Inventory despatch, received, in transit, damaged during shipping, sold, returned, available, etc. \n4- FBA Stock Transfer from SAP B1 Physical Warehouse to Virtual Warehouse based on \n5- FBA Merchant Shipping to Amazon \n6- FC Invoice and Payment add in SAP B1 based on Amazon Payments \n7- A/R Credit Memo add in SAP B1 based on Amazon expenses (Fees, commissions, Refunds) \n8- Payment Reconciliation Report in SAP B1 showing Order wise Fees, Commissions, Refunds; giving an idea on Net Revenue on a daily basis"
+            },
+            {
+              "type": "concepto",
+              "desc": "Onboarding Fee",
+              "cant": "1",
+              "unit": "empresa",
+              "punit": "2000",
+              "total": "2,000.00"
+            },
+            {
+              "type": "separador",
+              "text": "opcional"
+            },
+            {
+              "type": "concepto",
+              "desc": "Additional Flow",
+              "cant": "2",
+              "unit": "flujos/año",
+              "punit": "750",
+              "total": "1,500.00"
+            }
+          ],
+          "pago": "Integración realizada por terceros. ",
+          "nota": "El uso de estos add-ons requiere de un contrato de mantenimiento de SAP Business One activo.",
+          "subtotal": "US$ 8,000.00",
+          "total": "US$ 8,000.00"
+        },
+        {
+          "name": "Addons CEO - Aplica para República Dominicana",
+          "lines": [
+            {
+              "type": "concepto",
+              "desc": "Conciliación Bancaria",
+              "cant": "1",
+              "unit": "empresa",
+              "punit": "2500",
+              "total": "2,500.00"
+            },
+            {
+              "type": "concepto",
+              "desc": "Automatización de Tasa Cambiaria",
+              "cant": "1",
+              "unit": "empresa",
+              "punit": "365",
+              "total": "365.00"
+            },
+            {
+              "type": "concepto",
+              "desc": "Certificado SSL",
+              "cant": "1",
+              "unit": "dominio",
+              "punit": "60",
+              "total": "60.00"
+            },
+            {
+              "type": "descuento",
+              "desc": "Descuento",
+              "discType": "$",
+              "discVal": "2500"
+            }
+          ],
+          "pago": "Plan de pago: 100% al implementar las soluciones",
+          "nota": "",
+          "subtotal": "US$ 2,925.00",
+          "total": "US$ 425.00"
+        }
+      ]
+    },
+    {
+      "name": "Facturación Electrónica",
+      "subsegmentos": [
+        {
+          "name": "Implementación",
+          "lines": [
+            {
+              "type": "separador",
+              "text": "República Dominicana - ceo"
+            },
+            {
+              "type": "concepto",
+              "desc": "FE- Servicio de Implementacion - Rep. Dom",
+              "cant": "1",
+              "unit": "empresa",
+              "punit": "2000",
+              "total": "2,000.00"
+            },
+            {
+              "type": "separador",
+              "text": "opcionales GURUSOFT"
+            },
+            {
+              "type": "separador",
+              "text": "guatemala"
+            },
+            {
+              "type": "concepto",
+              "desc": "FE- Servicio de implemetación - Guatemala",
+              "cant": "1",
+              "unit": "empresa",
+              "punit": "3000",
+              "total": "3,000.00"
+            },
+            {
+              "type": "separador",
+              "text": "Panamá"
+            },
+            {
+              "type": "concepto",
+              "desc": "FE- Servicio de Implementación- Panamá",
+              "cant": "1",
+              "unit": "Empresa",
+              "punit": "2800",
+              "total": "2,800.00"
+            }
+          ],
+          "pago": "50% CON LA FIRMA Y 50% EN PRODUCTIVO",
+          "nota": "",
+          "subtotal": "US$ 7,800.00",
+          "total": "US$ 7,800.00"
+        },
+        {
+          "name": "Integración, mantenimiento y recepción",
+          "lines": [
+            {
+              "type": "separador",
+              "text": "REPÚBLICA DOMINICANA - CEO"
+            },
+            {
+              "type": "concepto",
+              "desc": "Integración - RD",
+              "cant": "1",
+              "unit": "año",
+              "punit": "600",
+              "total": "600.00"
+            },
+            {
+              "type": "separador",
+              "text": "guatemala - gs"
+            },
+            {
+              "type": "concepto",
+              "desc": "Integración - Guatemala",
+              "cant": "1",
+              "unit": "año",
+              "punit": "600",
+              "total": "600.00"
+            },
+            {
+              "type": "texto",
+              "text": "Paquete de transacciones por año: 1,000. Transacciones adicionales $0.094 Válido para una empresa."
+            },
+            {
+              "type": "separador",
+              "text": "panamá -gs"
+            },
+            {
+              "type": "concepto",
+              "desc": "Integración - Panamá",
+              "cant": "1",
+              "unit": "año",
+              "punit": "970",
+              "total": "850"
+            }
+          ],
+          "pago": "100% al salir en productivo",
+          "nota": "",
+          "subtotal": "US$ 2,170.00",
+          "total": "US$ 2,170.00"
+        },
+        {
+          "name": "Bolsa transaccional (anual)",
+          "lines": [
+            {
+              "type": "separador",
+              "text": "república dominicana - ceo"
+            },
+            {
+              "type": "concepto",
+              "desc": "Bolsa Transaccional",
+              "cant": "1",
+              "unit": "año",
+              "punit": "600",
+              "total": "600.00"
+            },
+            {
+              "type": "texto",
+              "text": "Paquete de transacciones por año: 6,000. Transacciones adicionales $0.094 Válido para una empresa."
+            },
+            {
+              "type": "separador",
+              "text": "opcionales"
+            },
+            {
+              "type": "separador",
+              "text": "guatemala - gs"
+            },
+            {
+              "type": "concepto",
+              "desc": "Bolsa Transaccional",
+              "cant": "1",
+              "unit": "año",
+              "punit": "540",
+              "total": "540.00"
+            },
+            {
+              "type": "texto",
+              "text": "Paquete de transacciones por año: 1,200."
+            },
+            {
+              "type": "separador",
+              "text": "panamá - gs"
+            },
+            {
+              "type": "concepto",
+              "desc": "Bolsa Transaccional",
+              "cant": "1",
+              "unit": "año",
+              "punit": "120",
+              "total": "120.00"
+            },
+            {
+              "type": "texto",
+              "text": "Paquete de transacciones por año: 1,200."
+            }
+          ],
+          "pago": "El importe por concepto de ANUALIDAD de estos servicios se facturará al momento de entrar en Producción la emisión de los documentos electrónicos\n",
+          "nota": "",
+          "subtotal": "US$ 1,260.00",
+          "total": "US$ 1,260.00"
+        }
+      ]
+    },
+    {
+      "name": "Servicio de consultoría",
+      "subsegmentos": [
+        {
+          "name": "Implementación",
+          "lines": [
+            {
+              "type": "concepto",
+              "desc": "Servicio de Consultoría SAP Business One",
+              "cant": "520",
+              "unit": "horas",
+              "punit": "75",
+              "total": "39,000.00"
+            },
+            {
+              "type": "concepto",
+              "desc": "Servicio de Configuraciones Adicionales  (Consultoría empresas exteriores)",
+              "cant": "15",
+              "unit": "horas",
+              "punit": "75",
+              "total": "1,125.00"
+            }
+          ],
+          "pago": "Plan A: Depósito del 10% de los servicios para dar inicio al proyecto. El resto será facturado proporcional a las horas trabajadas mensualmente por el equipo de consultoría.\n\nPlan B: Depósito de un monto entre el 15-30% del total. El porcentaje pagado será reflejado como descuento de servicio en todas las facturas emitidas. El resto será facturado proporcional a las horas trabajadas mensualmente.",
+          "nota": "El servicio de consultoría está sujeto al pago del ITBIS.",
+          "subtotal": "US$ 40,125.00",
+          "total": "US$ 40,125.00"
+        }
+      ]
+    },
+    {
+      "name": "Mantenimiento anual SAP",
+      "subsegmentos": [
+        {
+          "name": "Mantenimiento anual",
+          "lines": [
+            {
+              "type": "concepto",
+              "desc": "Mantenimiento 2026 (Julio-Diciembre)",
+              "cant": "1",
+              "unit": "año",
+              "punit": "2808.40",
+              "total": "2,808.40"
+            },
+            {
+              "type": "texto",
+              "text": "El mantenimiento 2027 será de:  USD $5,616.80"
+            }
+          ],
+          "pago": "El mantenimiento anual se factura al inicio de cada período anual. El monto corresponde al 17% del total de licencias adquiridas y aumentará proporcionalmente al incrementar nuevas licencias.",
+          "nota": "El monto del mantenimiento anual es el 17% del total de licencias adquiridas.",
+          "subtotal": "US$ 2,808.40",
+          "total": "US$ 2,808.40"
+        }
+      ]
+    },
+    {
+      "name": "Infraestructura y equipos",
+      "subsegmentos": [
+        {
+          "name": "Hardware y servidores",
+          "lines": [
+            {
+              "type": "separador",
+              "text": "Servidor azure 25 usuarios"
+            },
+            {
+              "type": "concepto",
+              "desc": "Infraestructura Azure para 25 usuarios - SOLO SAP",
+              "cant": "1",
+              "unit": "infraestructura",
+              "punit": "900",
+              "total": "900.00"
+            }
+          ],
+          "pago": "Plan de pago: 100% con la firma.",
+          "nota": "No incluido en la implementación SAP. El cliente es responsable de adquirir la infraestructura necesaria.",
+          "subtotal": "US$ 900.00",
+          "total": "US$ 900.00"
+        }
+      ]
+    },
+    {
+      "name": "Nómina",
+      "subsegmentos": [
+        {
+          "name": "Implementación TREBOL",
+          "lines": [
+            {
+              "type": "concepto",
+              "desc": "SETUP- para una empresa ",
+              "cant": "1",
+              "unit": "empresa",
+              "punit": "3937.50",
+              "total": "3,937.50"
+            },
+            {
+              "type": "concepto",
+              "desc": "Integración SAP Business One",
+              "cant": "1",
+              "unit": "empresa",
+              "punit": "1312.50",
+              "total": "1,312.50"
+            },
+            {
+              "type": "separador",
+              "text": "renta Mensual"
+            },
+            {
+              "type": "concepto",
+              "desc": "Renta por Empleados",
+              "cant": "25",
+              "unit": "empleados/mes",
+              "punit": "7.66",
+              "total": "191.50"
+            }
+          ],
+          "pago": "Implementación e integraciones \nCuota 1/3 – USD $2,625.00\n•50% correspondiente a la implementación e integraciones \n•Con la firma del contrato \n•Sin ITBIS incluidos \nCuota 2/3 – USD $2,625.00\n•50% restante correspondiente a la implementación e integraciones \n•A los 30 días de la firma del contrato \n•Sin ITBIS incluidos \n\nRenta (SaaS)\n\nOpción de Pago Mensual con la inscripción de una TDC – USD $201.50\n•Facturación una vez el cliente tenga un período de nómina validado en el sistema \n•ITBIS exento \nOpción de Pago Anual – USD $2,297.10 (Descuento 05% aplicado)\n•Facturación a los 60 días de la firma del contrato \n•ITBIS exento",
+          "nota": "",
+          "subtotal": "US$ 5,441.50",
+          "total": "US$ 5,441.50"
+        }
+      ]
+    }
+  ],
+  "grandTotal": 101969.9,
+  "metodologia": {
+    "duracion": "5 a 6 meses",
+    "jefe": "Ileana Mercedes"
+  },
+  "supuestosExtra": [],
+  "marca": {
+    "color": "#FF8A1E",
+    "filename": "Propuesta Plaza Lama"
+  },
+  "moneda": "US$",
+  "_historico": {
+    "fecha_entrega": "2026-06-17",
+    "version": "v6",
+    "entregado": true
+  }
+}
