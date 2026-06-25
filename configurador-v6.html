@@ -233,6 +233,49 @@ button{font-family:'Inter',sans-serif;}
 .btn-precio svg{width:11px;height:11px;}
 
 /* PRICE PICKER MODAL */
+/* HISTORIAL MODAL */
+.hist-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.55);
+  z-index:1100;display:flex;align-items:center;justify-content:center;
+  backdrop-filter:blur(6px);
+}
+.hist-modal{
+  background:var(--white);border-radius:18px;
+  width:min(620px,96vw);max-height:80vh;
+  display:flex;flex-direction:column;
+  box-shadow:0 28px 72px rgba(0,0,0,.28);overflow:hidden;
+}
+.hist-head{
+  padding:20px 24px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--bgs);
+}
+.hist-head-title{font-weight:700;font-size:15px;display:flex;align-items:center;gap:8px;}
+.hist-body{overflow-y:auto;flex:1;padding:20px 24px;}
+.hist-item{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 16px;border:1px solid var(--border);border-radius:12px;
+  margin-bottom:8px;cursor:pointer;transition:all .15s;
+}
+.hist-item:hover{background:var(--bgs);border-color:var(--accent);}
+.hist-item-icon{width:36px;height:36px;border-radius:8px;background:rgba(255,138,30,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.hist-item-info{flex:1;min-width:0;}
+.hist-item-name{font-weight:700;font-size:13px;color:var(--text);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.hist-item-meta{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--soft);}
+.hist-item-total{font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:700;color:var(--accd);flex-shrink:0;}
+.hist-pin{padding:20px 24px;border-bottom:1px solid var(--border);}
+.hist-pin-label{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:10px;}
+.hist-pin-row{display:flex;gap:8px;}
+.hist-pin-input{
+  flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;
+  font-size:14px;font-family:'JetBrains Mono',monospace;letter-spacing:.08em;
+  outline:none;transition:border-color .2s;
+}
+.hist-pin-input:focus{border-color:var(--accent);}
+.hist-pin-input.error{border-color:#e05;animation:shake .3s ease;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}}
+.hist-loading{text-align:center;padding:40px;color:var(--soft);font-size:13px;}
+
 .precio-modal-overlay{
   position:fixed;inset:0;background:rgba(0,0,0,.45);
   z-index:1000;display:flex;align-items:center;justify-content:center;
@@ -822,6 +865,10 @@ input[type=color]{width:100%;height:42px;border-radius:var(--rs);border:1.5px so
     <button class="btn-sec" onclick="document.getElementById('load-json-input').click()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       Cargar borrador
+    </button>
+    <button class="btn-sec" onclick="abrirHistorial()" style="border-color:rgba(107,142,204,.4);color:#6B8ECC;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3z"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Historial
     </button>
     <button class="btn-sec" onclick="guardarJSON()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
@@ -2842,10 +2889,12 @@ function generarPropuesta(){
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = data.marca.filename+'.html';
+    a.download = (data.marca.filename||'propuesta')+'.html';
     document.body.appendChild(a); a.click();
     document.body.removeChild(a); URL.revokeObjectURL(url);
     showToast('¡Propuesta generada y descargada!');
+    // Auto-save to historial
+    guardarEnHistorial();
   } catch(e){ showToast('Error al generar: '+e.message, true); console.error(e); }
 }
 
@@ -4390,6 +4439,227 @@ document.addEventListener('keydown', e => {
 // Persist precios in JSON save/load
 const _origCollectData = collectData;
 // patch: collectData already returns industria; we add precios via wrapper
+// ======================================================
+// HISTORIAL DE PROPUESTAS — GitHub /historico/
+// ======================================================
+const HIST_REPO = 'lisbeth1414/Propuesta';
+const HIST_PATH = 'historico';
+let _histToken = null; // set when user authenticates with their GitHub token
+
+function abrirHistorial(){
+  if(_histToken){ mostrarListaHistorial(); return; }
+
+  const overlay = document.createElement('div');
+  overlay.className = 'hist-overlay';
+  overlay.id = 'hist-overlay';
+  overlay.innerHTML = `
+    <div class="hist-modal" style="max-height:280px;">
+      <div class="hist-head">
+        <div class="hist-head-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;color:var(--accd);"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Historial de propuestas
+        </div>
+        <button onclick="cerrarHistorial()" style="background:none;border:none;cursor:pointer;color:var(--soft);padding:4px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:16px;height:16px;"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="hist-pin">
+        <div class="hist-pin-label">Pega tu token de acceso de GitHub</div>
+        <div style="font-size:11.5px;color:var(--soft);margin-bottom:10px;">GitHub → Settings → Developer settings → Personal access tokens</div>
+        <div class="hist-pin-row">
+          <input type="password" id="hist-pin-input" class="hist-pin-input" placeholder="ghp_…" autocomplete="off"
+            onkeydown="if(event.key==='Enter') verificarHistorialPin()">
+          <button class="btn-gen" style="padding:0 20px;font-size:13px;" onclick="verificarHistorialPin()">Acceder</button>
+        </div>
+        <div id="hist-pin-error" style="color:#e05;font-size:12px;margin-top:8px;display:none;">Token inválido o sin permisos. Verifica e intenta de nuevo.</div>
+        <div id="hist-pin-loading" style="color:var(--soft);font-size:12px;margin-top:8px;display:none;">Verificando…</div>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if(e.target===overlay) cerrarHistorial(); });
+  setTimeout(() => document.getElementById('hist-pin-input')?.focus(), 80);
+  document.addEventListener('keydown', _histEsc);
+}
+
+function _histEsc(e){ if(e.key==='Escape') cerrarHistorial(); }
+
+async function verificarHistorialPin(){
+  const input = document.getElementById('hist-pin-input');
+  const error = document.getElementById('hist-pin-error');
+  const loading = document.getElementById('hist-pin-loading');
+  const token = input?.value?.trim() || '';
+
+  if(!token || !token.startsWith('ghp_')){
+    input?.classList.add('error');
+    setTimeout(()=>input?.classList.remove('error'),350);
+    if(error){ error.textContent='El token debe comenzar con ghp_'; error.style.display='block'; }
+    return;
+  }
+
+  if(loading) loading.style.display = 'block';
+  if(error) error.style.display = 'none';
+
+  try {
+    // Validate token against GitHub API
+    const res = await fetch(`https://api.github.com/repos/${HIST_REPO}`, {
+      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/json' }
+    });
+    if(!res.ok) throw new Error('Invalid token');
+    // Check write access by getting repo permissions
+    const repo = await res.json();
+    const perms = repo.permissions;
+    if(!perms?.push && !perms?.admin){
+      throw new Error('Sin permisos de escritura en el repo');
+    }
+    _histToken = token;
+    cerrarHistorial();
+    mostrarListaHistorial();
+  } catch(err){
+    if(loading) loading.style.display = 'none';
+    input.value = '';
+    input?.classList.add('error');
+    setTimeout(()=>input?.classList.remove('error'),350);
+    if(error){ error.textContent = err.message.includes('push') ? 'Token sin permisos suficientes (necesita repo)' : 'Token inválido. Verifica e intenta de nuevo.'; error.style.display='block'; }
+    input?.focus();
+  }
+}
+
+function cerrarHistorial(){
+  document.getElementById('hist-overlay')?.remove();
+  document.removeEventListener('keydown', _histEsc);
+}
+
+async function mostrarListaHistorial(){
+  const overlay = document.createElement('div');
+  overlay.className = 'hist-overlay';
+  overlay.id = 'hist-overlay';
+  overlay.innerHTML = `
+    <div class="hist-modal">
+      <div class="hist-head">
+        <div class="hist-head-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;color:var(--accd);"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3z"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          Historial de propuestas CEO Consultoría
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button onclick="_histToken=null;cerrarHistorial();showToast('Sesión de historial cerrada')" title="Cerrar sesión" style="background:none;border:none;cursor:pointer;color:var(--soft);padding:4px;font-size:11px;display:flex;align-items:center;gap:4px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Cerrar sesión
+          </button>
+          <button onclick="cerrarHistorial()" style="background:none;border:none;cursor:pointer;color:var(--soft);padding:4px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:16px;height:16px;"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="hist-body" id="hist-list-body">
+        <div class="hist-loading">Cargando historial…</div>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if(e.target===overlay) cerrarHistorial(); });
+  document.addEventListener('keydown', _histEsc);
+
+  try {
+    const res = await fetch(`https://api.github.com/repos/${HIST_REPO}/contents/${HIST_PATH}`, {
+      headers: { 'Authorization': `token ${_histToken}`, 'Accept': 'application/json' }
+    });
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const files = await res.json();
+    const jsonFiles = files
+      .filter(f => f.name.endsWith('.json') && f.name !== 'README.md')
+      .sort((a,b) => b.name.localeCompare(a.name));
+
+    const body = document.getElementById('hist-list-body');
+    if(!jsonFiles.length){
+      body.innerHTML = '<div class="hist-loading">No hay propuestas guardadas aún.<br><span style="font-size:11px;">Se guardan automáticamente al generar una propuesta.</span></div>';
+      return;
+    }
+
+    body.innerHTML = `<div style="font-size:12px;color:var(--soft);margin-bottom:12px;">${jsonFiles.length} propuesta${jsonFiles.length!==1?'s':''} en el historial · Clic en Cargar para abrir</div>`;
+
+    jsonFiles.forEach(file => {
+      const parts = file.name.replace('.json','').split('_');
+      const fecha = parts[0] || '';
+      const licencia = parts[parts.length-1] || '';
+      const clienteNombre = parts.slice(1,-1).join(' ').replace(/-/g,' ') || file.name;
+      const uid = file.sha?.slice(0,8) || Math.random().toString(36).slice(2,10);
+
+      const item = document.createElement('div');
+      item.className = 'hist-item';
+      item.innerHTML = `
+        <div class="hist-item-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#FF8A1E" stroke-width="1.8" style="width:18px;height:18px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <div class="hist-item-info">
+          <div class="hist-item-name">${clienteNombre}</div>
+          <div class="hist-item-meta">${fecha} · ${licencia} · <span id="ht-${uid}">—</span></div>
+        </div>
+        <button class="btn-gen" style="padding:6px 14px;font-size:12px;flex-shrink:0;"
+          onclick="cargarDesdeHistorial('${file.download_url}','${file.name}')">Cargar</button>`;
+      body.appendChild(item);
+
+      // Load total async
+      fetch(file.download_url, {headers:{'Authorization':`token ${_histToken}`}})
+        .then(r=>r.json())
+        .then(data => {
+          const el = document.getElementById('ht-'+uid);
+          if(el){
+            const m = data.cliente?.moneda || 'US$';
+            const t = data.grandTotal;
+            el.textContent = t ? m+' '+parseFloat(t).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0}) : '—';
+          }
+        }).catch(()=>{});
+    });
+  } catch(err){
+    const body = document.getElementById('hist-list-body');
+    if(body) body.innerHTML = `<div class="hist-loading" style="color:#e05;">Error: ${err.message}</div>`;
+  }
+}
+
+async function cargarDesdeHistorial(url, filename){
+  try {
+    showToast('Cargando propuesta…');
+    const res = await fetch(url, {headers:{'Authorization':`token ${_histToken}`}});
+    const data = await res.json();
+    cerrarHistorial();
+    aplicarDatosJSON(data);
+    showToast('✅ '+filename.replace('.json','').replace(/_/g,' '));
+  } catch(err){
+    showToast('Error al cargar: '+err.message, true);
+  }
+}
+
+async function guardarEnHistorial(){
+  if(!_histToken) return; // No token this session — skip silently
+  try {
+    const data = collectData();
+    data._historico = { fecha_entrega: new Date().toISOString().split('T')[0], version:'v6', entregado:true };
+
+    const cliente = (data.cliente?.nombre||'Cliente').replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]/g,'').trim().replace(/\s+/g,'-');
+    const licencia = data.cliente?.licencia || 'Licencia';
+    const fecha = new Date().toISOString().split('T')[0];
+    const filename = `${HIST_PATH}/${fecha}_${cliente}_${licencia}.json`;
+    const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+
+    const url = `https://api.github.com/repos/${HIST_REPO}/contents/${filename}`;
+    let sha = null;
+    try {
+      const chk = await fetch(url, {headers:{'Authorization':`token ${_histToken}`,'Accept':'application/json'}});
+      if(chk.ok){ const d=await chk.json(); sha=d.sha; }
+    } catch(e){}
+
+    const payload = { message:`propuesta: ${cliente} · ${fecha}`, content:b64, branch:'main' };
+    if(sha) payload.sha = sha;
+
+    const res = await fetch(url, {
+      method:'PUT',
+      headers:{'Authorization':`token ${_histToken}`,'Content-Type':'application/json','Accept':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    if(res.ok) console.log('✅ Historial guardado:', filename);
+  } catch(err){
+    console.warn('Historial no guardado:', err.message); // Silent fail
+  }
+}
+
 // ======================================================
 // START
 // ======================================================
