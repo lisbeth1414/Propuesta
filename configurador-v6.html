@@ -895,24 +895,25 @@ input[type=color]{width:100%;height:42px;border-radius:var(--rs);border:1.5px so
 // DATA
 // ======================================================
 const MODS = {
-  '00':{ name:'Funciones comunes', items:['Gestión de notificaciones','Consultas formateadas (lógica personalizada)','Seguridad y control de acceso','KPIs y dashboards personalizados','Formatos de impresión estándar y personalizados','Aplicación de norma fiscal (DGII)'] },
+  '00':{ name:'Funciones comunes', items:['Gestión de notificaciones','Consultas formateadas (lógica personalizada)','Seguridad y control de acceso','KPIs y dashboards personalizados','Formatos de impresión estándar y personalizados','Aplicación de norma fiscal (DGII)','Gestión de aprobaciones'] },
   '01':{ name:'Compras', items:['Datos maestros de proveedores','Portafolio de productos y servicios','Compras locales','Compras internacionales','Devoluciones a proveedores','Planificación de necesidades (MRP)'] },
   '02':{ name:'Inventario', items:['Clasificación de productos (grupos de artículos)','Recuento de inventario','Grupos de unidades de medida','Gestión de precios','Recepción de productos','Traslado de mercancía entre stocks','Reportes personalizados'] },
+  '10':{ name:'Producción', items:['Órdenes de producción','Planificación de la producción (MRP)','Lista de materiales (BOM)','Órdenes de trabajo','Control de recursos y capacidades','Gestión de costos de producción','Trazabilidad de lotes en producción'] },
   '03':{ name:'Ventas y CRM', items:['Datos maestros de clientes','Gestión de oportunidades','Aplicaciones móviles SAP','Reportes personalizados de ventas'] },
   '04':{ name:'Gestión de servicios', items:['Reparaciones y garantía'] },
   '05':{ name:'Recursos humanos', items:['Carga de datos maestros de empleados'] },
-  '06':{ name:'Contabilidad y finanzas', items:['Plan de cuentas','Contabilidad de costos','Gestión de activos fijos','Gestión de procesos bancarios','Gestión de efectivo','Reembolso de gastos','Reportes contables y financieros personalizados','Descuento por pronto pago'] },
+  '06':{ name:'Contabilidad y finanzas', items:['Plan de cuentas','Contabilidad de costos','Gestión de activos fijos','Gestión de procesos bancarios','Gestión de efectivo','Reembolso de gastos','Reportes contables y financieros personalizados','Descuento por pronto pago','Gestión de presupuestos'] },
   '07':{ name:'Socios de negocio', items:['Prospectos','Clientes','Proveedores'] },
   '08':{ name:'Bancos / Tesorería', items:['Pagos entrantes y salientes','Depósitos'] },
   '09':{ name:'Norma fiscal (DGII)', items:['Reportes fiscales norma 07-18','Informes IR-17, IR-2, entre otros','Formatos 606, 607, 608 y 609'] }
 };
 const DEF_MOD = {
-  '00':['Gestión de notificaciones','Consultas formateadas (lógica personalizada)','Seguridad y control de acceso','KPIs y dashboards personalizados','Formatos de impresión estándar y personalizados','Aplicación de norma fiscal (DGII)'],
+  '00':['Gestión de notificaciones','Consultas formateadas (lógica personalizada)','Seguridad y control de acceso','KPIs y dashboards personalizados','Formatos de impresión estándar y personalizados','Aplicación de norma fiscal (DGII)','Gestión de aprobaciones'],
   '01':['Datos maestros de proveedores','Portafolio de productos y servicios','Compras locales','Devoluciones a proveedores'],
   '02':['Clasificación de productos (grupos de artículos)','Recuento de inventario','Grupos de unidades de medida','Gestión de precios','Recepción de productos','Traslado de mercancía entre stocks','Reportes personalizados'],
   '03':['Datos maestros de clientes','Reportes personalizados de ventas'],
   '04':[],'05':['Carga de datos maestros de empleados'],
-  '06':['Plan de cuentas','Gestión de activos fijos','Gestión de procesos bancarios','Gestión de efectivo','Reembolso de gastos','Reportes contables y financieros personalizados'],
+  '06':['Plan de cuentas','Gestión de activos fijos','Gestión de procesos bancarios','Gestión de efectivo','Reembolso de gastos','Reportes contables y financieros personalizados','Gestión de presupuestos'],
   '07':['Prospectos','Clientes','Proveedores'],
   '08':['Pagos entrantes y salientes','Depósitos'],
   '09':['Reportes fiscales norma 07-18','Informes IR-17, IR-2, entre otros','Formatos 606, 607, 608 y 609']
@@ -1771,18 +1772,25 @@ function recalcSubtotalLines(ssId){
   lines.forEach((line, i) => {
     if(line.dataset.type === 'subtotal'){
       // sum concepto lines since last subtotal line
-      let sectionSum = 0;
+      // First pass: sum conceptos in this section
+      let sectionConceptos = 0;
       for(let j = lastSubtotalIdx + 1; j < i; j++){
         const l = lines[j];
         if(l.dataset.type === 'concepto'){
-          sectionSum += parseNum(l.querySelector('.total')?.textContent);
-        } else if(l.dataset.type === 'descuento'){
-          const dtype = l.querySelector('.disc-type')?.value || '%';
-          const dval = parseNum(l.querySelector('.disc-val')?.value);
-          if(dtype === '$') sectionSum -= dval;
-          // % discounts are handled in updateSubtotal; skip here to avoid double-counting
+          sectionConceptos += parseNum(l.querySelector('.total')?.textContent);
         }
       }
+      // Second pass: apply discounts
+      let sectionDiscount = 0;
+      for(let j = lastSubtotalIdx + 1; j < i; j++){
+        const l = lines[j];
+        if(l.dataset.type === 'descuento'){
+          const dtype = l.querySelector('.disc-type')?.value || '%';
+          const dval = parseNum(l.querySelector('.disc-val')?.value);
+          sectionDiscount += dtype === '%' ? sectionConceptos * (dval/100) : dval;
+        }
+      }
+      let sectionSum = sectionConceptos - sectionDiscount;
       const computed = line.querySelector('.subtotal-computed');
       if(computed) computed.textContent = sectionSum > 0
         ? moneda+' '+sectionSum.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})
@@ -2915,11 +2923,13 @@ function buildProposalHTML(d){
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;">
         ${refClientes.map(c => `
           <div style="background:#fff;border:1px solid rgba(28,20,14,.1);border-radius:14px;padding:20px 22px;">
-            ${c.logo ? `<img src="${c.logo}" style="max-height:40px;max-width:130px;object-fit:contain;margin-bottom:12px;display:block;" alt="${c.nombre}">` : ''}
+            ${c.logo && c.logo.length > 100 ? `<img src="${c.logo}" style="max-height:40px;max-width:130px;object-fit:contain;margin-bottom:12px;display:block;" alt="${c.nombre}">` : ''}
             <div style="font-family:'Fraunces',serif;font-weight:700;font-size:1rem;color:#1C140E;margin-bottom:4px;">${c.nombre}</div>
             ${c.sector ? `<div style="font-size:.73rem;color:#6B5F52;margin-bottom:10px;line-height:1.4;">${c.sector}</div>` : ''}
             ${c.desc ? `<div style="font-size:.78rem;color:#4A3F35;line-height:1.5;margin-bottom:10px;">${c.desc}</div>` : ''}
-            ${c.contacto ? `<div style="font-size:.73rem;color:#6B5F52;padding-top:10px;border-top:1px solid rgba(28,20,14,.07);"><strong style="color:#1C140E;">${c.contacto}</strong></div>` : ''}
+            <div style="font-size:.73rem;color:#6B5F52;padding-top:10px;border-top:1px solid rgba(28,20,14,.07);">
+              <strong style="color:#1C140E;">${c.contacto || 'Referencia disponible'}</strong>
+            </div>
           </div>`).join('')}
       </div>
     </div>` : '';
@@ -3070,10 +3080,10 @@ function buildProposalHTML(d){
   const resumenInversionHTML = resumenBloques.length ? `
     <div style="margin-bottom:24px;display:grid;grid-template-columns:repeat(${resumenBloques.length},1fr);gap:14px;">
       ${resumenBloques.map(b => `
-        <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:18px 20px;">
-          <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:6px;">${b.sub}</div>
-          <div style="font-family:'Fraunces',serif;font-size:1.3rem;font-weight:700;color:#fff;">${moneda} ${fmtNum(resumenPorTipo[b.key])}</div>
-          <div style="font-size:.78rem;color:rgba(255,255,255,.68);margin-top:4px;">${b.label}</div>
+        <div style="background:rgba(255,255,255,.92);border:1px solid rgba(255,255,255,.3);border-radius:14px;padding:18px 20px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(28,20,14,.55);margin-bottom:6px;">${b.sub}</div>
+          <div style="font-family:'Fraunces',serif;font-size:1.3rem;font-weight:700;color:#1C140E;">${moneda} ${fmtNum(resumenPorTipo[b.key])}</div>
+          <div style="font-size:.78rem;color:rgba(28,20,14,.6);margin-top:4px;">${b.label}</div>
         </div>`).join('')}
     </div>` : '';
 
@@ -3172,6 +3182,7 @@ body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;line-he
   border-top:1px solid rgba(255,255,255,0.06);
   font-family:'JetBrains Mono',monospace;font-size:.6rem;
   letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.28);
+  display:flex;align-items:center;gap:8px;
 }
 
 /* ===== MAIN CONTENT ===== */
@@ -3279,7 +3290,15 @@ body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;line-he
 <!-- ===== FIXED SIDEBAR ===== -->
 <nav class="sidebar" id="sidebar">
   <div class="sb-brand">
-    <div class="sb-mark"></div>
+    <div class="sb-mark">
+      ${cliente.logo
+        ? `<img src="${cliente.logo}" style="width:34px;height:34px;object-fit:contain;border-radius:8px;" alt="${cliente.nombre}">`
+        : `<svg viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:34px;height:34px;">
+            <rect width="34" height="34" rx="9" fill="url(#ceoGrad)"/>
+            <text x="17" y="23" font-family="Georgia,serif" font-size="14" font-weight="bold" fill="white" text-anchor="middle" letter-spacing="-0.5">CEO</text>
+            <defs><linearGradient id="ceoGrad" x1="0" y1="0" x2="34" y2="34"><stop offset="0%" stop-color="${ac}"/><stop offset="100%" stop-color="${acD}"/></linearGradient></defs>
+          </svg>`}
+    </div>
     <div>
       <div class="sb-name">CEO Consultoría</div>
       <div class="sb-client">${cliente.nombre}</div>
@@ -3298,7 +3317,14 @@ body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;line-he
     <a href="#ste"><span class="sb-num">08</span>Términos</a>
     <a href="#sre"><span class="sb-num">09</span>Nuestros clientes</a>
   </div>
-  <div class="sb-footer">SAP Business One · Partner</div>
+  <div class="sb-footer">
+    <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:22px;height:22px;flex-shrink:0;">
+      <rect width="28" height="28" rx="7" fill="url(#ceoGrad2)"/>
+      <text x="14" y="19" font-family="Georgia,serif" font-size="11" font-weight="bold" fill="white" text-anchor="middle">CEO</text>
+      <defs><linearGradient id="ceoGrad2" x1="0" y1="0" x2="28" y2="28"><stop offset="0%" stop-color="${ac}"/><stop offset="100%" stop-color="${acD}"/></linearGradient></defs>
+    </svg>
+    <span>SAP Business One · Partner</span>
+  </div>
 </nav>
 
 <!-- ===== MAIN CONTENT ===== -->
@@ -3392,7 +3418,7 @@ ${fueraHTML}
   </div>
 </section>
 
-<section style="background:#F6EFE4;color:#1C140E;padding:96px 0;border-radius:36px;margin:0;" id="smet">
+<section style="background:#F6EFE4;color:#1C140E;padding:96px 0;border-radius:36px;margin:32px 0 0;" id="smet">
   <div class="pg">
     <div style="display:flex;align-items:center;gap:14px;font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:${acD};margin-bottom:14px;">05 · Implementación<span style="flex:1;height:1px;background:rgba(20,12,5,.18);display:block;"></span></div>
     <h2 style="font-family:'Fraunces',serif;font-weight:700;font-size:clamp(2.4rem,5vw,3.4rem);letter-spacing:-.01em;line-height:1.05;margin-bottom:18px;">Metodología <em style="font-style:italic;color:${acD};">AIP</em></h2>
@@ -3412,7 +3438,7 @@ ${fueraHTML}
   </div>
 </section>
 
-<section style="background:var(--cr);color:var(--tic);padding:88px 0;" id="spr">
+<section style="background:var(--cr);color:var(--tic);padding:88px 0;margin-top:32px;" id="spr">
   <div class="pg">
     <div style="display:flex;align-items:center;gap:14px;font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:${acD};margin-bottom:14px;" class="rev">06 · Inversión<span style="flex:1;height:1px;background:rgba(20,12,5,.18);display:block;"></span></div>
     <h2 class="rev" style="font-family:'Fraunces',serif;font-weight:700;font-size:clamp(2rem,4vw,3rem);letter-spacing:-.01em;margin:10px 0 12px;color:var(--tic);">Presupuesto</h2>
@@ -3504,10 +3530,10 @@ ${fueraHTML}
 </section>
 
 <!-- TÉRMINOS Y CONDICIONES (updated) -->
-<section style="background:var(--bg);padding:88px 0;" id="ste">
+<section style="background:#fff;color:#1C140E;padding:88px 0;" id="ste">
   <div class="pg">
     <div style="display:flex;align-items:center;gap:14px;font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:${ac2};margin-bottom:22px;" class="rev">07 · Legal<span style="flex:1;height:1px;background:rgba(255,255,255,.12);display:block;"></span></div>
-    <h2 class="rev" style="font-family:'Fraunces',serif;font-weight:700;font-size:clamp(1.8rem,3vw,2.5rem);letter-spacing:-.01em;margin-bottom:32px;">Términos y condiciones</h2>
+    <h2 class="rev" style="font-family:'Fraunces',serif;font-weight:700;font-size:clamp(1.8rem,3vw,2.5rem);letter-spacing:-.01em;margin-bottom:32px;color:#1C140E;">Términos y condiciones</h2>
     <div class="rev" style="max-width:860px;">
       ${[
         { title: 'Actualización y mantenimiento de SAP Business One', text: 'La suscripción de SAP Business One contratada por medio de CEO Consultoría incluye una actualización de versión sin costo adicional para el cliente. Esta actualización no contempla la actualización de las estaciones de trabajo, en caso de ser necesaria. No obstante, se podrán realizar actualizaciones adicionales si fueran requeridas para la solución de problemas específicos.<br><br>Para contratos perpetuos, el mantenimiento anual de SAP Business One será facturado en el mes de enero de cada año, y deberá ser saldado dentro de los primeros quince (15) días calendario posteriores a la recepción de la factura. Este mantenimiento deberá ser pagado aun cuando el sistema se encuentre en proceso de implementación.' },
