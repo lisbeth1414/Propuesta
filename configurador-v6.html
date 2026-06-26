@@ -1456,6 +1456,11 @@ function buildSubseg(segId, ss, idx){
   if(ss.lines && ss.lines.length){
     setTimeout(() => {
       ss.lines.forEach(l => addLine(ss.id, l.type, l));
+      // Recalc everything after all lines are in DOM
+      setTimeout(() => {
+        updateSubtotal(ss.id);
+        recalcSubtotalLines(ss.id);
+      }, 60);
     }, 10);
   }
 
@@ -1672,7 +1677,7 @@ function pagoTipoLabel(tipo){
 
 function pagoTipoSelectHTML(lineId, currentTipo, ssId){
   const opts = ['unico','mensual','anual'];
-  return `<select class="pago-tipo-sel" data-lineid="${lineId}" onchange="updateSubtotal('${ssId}')" title="Tipo de pago" style="font-size:10.5px;border:1px solid var(--border);border-radius:6px;padding:2px 4px;background:var(--white);color:var(--text2);width:64px;flex-shrink:0;">${opts.map(o=>`<option value="${o}" ${o===currentTipo?'selected':''}>${pagoTipoLabel(o)}</option>`).join('')}</select>`;
+  return `<select class="pago-tipo-sel" data-lineid="${lineId}" onchange="updateSubtotal('${ssId}');recalcSubtotalLines('${ssId}')" title="Tipo de pago" style="font-size:10.5px;border:1px solid var(--border);border-radius:6px;padding:2px 4px;background:var(--white);color:var(--text2);width:64px;flex-shrink:0;">${opts.map(o=>`<option value="${o}" ${o===currentTipo?'selected':''}>${pagoTipoLabel(o)}</option>`).join('')}</select>`;
 }
 
 function addLine(ssId, type, data={}){
@@ -1715,7 +1720,7 @@ function addLine(ssId, type, data={}){
         <option value="%">%</option>
         <option value="$" ${data.discType==='$'?'selected':''}>$</option>
       </select>
-      <input class="disc-val" type="number" placeholder="0" value="${data.discVal||''}" min="0" step="any" oninput="updateSubtotal('${ssId}')">
+      <input class="disc-val" type="number" placeholder="0" value="${data.discVal||''}" min="0" step="any" oninput="updateSubtotal('${ssId}');recalcSubtotalLines('${ssId}')">
       ${pagoTipoSelectHTML(lineId, pagoTipo, ssId)}
       <button class="btn-rm" onclick="removeLine(this,'${ssId}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg></button>`;
   } else if(type === 'texto'){
@@ -3532,7 +3537,7 @@ ${fueraHTML}
 <!-- TÉRMINOS Y CONDICIONES (updated) -->
 <section style="background:#fff;color:#1C140E;padding:88px 0;" id="ste">
   <div class="pg">
-    <div style="display:flex;align-items:center;gap:14px;font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:${ac2};margin-bottom:22px;" class="rev">07 · Legal<span style="flex:1;height:1px;background:rgba(255,255,255,.12);display:block;"></span></div>
+    <div style="display:flex;align-items:center;gap:14px;font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:#C45F00;margin-bottom:22px;" class="rev">07 · Legal<span style="flex:1;height:1px;background:rgba(28,20,14,.15);display:block;"></span></div>
     <h2 class="rev" style="font-family:'Fraunces',serif;font-weight:700;font-size:clamp(1.8rem,3vw,2.5rem);letter-spacing:-.01em;margin-bottom:32px;color:#1C140E;">Términos y condiciones</h2>
     <div class="rev" style="max-width:860px;">
       ${[
@@ -3549,7 +3554,7 @@ ${fueraHTML}
       ].map(t => `
         <div class="term-item">
           <div class="term-dot"></div>
-          <div class="term-text"><strong style="color:var(--tx);display:block;margin-bottom:5px;font-size:.92rem;">${t.title}</strong>${t.text}</div>
+          <div class="term-text"><strong style="color:#1C140E;display:block;margin-bottom:5px;font-size:.92rem;">${t.title}</strong>${t.text}</div>
         </div>`).join('')}
     </div>
   </div>
