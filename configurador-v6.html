@@ -2910,8 +2910,8 @@ function generarPropuesta(){
     document.body.appendChild(a); a.click();
     document.body.removeChild(a); URL.revokeObjectURL(url);
     showToast('¡Propuesta generada y descargada!');
-    // Auto-save to historial
-    guardarEnHistorial();
+    // Auto-save to historial — request token if not set
+    pedirTokenYGuardar();
   } catch(e){ showToast('Error al generar: '+e.message, true); console.error(e); }
 }
 
@@ -3130,20 +3130,16 @@ function buildProposalHTML(d){
   ].filter(b => resumenPorTipo[b.key] > 0);
 
 
-  // Build concept labels per tipo — each subseg listed under EVERY tipo it has lines for
+  // Build concept labels per tipo — based purely on line pagoTipo, no ss.total dependency
   const conceptosPorTipo = { unico:[], mensual:[], anual:[] };
   presupuesto.forEach(seg => {
     seg.subsegmentos.forEach(ss => {
-      const lines = (ss.lines||[]).filter(l => l.type === 'concepto');
-      if(!lines.length) return;
-      const ssTotal = parseFloat((ss.total||'').toString().replace(moneda,'').replace(/[^0-9.\-]/g,''));
-      if(isNaN(ssTotal) || ssTotal <= 0) return;
-      // Collect which tipos this subseg actually has lines for
       const tiposPresentes = new Set();
-      lines.forEach(l => tiposPresentes.add(l.pagoTipo || 'unico'));
-      // Label: always include both seg name and subseg name for clarity
+      (ss.lines||[]).forEach(l => {
+        if(l.type === 'concepto') tiposPresentes.add(l.pagoTipo || 'unico');
+      });
+      if(!tiposPresentes.size) return;
       const label = `${seg.name} · ${ss.name}`;
-      // Add to each tipo bucket this subseg participates in (no cross-tipo dedup)
       tiposPresentes.forEach(tipo => {
         if(!conceptosPorTipo[tipo].includes(label))
           conceptosPorTipo[tipo].push(label);
@@ -4060,12 +4056,9 @@ function buildPresentacionHTML(d){
   const presConcepByTipo = {unico:[], mensual:[], anual:[]};
   presupuesto.forEach(seg => {
     seg.subsegmentos.forEach(ss => {
-      const lines = (ss.lines||[]).filter(l => l.type==='concepto');
-      if(!lines.length) return;
-      const ssTotal = parseFloat((ss.total||'').toString().replace(moneda,'').replace(/[^0-9.\-]/g,''));
-      if(isNaN(ssTotal) || ssTotal <= 0) return;
       const tiposPresentes = new Set();
-      lines.forEach(l => tiposPresentes.add(l.pagoTipo || 'unico'));
+      (ss.lines||[]).filter(l => l.type==='concepto').forEach(l => tiposPresentes.add(l.pagoTipo || 'unico'));
+      if(!tiposPresentes.size) return;
       const label = `${seg.name} · ${ss.name}`;
       tiposPresentes.forEach(tipo => {
         if(!presConcepByTipo[tipo].includes(label))
@@ -4773,6 +4766,75 @@ async function cargarDesdeHistorial(url, filename){
   }
 }
 
+async function pedirTokenYGuardar(){
+  if(_histToken){
+    guardarEnHistorial();
+    return;
+  }
+  // Show small modal asking for token
+  const overlay = document.createElement('div');
+  overlay.className = 'hist-overlay';
+  overlay.id = 'hist-token-overlay';
+  overlay.innerHTML = `
+    <div class="hist-modal" style="max-height:260px;">
+      <div class="hist-head">
+        <div class="hist-head-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;color:var(--accd);">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+            <polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
+          </svg>
+          Guardar en historial
+        </div>
+        <button onclick="document.getElementById('hist-token-overlay')?.remove()" style="background:none;border:none;cursor:pointer;color:var(--soft);padding:4px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:15px;height:15px;"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="hist-pin">
+        <div class="hist-pin-label">Token de GitHub para guardar la propuesta</div>
+        <div style="font-size:11.5px;color:var(--soft);margin-bottom:10px;">Quedará guardado para esta sesión — no tendrás que pegarlo de nuevo.</div>
+        <div class="hist-pin-row">
+          <input type="password" id="hist-save-token" class="hist-pin-input" placeholder="ghp_…" autocomplete="off"
+            onkeydown="if(event.key==='Enter') confirmarTokenYGuardar()">
+          <button class="btn-gen" style="padding:0 16px;font-size:13px;white-space:nowrap;" onclick="confirmarTokenYGuardar()">Guardar</button>
+        </div>
+        <div id="hist-save-error" style="color:#e05;font-size:12px;margin-top:8px;display:none;"></div>
+        <div style="margin-top:10px;">
+          <button onclick="document.getElementById('hist-token-overlay')?.remove()" 
+            style="background:none;border:none;cursor:pointer;color:var(--soft);font-size:12px;text-decoration:underline;padding:0;">
+            Omitir por ahora
+          </button>
+        </div>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  setTimeout(() => document.getElementById('hist-save-token')?.focus(), 80);
+}
+
+async function confirmarTokenYGuardar(){
+  const input = document.getElementById('hist-save-token');
+  const error = document.getElementById('hist-save-error');
+  const token = input?.value?.trim() || '';
+  if(!token || !token.startsWith('ghp_')){
+    if(error){ error.textContent='El token debe comenzar con ghp_'; error.style.display='block'; }
+    return;
+  }
+  // Validate token
+  try {
+    const res = await fetch(`https://api.github.com/repos/${HIST_REPO}`, {
+      headers:{'Authorization':`token ${token}`,'Accept':'application/json'}
+    });
+    if(!res.ok) throw new Error('Token inválido');
+    const repo = await res.json();
+    if(!repo.permissions?.push && !repo.permissions?.admin) throw new Error('Sin permisos de escritura');
+    _histToken = token;
+    document.getElementById('hist-token-overlay')?.remove();
+    showToast('✅ Token guardado · Guardando en historial…');
+    guardarEnHistorial();
+  } catch(err){
+    if(error){ error.textContent = err.message; error.style.display='block'; }
+  }
+}
+
 async function guardarEnHistorial(){
   if(!_histToken) return; // No token this session — skip silently
   try {
@@ -4800,7 +4862,9 @@ async function guardarEnHistorial(){
       headers:{'Authorization':`token ${_histToken}`,'Content-Type':'application/json','Accept':'application/json'},
       body: JSON.stringify(payload)
     });
-    if(res.ok) console.log('✅ Historial guardado:', filename);
+    if(res.ok){
+      showToast('✅ Guardado en historial: '+filename.split('/')[1].replace('.json','').replace(/_/g,' '));
+    }
   } catch(err){
     console.warn('Historial no guardado:', err.message); // Silent fail
   }
