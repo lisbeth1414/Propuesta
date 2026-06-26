@@ -3080,24 +3080,44 @@ function buildProposalHTML(d){
   ];
 
   // GRAND TOTAL
-  // RESUMEN DE INVERSIÓN — separar por tipo de pago (único / mensual / anual), calculado línea por línea
+  // RESUMEN DE INVERSIÓN — usar ss.total (ya incluye descuentos) distribuido por pagoTipo dominante
   const resumenPorTipo = { unico: 0, mensual: 0, anual: 0 };
+
   presupuesto.forEach(seg => {
     seg.subsegmentos.forEach(ss => {
-      (ss.lines||[]).forEach(l => {
+      const lines = ss.lines || [];
+      // Get the net total of this subseg (already has discounts applied)
+      const ssTotal = parseFloat((ss.total||'').toString().replace(moneda,'').replace(/[^0-9.\-]/g,''));
+      if(isNaN(ssTotal) || ssTotal <= 0) return;
+
+      // Get concepto lines to determine pagoTipo breakdown
+      const conceptoLines = lines.filter(l => l.type === 'concepto');
+      if(!conceptoLines.length) return;
+
+      // Sum gross conceptos per pagoTipo
+      const grossByTipo = { unico: 0, mensual: 0, anual: 0 };
+      conceptoLines.forEach(l => {
         const tipo = l.pagoTipo || 'unico';
-        if(l.type === 'concepto'){
-          const v = parseFloat((l.total||'').toString().replace(moneda,'').replace(/[^0-9.\-]/g,''));
-          if(!isNaN(v)) resumenPorTipo[tipo] = (resumenPorTipo[tipo]||0) + v;
-        } else if(l.type === 'descuento'){
-          // approximate: subtract the discount from its own tipo bucket if it's a fixed $ amount
-          if(l.discType === '$'){
-            const v = parseFloat((l.discVal||'').toString().replace(/[^0-9.\-]/g,''));
-            if(!isNaN(v)) resumenPorTipo[tipo] = (resumenPorTipo[tipo]||0) - v;
-          }
+        const v = parseFloat((l.total||'').toString().replace(moneda,'').replace(/[^0-9.\-]/g,''));
+        if(!isNaN(v)) grossByTipo[tipo] += v;
+      });
+      const grossTotal = Object.values(grossByTipo).reduce((a,b)=>a+b, 0);
+      if(grossTotal <= 0) return;
+
+      // Distribute ssTotal proportionally by pagoTipo weight
+      // This ensures discounts are applied proportionally across tipos
+      Object.keys(grossByTipo).forEach(tipo => {
+        if(grossByTipo[tipo] > 0){
+          const proportion = grossByTipo[tipo] / grossTotal;
+          resumenPorTipo[tipo] += ssTotal * proportion;
         }
       });
     });
+  });
+
+  // Round to 2 decimals
+  Object.keys(resumenPorTipo).forEach(k => {
+    resumenPorTipo[k] = Math.round(resumenPorTipo[k] * 100) / 100;
   });
 
   const resumenBloques = [
@@ -3684,15 +3704,26 @@ function buildPresentacionHTML(d){
   // Active addons
   const activeAddons = (addons||[]).filter(a => a.on);
 
-  // Investment summary
+  // Investment summary — use ss.total (already includes discounts), distribute by pagoTipo proportion
   const resumen = {unico:0, mensual:0, anual:0};
   presupuesto.forEach(seg => {
     seg.subsegmentos.forEach(ss => {
-      (ss.lines||[]).forEach(l => {
-        if(l.type==='concepto'){
-          const v = parseFloat((l.total||'').toString().replace(/[^0-9.\-]/g,''));
-          if(!isNaN(v)) resumen[l.pagoTipo||'unico'] += v;
-        }
+      const lines = ss.lines || [];
+      const ssTotal = parseFloat((ss.total||'').toString().replace(moneda,'').replace(/[^0-9.\-]/g,''));
+      if(isNaN(ssTotal) || ssTotal <= 0) return;
+      const conceptoLines = lines.filter(l => l.type === 'concepto');
+      if(!conceptoLines.length) return;
+      const grossByTipo = {unico:0, mensual:0, anual:0};
+      conceptoLines.forEach(l => {
+        const tipo = l.pagoTipo || 'unico';
+        const v = parseFloat((l.total||'').toString().replace(/[^0-9.\-]/g,''));
+        if(!isNaN(v)) grossByTipo[tipo] += v;
+      });
+      const grossTotal = Object.values(grossByTipo).reduce((a,b)=>a+b, 0);
+      if(grossTotal <= 0) return;
+      Object.keys(grossByTipo).forEach(tipo => {
+        if(grossByTipo[tipo] > 0)
+          resumen[tipo] += Math.round(ssTotal * (grossByTipo[tipo]/grossTotal) * 100) / 100;
       });
     });
   });
