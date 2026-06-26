@@ -442,10 +442,13 @@ input[type=color]{width:100%;height:42px;border-radius:var(--rs);border:1.5px so
     <h1>Arma la propuesta. <em>Sin esfuerzo.</em></h1>
     <p>Completa los campos, marca los módulos y add-ons del alcance, ingresa el presupuesto y descarga el HTML listo para enviar al cliente.</p>
     <div class="hero-meta">
-      <div><div class="lbl">Herramienta</div><div class="val">Configurador v3</div></div>
+      <div><div class="lbl">Herramienta</div><div class="val">Configurador v6</div></div>
       <div><div class="lbl">Producto</div><div class="val">SAP Business One</div></div>
       <div><div class="lbl">Salida</div><div class="val orange">HTML autocontenido</div></div>
-      <div><div class="lbl">Estado</div><div class="val orange">Listo para usar</div></div>
+      <div>
+        <div class="lbl">Último update</div>
+        <div class="val orange" id="version-badge" title="Fecha del último cambio en GitHub">Verificando...</div>
+      </div>
     </div>
   </div>
 </div>
@@ -4810,6 +4813,26 @@ init();
 renderPreciosTab();
 // Render video library on load
 renderVideoLib();
+// Fetch last commit timestamp from GitHub
+(async function fetchVersion(){
+  try {
+    const res = await fetch('https://api.github.com/repos/lisbeth1414/Propuesta/commits?path=configurador-v6.html&per_page=1');
+    if(!res.ok) throw new Error();
+    const data = await res.json();
+    const dateStr = data[0]?.commit?.committer?.date;
+    if(!dateStr) throw new Error();
+    const d = new Date(dateStr);
+    // Format: DD/MM/YYYY HH:MM:SS (Santo Domingo time = UTC-4)
+    const local = new Date(d.getTime() - (4 * 60 * 60 * 1000));
+    const fmt = n => String(n).padStart(2,'0');
+    const label = `${fmt(local.getUTCDate())}/${fmt(local.getUTCMonth()+1)}/${local.getUTCFullYear()} ${fmt(local.getUTCHours())}:${fmt(local.getUTCMinutes())}:${fmt(local.getUTCSeconds())}`;
+    const badge = document.getElementById('version-badge');
+    if(badge){ badge.textContent = label; badge.title = data[0]?.commit?.message || ''; }
+  } catch(e){
+    const badge = document.getElementById('version-badge');
+    if(badge) badge.textContent = 'Sin conexión';
+  }
+})();
 </script>
 </body>
 </html>
