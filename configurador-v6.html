@@ -898,14 +898,14 @@ const MODS = {
   '00':{ name:'Funciones comunes', items:['Gestión de notificaciones','Consultas formateadas (lógica personalizada)','Seguridad y control de acceso','KPIs y dashboards personalizados','Formatos de impresión estándar y personalizados','Aplicación de norma fiscal (DGII)','Gestión de aprobaciones'] },
   '01':{ name:'Compras', items:['Datos maestros de proveedores','Portafolio de productos y servicios','Compras locales','Compras internacionales','Devoluciones a proveedores','Planificación de necesidades (MRP)'] },
   '02':{ name:'Inventario', items:['Clasificación de productos (grupos de artículos)','Recuento de inventario','Grupos de unidades de medida','Gestión de precios','Recepción de productos','Traslado de mercancía entre stocks','Reportes personalizados'] },
-  '10':{ name:'Producción', items:['Órdenes de producción','Planificación de la producción (MRP)','Lista de materiales (BOM)','Órdenes de trabajo','Control de recursos y capacidades','Gestión de costos de producción','Trazabilidad de lotes en producción'] },
   '03':{ name:'Ventas y CRM', items:['Datos maestros de clientes','Gestión de oportunidades','Aplicaciones móviles SAP','Reportes personalizados de ventas'] },
   '04':{ name:'Gestión de servicios', items:['Reparaciones y garantía'] },
   '05':{ name:'Recursos humanos', items:['Carga de datos maestros de empleados'] },
   '06':{ name:'Contabilidad y finanzas', items:['Plan de cuentas','Contabilidad de costos','Gestión de activos fijos','Gestión de procesos bancarios','Gestión de efectivo','Reembolso de gastos','Reportes contables y financieros personalizados','Descuento por pronto pago','Gestión de presupuestos'] },
   '07':{ name:'Socios de negocio', items:['Prospectos','Clientes','Proveedores'] },
   '08':{ name:'Bancos / Tesorería', items:['Pagos entrantes y salientes','Depósitos'] },
-  '09':{ name:'Norma fiscal (DGII)', items:['Reportes fiscales norma 07-18','Informes IR-17, IR-2, entre otros','Formatos 606, 607, 608 y 609'] }
+  '09':{ name:'Norma fiscal (DGII)', items:['Reportes fiscales norma 07-18','Informes IR-17, IR-2, entre otros','Formatos 606, 607, 608 y 609'] },
+  '10':{ name:'Producción', items:['Órdenes de producción','Planificación de la producción (MRP)','Lista de materiales (BOM)','Órdenes de trabajo','Control de recursos y capacidades','Gestión de costos de producción','Trazabilidad de lotes en producción'] }
 };
 const DEF_MOD = {
   '00':['Gestión de notificaciones','Consultas formateadas (lógica personalizada)','Seguridad y control de acceso','KPIs y dashboards personalizados','Formatos de impresión estándar y personalizados','Aplicación de norma fiscal (DGII)','Gestión de aprobaciones'],
@@ -916,7 +916,8 @@ const DEF_MOD = {
   '06':['Plan de cuentas','Gestión de activos fijos','Gestión de procesos bancarios','Gestión de efectivo','Reembolso de gastos','Reportes contables y financieros personalizados','Gestión de presupuestos'],
   '07':['Prospectos','Clientes','Proveedores'],
   '08':['Pagos entrantes y salientes','Depósitos'],
-  '09':['Reportes fiscales norma 07-18','Informes IR-17, IR-2, entre otros','Formatos 606, 607, 608 y 609']
+  '09':['Reportes fiscales norma 07-18','Informes IR-17, IR-2, entre otros','Formatos 606, 607, 608 y 609'],
+  '10':[]
 };
 
 const ADDONS_DEF = [
@@ -2987,13 +2988,36 @@ function buildProposalHTML(d){
       return `<tr><td colspan="5" style="padding:8px 14px;border-bottom:1px solid rgba(255,255,255,.05);font-size:.82rem;color:#6B7588;font-style:italic;">${line.text}</td></tr>`;
     } else if(line.type === 'separador'){
       return `<tr><td colspan="5" style="padding:7px 14px;border-bottom:1px solid rgba(255,255,255,.05);text-align:center;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#6B7588;">${line.text||'—'}</td></tr>`;
+    } else if(line.type === 'subtotal'){
+      const val = line.computed && line.computed !== '—' ? line.computed : '';
+      return `<tr style="background:rgba(255,138,30,.06);"><td colspan="4" style="padding:10px 14px;border-bottom:1px solid rgba(255,138,30,.15);font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,138,30,.8);">${line.text||'Subtotal'}</td><td style="padding:10px 14px;border-bottom:1px solid rgba(255,138,30,.15);text-align:right;font-family:'JetBrains Mono',monospace;font-size:.92rem;font-weight:700;color:#FF8A1E;">${val}</td></tr>`;
     }
     return '';
   }
 
   const budHTML = presupuesto.map(seg => {
     const subsHTML = seg.subsegmentos.map(ss => {
-      const linesHTML = ss.lines.map(l => buildLineHTML(l, moneda)).join('');
+      // Recalculate subtotal computed values from actual line data
+      const _linesCopy = ss.lines.map((l,i,arr) => {
+        if(l.type !== 'subtotal') return l;
+        // find last subtotal index before this one
+        let prevSubIdx = -1;
+        for(let j=0;j<i;j++) if(arr[j].type==='subtotal') prevSubIdx=j;
+        // sum conceptos between prevSub and this subtotal
+        let sectionSum = 0;
+        for(let j=prevSubIdx+1;j<i;j++){
+          if(arr[j].type==='concepto'){
+            const v=parseFloat((arr[j].total||'').toString().replace(/[^0-9.\-]/g,''));
+            if(!isNaN(v)) sectionSum+=v;
+          } else if(arr[j].type==='descuento'){
+            const dtype=arr[j].discType||'%';
+            const dval=parseFloat((arr[j].discVal||'').toString().replace(/[^0-9.\-]/g,''));
+            if(!isNaN(dval)) sectionSum -= dtype==='%' ? sectionSum*(dval/100) : dval;
+          }
+        }
+        return {...l, computed: sectionSum>0 ? moneda+' '+fmtNum(sectionSum) : '—'};
+      });
+      const linesHTML = _linesCopy.map(l => buildLineHTML(l, moneda)).join('');
       const pagoLines = ss.pago ? ss.pago.split('\n').map(l=>`<p style="margin:0 0 4px;font-size:.85rem;color:#9C9CA3;">${l}</p>`).join('') : '';
       return `
         <div style="margin-bottom:20px;">
