@@ -172,10 +172,10 @@
             {
               "type": "concepto",
               "desc": "SAP B1 Cloud Professional User, SAP HANA",
-              "cant": "2",
+              "cant": "1",
               "unit": "usuario/mes",
               "punit": "91",
-              "total": "182.00",
+              "total": "91.00",
               "pagoTipo": "mensual"
             },
             {
@@ -190,8 +190,8 @@
           ],
           "pago": "100% con la firma.",
           "itbis": false,
-          "subtotal": "US$ 276.00",
-          "total": "US$ 276.00"
+          "subtotal": "US$ 185.00",
+          "total": "US$ 185.00"
         }
       ]
     },
@@ -414,7 +414,7 @@
       ]
     }
   ],
-  "grandTotal": 25626,
+  "grandTotal": 25535,
   "metodologia": {
     "duracion": "4 a 6 meses",
     "jefe": "Carlos Mendoza"
