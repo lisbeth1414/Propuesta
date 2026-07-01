@@ -504,6 +504,9 @@ input[type=color]{width:100%;height:42px;border-radius:var(--rs);border:1.5px so
     <button class="tab-btn" onclick="switchTab('t-videos')" id="btn-t-videos">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 10l4.553-2.069A1 1 0 0 1 21 8.82v6.36a1 1 0 0 1-1.447.89L15 14M3 8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z"/></svg>10 · Videos
     </button>
+    <button class="tab-btn" onclick="switchTab('t-flujo');renderFlujoCaja()" id="btn-t-flujo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>11 · Flujo de Caja
+    </button>
   </div>
 
   <!-- ===== TAB INDUSTRIA ===== -->
@@ -853,6 +856,29 @@ input[type=color]{width:100%;height:42px;border-radius:var(--rs);border:1.5px so
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
       Agregar video
     </button>
+  </div>
+
+  <!-- ===== TAB FLUJO DE CAJA ===== -->
+  <div class="tab-content" id="t-flujo">
+    <div class="sec-h">
+      <div class="kicker">11 · Flujo de Caja</div>
+      <h2>Proyección de pagos — 12 meses</h2>
+      <p>Define cuándo y en qué proporción el cliente realiza cada pago. Los mensuales se distribuyen automáticamente. Los anuales y únicos los configuras tú.</p>
+    </div>
+    <div style="background:rgba(255,138,30,.07);border:1px solid rgba(255,138,30,.2);border-radius:12px;padding:12px 18px;margin-bottom:20px;font-size:12.5px;color:var(--text2);line-height:1.55;">
+      <strong>💡 Recurrentes mensuales</strong> — se repiten automáticamente los 12 meses sin configuración.<br>
+      <strong>Anuales</strong> — selecciona el mes en que el cliente realiza el pago.<br>
+      <strong>Únicos</strong> — distribuye libremente en % por mes. Deben sumar 100%.
+    </div>
+    <div id="flujo-render">
+      <div style="padding:32px;text-align:center;color:var(--soft);font-size:13px;">
+        Activa segmentos en el Tab de Presupuesto y regresa aquí para configurar el flujo.
+      </div>
+    </div>
+    <div id="flujo-tabla-wrap" style="display:none;margin-top:24px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--soft);margin-bottom:12px;">Vista previa — tabla de flujo de caja</div>
+      <div id="flujo-tabla" style="overflow-x:auto;"></div>
+    </div>
   </div>
 
 </div><!-- /canvas -->
@@ -1448,7 +1474,7 @@ function buildSubseg(segId, ss, idx){
             Aplica ITBIS
           </label>
         </div>
-        <div class="field"><textarea id="pago-${ss.id}" style="min-height:72px;font-size:12.5px;">${ss.pago||''}</textarea></div>
+        <div class="field"><textarea id="pago-${ss.id}" style="min-height:52px;font-size:12.5px;overflow:hidden;resize:vertical;" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${ss.pago||''}</textarea></div>
       </div>
     </div>`;
 
@@ -2094,7 +2120,7 @@ function collectData(){
   };
 
   const industria = collectIndustria();
-  return { cliente, situacion, modulos, fuera, empresasData, addons, presupuesto, grandTotal, metodologia, supuestosExtra, marca, moneda, industria };
+  return { cliente, situacion, modulos, fuera, empresasData, addons, presupuesto, grandTotal, metodologia, supuestosExtra, marca, moneda, industria, flujo: collectFlujoCaja() };
 }
 
 // ======================================================
@@ -2867,6 +2893,9 @@ function aplicarDatosJSON(data){
     PRECIOS_CATS = data.precios;
     renderPreciosTab();
   }
+
+  // ---------- FLUJO DE CAJA ----------
+  if(data.flujo) aplicarFlujoCaja(data.flujo);
 }
 
 function generarPresentacion(){
@@ -3167,6 +3196,80 @@ function buildProposalHTML(d){
     </div>` : '';
 
   // GRAND TOTAL BOX — se mantiene igual (no tocar, el usuario confirmó que le gusta tal cual)
+  // FLUJO DE CAJA HTML
+  const flujoData = d.flujo || {};
+  const flujoRows = [];
+  presupuesto.forEach(seg => {
+    (seg.subsegmentos||[]).forEach(ss => {
+      const lines = (ss.lines||[]).filter(l => l.type==='concepto');
+      if(!lines.length) return;
+      const tally = {unico:0,mensual:0,anual:0};
+      lines.forEach(l => { const v=parseFloat((l.total||'').toString().replace(/[^0-9.\-]/g,'')); if(!isNaN(v)) tally[l.pagoTipo||'unico']+=v; });
+      const tipo = Object.entries(tally).sort((a,b)=>b[1]-a[1])[0][0];
+      const total = parseFloat((ss.total||'').toString().replace(moneda,'').replace(/[^0-9.\-]/g,''));
+      if(isNaN(total)||total<=0) return;
+      const months = new Array(12).fill(0);
+      const state = flujoData[ss.id];
+      if(tipo==='mensual'){ months.fill(total/12); }
+      else if(tipo==='anual'){ const m=(typeof state==='number'?state:12)-1; months[m]=total; }
+      else { const dist=Array.isArray(state)?state:[100,...new Array(11).fill(0)]; dist.forEach((p,i)=>months[i]=total*p/100); }
+      flujoRows.push({ label:`${seg.name} · ${ss.name}`, tipo, total, months });
+    });
+  });
+
+  const flujoTotalByMonth = new Array(12).fill(0);
+  flujoRows.forEach(row => row.months.forEach((v,i) => flujoTotalByMonth[i]+=v));
+  const flujoAcum = flujoTotalByMonth.reduce((acc,v,i)=>{acc.push((acc[i-1]||0)+v);return acc;},[]);
+  const typeColor = {mensual:'#5B8CCC',anual:'#9B72CF',unico:ac};
+
+  const flujoHTML = flujoRows.length ? `
+  <section style="background:#0A0A0F;padding:88px 0;margin-top:32px;" id="sflujo">
+    <div class="pg">
+      <div style="display:flex;align-items:center;gap:14px;font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:${ac2};margin-bottom:22px;" class="rev">
+        06 · Proyección financiera<span style="flex:1;height:1px;background:rgba(255,255,255,.1);display:block;"></span>
+      </div>
+      <h2 class="rev" style="font-family:'Fraunces',serif;font-weight:700;font-size:clamp(1.8rem,3vw,2.5rem);letter-spacing:-.01em;margin-bottom:10px;color:#fff;">Flujo de caja <em style="color:${ac};">proyectado</em></h2>
+      <p class="rev" style="font-size:.95rem;color:rgba(255,255,255,.5);margin-bottom:40px;max-width:640px;">Distribución estimada de pagos durante los primeros 12 meses del proyecto. Sujeto al cronograma de implementación acordado.</p>
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:11.5px;">
+          <thead>
+            <tr style="background:rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.08);">
+              <th style="padding:10px 12px;text-align:left;font-family:'JetBrains Mono',monospace;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.35);min-width:200px;">Concepto</th>
+              ${Array.from({length:12},(_,i)=>`<th style="padding:10px 8px;font-family:'JetBrains Mono',monospace;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.35);text-align:right;min-width:72px;">M${i+1}</th>`).join('')}
+              <th style="padding:10px 12px;font-family:'JetBrains Mono',monospace;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.35);text-align:right;min-width:90px;">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${flujoRows.map((row,ri)=>`
+            <tr style="border-bottom:1px solid rgba(255,255,255,.04);${ri%2===1?'background:rgba(255,255,255,.02)':''}">
+              <td style="padding:9px 12px;color:rgba(255,255,255,.75);white-space:nowrap;">
+                <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${typeColor[row.tipo]||ac};margin-right:7px;vertical-align:middle;flex-shrink:0;"></span>${row.label}
+              </td>
+              ${row.months.map(v=>`<td style="padding:9px 8px;text-align:right;font-family:'JetBrains Mono',monospace;color:${v>0?'rgba(255,255,255,.7)':'rgba(255,255,255,.12)'};">${v>0?moneda+' '+fmtNum(v):'—'}</td>`).join('')}
+              <td style="padding:9px 12px;text-align:right;font-family:'JetBrains Mono',monospace;font-weight:700;color:${ac};">${moneda} ${fmtNum(row.total)}</td>
+            </tr>`).join('')}
+          </tbody>
+          <tfoot>
+            <tr style="background:rgba(255,138,30,.08);border-top:2px solid rgba(255,138,30,.25);">
+              <td style="padding:11px 12px;font-family:'JetBrains Mono',monospace;font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:${ac};font-weight:700;">Total por mes</td>
+              ${flujoTotalByMonth.map(v=>`<td style="padding:11px 8px;text-align:right;font-family:'JetBrains Mono',monospace;font-weight:700;color:${v>0?ac:'rgba(255,255,255,.12)'};">${v>0?moneda+' '+fmtNum(v):'—'}</td>`).join('')}
+              <td style="padding:11px 12px;text-align:right;font-family:'JetBrains Mono',monospace;font-weight:700;color:#FF8A1E;">${moneda} ${fmtNum(flujoTotalByMonth.reduce((a,b)=>a+b,0))}</td>
+            </tr>
+            <tr style="background:rgba(255,255,255,.02);border-top:1px solid rgba(255,255,255,.06);">
+              <td style="padding:9px 12px;font-family:'JetBrains Mono',monospace;font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.3);">Acumulado</td>
+              ${flujoAcum.map(v=>`<td style="padding:9px 8px;text-align:right;font-family:'JetBrains Mono',monospace;color:rgba(255,255,255,.4);">${moneda} ${fmtNum(v)}</td>`).join('')}
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <div style="margin-top:20px;display:flex;gap:20px;flex-wrap:wrap;">
+        ${Object.entries(typeColor).map(([t,c])=>`<div style="display:flex;align-items:center;gap:6px;font-size:.75rem;color:rgba(255,255,255,.4);"><span style="width:8px;height:8px;border-radius:50%;background:${c};display:inline-block;"></span>${t==='unico'?'Pago único':t==='mensual'?'Recurrente mensual':'Recurrente anual'}</span></div>`).join('')}
+        <div style="font-size:.75rem;color:rgba(255,255,255,.25);">Montos en ${moneda} · Proyección referencial sujeta a cronograma</div>
+      </div>
+    </div>
+  </section>` : '';
+
   const grandHTML = grandTotal > 0 ? `
     <div style="margin-top:32px;background:linear-gradient(135deg,${acD},${shade(acD,-15)});border-radius:18px;padding:32px 36px;position:relative;overflow:hidden;">
       <div style="position:absolute;inset:0;background:radial-gradient(circle at 90% 20%,rgba(255,255,255,.1),transparent 55%);pointer-events:none;"></div>
@@ -3393,8 +3496,9 @@ body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;line-he
     <a href="#sa"><span class="sb-num">05</span>Add-ons</a>
     <a href="#smet"><span class="sb-num">06</span>Metodología</a>
     <a href="#spr"><span class="sb-num">07</span>Presupuesto</a>
-    <a href="#ste"><span class="sb-num">08</span>Términos</a>
-    <a href="#sre"><span class="sb-num">09</span>Nuestros clientes</a>
+    ${flujoRows.length ? `<a href="#sflujo"><span class="sb-num">08</span>Flujo de caja</a>` : ''}
+    <a href="#ste"><span class="sb-num">${flujoRows.length?'09':'08'}</span>Términos</a>
+    <a href="#sre"><span class="sb-num">${flujoRows.length?'10':'09'}</span>Nuestros clientes</a>
   </div>
   <div class="sb-footer">
     <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:22px;height:22px;flex-shrink:0;">
@@ -3609,6 +3713,7 @@ ${fueraHTML}
 </section>
 
 <!-- TÉRMINOS Y CONDICIONES (updated) -->
+${flujoHTML}
 <section style="background:#fff;color:#1C140E;padding:88px 0;" id="ste">
   <div class="pg">
     <div style="display:flex;align-items:center;gap:14px;font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:#C45F00;margin-bottom:22px;" class="rev">07 · Legal<span style="flex:1;height:1px;background:rgba(28,20,14,.15);display:block;"></span></div>
@@ -4578,6 +4683,280 @@ document.addEventListener('keydown', e => {
 // Persist precios in JSON save/load
 const _origCollectData = collectData;
 // patch: collectData already returns industria; we add precios via wrapper
+// ======================================================
+// ======================================================
+// FLUJO DE CAJA — Tab 11
+// ======================================================
+
+// Default distribution templates per segment id / pagoTipo
+const FLUJO_DEFAULTS = {
+  // Únicos — by segment id pattern
+  'lic-b1':    [100,0,0,0,0,0,0,0,0,0,0,0],   // Licencias B1: 100% M1
+  'lic-cco':   [100,0,0,0,0,0,0,0,0,0,0,0],   // Licencias CCO: 100% M1
+  'con-impl':  [10,30,30,30,0,0,0,0,0,0,0,0], // Consultoría: 10/30/30/30
+  'fe-impl':   [50,0,50,0,0,0,0,0,0,0,0,0],   // FE implementación: 50/50
+  'fe-int':    [0,0,0,0,0,100,0,0,0,0,0,0],   // FE integración: M6
+  'fe-trans':  [0,0,0,0,0,0,0,0,0,0,0,100],   // FE transaccional: M12
+  'dev-addons':[100,0,0,0,0,0,0,0,0,0,0,0],   // Add-ons: 100% M1
+  'sint-alcance':[50,0,50,0,0,0,0,0,0,0,0,0], // Sol. integradas: 50/50
+  'infra-hw':  [100,0,0,0,0,0,0,0,0,0,0,0],   // Infraestructura: 100% M1
+  // Anuales — default month
+  'mant-anual': 12,  // Mantenimiento: M12
+};
+
+// State: { [ssId]: number[] (12 values) or number (month for anual) }
+let flujoState = {};
+
+function renderFlujoCaja(){
+  const data = collectData();
+  const moneda = data.cliente?.moneda || 'US$';
+  const root = document.getElementById('flujo-render');
+  if(!root) return;
+
+  // Collect active subsegments with their totals and pagoTipo
+  const subsegmentos = [];
+  (data.presupuesto||[]).forEach(seg => {
+    (seg.subsegmentos||[]).forEach(ss => {
+      const lines = (ss.lines||[]).filter(l => l.type === 'concepto');
+      if(!lines.length) return;
+      // Determine dominant pagoTipo
+      const tally = {unico:0, mensual:0, anual:0};
+      lines.forEach(l => {
+        const v = parseFloat((l.total||'').toString().replace(/[^0-9.\-]/g,''));
+        if(!isNaN(v)) tally[l.pagoTipo||'unico'] += v;
+      });
+      const tipo = Object.entries(tally).sort((a,b)=>b[1]-a[1])[0][0];
+      const total = parseFloat((ss.total||'').toString().replace(moneda,'').replace(/[^0-9.\-]/g,''));
+      if(isNaN(total) || total <= 0) return;
+      subsegmentos.push({ segName: seg.name, ssId: ss.id, ssName: ss.name, tipo, total });
+    });
+  });
+
+  if(!subsegmentos.length){
+    root.innerHTML = '<div style="padding:32px;text-align:center;color:var(--soft);font-size:13px;">Agrega líneas con montos en el Tab de Presupuesto para configurar el flujo.</div>';
+    document.getElementById('flujo-tabla-wrap').style.display = 'none';
+    return;
+  }
+
+  // Initialize state for new subsegments
+  subsegmentos.forEach(({ssId, tipo}) => {
+    if(flujoState[ssId] !== undefined) return;
+    if(tipo === 'mensual'){
+      flujoState[ssId] = 'auto';
+    } else if(tipo === 'anual'){
+      flujoState[ssId] = FLUJO_DEFAULTS[ssId] || 12;
+    } else {
+      flujoState[ssId] = FLUJO_DEFAULTS[ssId] || [100,0,0,0,0,0,0,0,0,0,0,0];
+    }
+  });
+
+  let html = '';
+
+  // Group by tipo
+  const groups = [
+    { tipo:'mensual', label:'Mensuales', color:'#5B8CCC', note:'Se repite el mismo monto cada mes automáticamente.' },
+    { tipo:'anual',   label:'Anuales',   color:'#9B72CF', note:'Selecciona el mes en que se realiza el pago.' },
+    { tipo:'unico',   label:'Únicos',    color:'var(--accd)', note:'Distribuye el total en % por mes. Deben sumar 100%.' },
+  ];
+
+  groups.forEach(({tipo, label, color, note}) => {
+    const items = subsegmentos.filter(s => s.tipo === tipo);
+    if(!items.length) return;
+
+    html += `
+      <div style="margin-bottom:28px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:${color};margin-bottom:4px;display:flex;align-items:center;gap:10px;">
+          ${label} <span style="flex:1;height:1px;background:var(--border);display:block;"></span>
+        </div>
+        <div style="font-size:11.5px;color:var(--soft);margin-bottom:14px;">${note}</div>`;
+
+    items.forEach(({segName, ssId, ssName, tipo:t, total}) => {
+      const label2 = `${segName} · ${ssName}`;
+      if(t === 'mensual'){
+        const monthly = total / 12;
+        html += `
+          <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+              <div style="font-weight:600;font-size:13px;">${label2}</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:${color};">${moneda} ${fmtNum(monthly)}/mes × 12 = ${moneda} ${fmtNum(total)}</div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:4px;">
+              ${Array.from({length:12},(_,i)=>`
+                <div style="text-align:center;">
+                  <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--soft);margin-bottom:2px;">M${i+1}</div>
+                  <div style="background:rgba(91,140,204,.12);border:1px solid rgba(91,140,204,.2);border-radius:6px;padding:4px 2px;font-family:'JetBrains Mono',monospace;font-size:9px;color:${color};text-align:center;">${moneda} ${fmtNum(monthly)}</div>
+                </div>`).join('')}
+            </div>
+          </div>`;
+      } else if(t === 'anual'){
+        const selMes = typeof flujoState[ssId] === 'number' ? flujoState[ssId] : 12;
+        html += `
+          <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+              <div style="font-weight:600;font-size:13px;">${label2}</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:${color};">${moneda} ${fmtNum(total)}</div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:4px;">
+              ${Array.from({length:12},(_,i)=>{
+                const mes = i+1;
+                const sel = mes === selMes;
+                return `<div style="text-align:center;">
+                  <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--soft);margin-bottom:2px;">M${mes}</div>
+                  <button onclick="setFlujoAnual('${ssId}',${mes})" style="width:100%;background:${sel?`rgba(155,114,207,.2)`:'var(--bgs)'};border:1px solid ${sel?`rgba(155,114,207,.5)`:'var(--border)'};border-radius:6px;padding:5px 2px;font-family:'JetBrains Mono',monospace;font-size:9px;color:${sel?`#9B72CF`:'var(--soft)'};cursor:pointer;font-weight:${sel?'700':'400'};">
+                    ${sel ? `${moneda} ${fmtNum(total)}` : '—'}
+                  </button>
+                </div>`;
+              }).join('')}
+            </div>
+          </div>`;
+      } else {
+        // Único — editable % fields
+        const dist = Array.isArray(flujoState[ssId]) ? flujoState[ssId] : [100,0,0,0,0,0,0,0,0,0,0,0];
+        const suma = dist.reduce((a,b)=>a+b,0);
+        const ok = Math.abs(suma-100)<0.01;
+        html += `
+          <div style="background:var(--white);border:1px solid ${ok?'var(--border)':'rgba(255,138,30,.35)'};border-radius:12px;padding:14px 16px;margin-bottom:8px;" id="flujo-card-${ssId}">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+              <div style="font-weight:600;font-size:13px;">${label2}</div>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <span id="flujo-suma-${ssId}" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:${ok?'green':'rgba(255,138,30,1)'};">${suma.toFixed(0)}% ${ok?'✅':'⚠️ debe sumar 100%'}</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accd);">${moneda} ${fmtNum(total)}</span>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:4px;">
+              ${dist.map((pct,i)=>{
+                const monto = total * pct / 100;
+                return `<div style="text-align:center;">
+                  <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--soft);margin-bottom:2px;">M${i+1}</div>
+                  <input type="number" min="0" max="100" step="5" value="${pct}"
+                    style="width:100%;text-align:center;padding:4px 2px;border:1px solid var(--border);border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:9px;background:${pct>0?'rgba(255,138,30,.06)':'var(--bgs)'};"
+                    oninput="updateFlujoUnico('${ssId}',${i},this.value)">
+                  <div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--soft);margin-top:2px;">${pct>0?moneda+' '+fmtNum(monto):''}</div>
+                </div>`;
+              }).join('')}
+            </div>
+          </div>`;
+      }
+    });
+
+    html += '</div>';
+  });
+
+  root.innerHTML = html;
+  renderFlujoTabla(subsegmentos, moneda);
+}
+
+function setFlujoAnual(ssId, mes){
+  flujoState[ssId] = mes;
+  renderFlujoCaja();
+}
+
+function updateFlujoUnico(ssId, idx, val){
+  if(!Array.isArray(flujoState[ssId])) flujoState[ssId] = new Array(12).fill(0);
+  flujoState[ssId][idx] = parseFloat(val)||0;
+  // Update suma indicator inline
+  const dist = flujoState[ssId];
+  const suma = dist.reduce((a,b)=>a+b,0);
+  const ok = Math.abs(suma-100)<0.01;
+  const el = document.getElementById('flujo-suma-'+ssId);
+  if(el){ el.textContent = suma.toFixed(0)+'% '+(ok?'✅':'⚠️ debe sumar 100%'); el.style.color = ok?'green':'rgba(255,138,30,1)'; }
+  const card = document.getElementById('flujo-card-'+ssId);
+  if(card) card.style.borderColor = ok?'var(--border)':'rgba(255,138,30,.35)';
+  renderFlujoTabla(null, null);
+}
+
+function renderFlujoTabla(subsegmentos, moneda){
+  // If called from updateFlujoUnico, re-collect
+  if(!subsegmentos){
+    const data = collectData();
+    moneda = data.cliente?.moneda || 'US$';
+    subsegmentos = [];
+    (data.presupuesto||[]).forEach(seg => {
+      (seg.subsegmentos||[]).forEach(ss => {
+        const lines = (ss.lines||[]).filter(l => l.type==='concepto');
+        if(!lines.length) return;
+        const tally = {unico:0,mensual:0,anual:0};
+        lines.forEach(l => { const v=parseFloat((l.total||'').toString().replace(/[^0-9.\-]/g,'')); if(!isNaN(v)) tally[l.pagoTipo||'unico']+=v; });
+        const tipo = Object.entries(tally).sort((a,b)=>b[1]-a[1])[0][0];
+        const total = parseFloat((ss.total||'').toString().replace(moneda,'').replace(/[^0-9.\-]/g,''));
+        if(isNaN(total)||total<=0) return;
+        subsegmentos.push({segName:seg.name,ssId:ss.id,ssName:ss.name,tipo,total});
+      });
+    });
+  }
+
+  const wrap = document.getElementById('flujo-tabla-wrap');
+  const tableEl = document.getElementById('flujo-tabla');
+  if(!wrap||!tableEl||!subsegmentos.length){ if(wrap) wrap.style.display='none'; return; }
+  wrap.style.display = 'block';
+
+  // Build month totals
+  const monthlyByRow = subsegmentos.map(({ssId,tipo,total,segName,ssName}) => {
+    const months = new Array(12).fill(0);
+    if(tipo==='mensual'){
+      months.fill(total/12);
+    } else if(tipo==='anual'){
+      const mes = (typeof flujoState[ssId]==='number' ? flujoState[ssId] : 12) - 1;
+      months[mes] = total;
+    } else {
+      const dist = Array.isArray(flujoState[ssId]) ? flujoState[ssId] : [100,...new Array(11).fill(0)];
+      dist.forEach((pct,i) => { months[i] = total * pct/100; });
+    }
+    return {label:`${segName} · ${ssName}`, tipo, total, months};
+  });
+
+  const totalByMonth = new Array(12).fill(0);
+  monthlyByRow.forEach(row => row.months.forEach((v,i) => totalByMonth[i]+=v));
+  const acum = totalByMonth.reduce((acc,v,i)=>{acc.push((acc[i-1]||0)+v);return acc;},[]);
+  const grandTotal = totalByMonth.reduce((a,b)=>a+b,0);
+
+  const typeColor = {mensual:'#5B8CCC',anual:'#9B72CF',unico:'var(--accd)'};
+  const thStyle = 'padding:7px 8px;font-family:"JetBrains Mono",monospace;font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;';
+  const tdStyle = 'padding:6px 8px;font-family:"JetBrains Mono",monospace;font-size:10px;text-align:right;white-space:nowrap;border-bottom:1px solid rgba(255,255,255,.05);';
+
+  tableEl.innerHTML = `
+    <table style="width:100%;border-collapse:collapse;font-size:11px;background:#0F0F18;border-radius:12px;overflow:hidden;">
+      <thead>
+        <tr style="background:rgba(255,255,255,.05);">
+          <th style="${thStyle}text-align:left;color:rgba(255,255,255,.4);min-width:180px;">Concepto</th>
+          ${Array.from({length:12},(_,i)=>`<th style="${thStyle}color:rgba(255,255,255,.4);text-align:right;">M${i+1}</th>`).join('')}
+          <th style="${thStyle}color:rgba(255,255,255,.4);text-align:right;">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${monthlyByRow.map(row=>`
+          <tr>
+            <td style="${tdStyle}text-align:left;color:rgba(255,255,255,.75);">
+              <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${typeColor[row.tipo]||'#888'};margin-right:6px;vertical-align:middle;"></span>
+              ${row.label}
+            </td>
+            ${row.months.map(v=>`<td style="${tdStyle}color:${v>0?'rgba(255,255,255,.7)':'rgba(255,255,255,.15)'};">${v>0?fmtNum(v):'—'}</td>`).join('')}
+            <td style="${tdStyle}color:rgba(255,138,30,.9);font-weight:700;">${fmtNum(row.total)}</td>
+          </tr>`).join('')}
+      </tbody>
+      <tfoot>
+        <tr style="background:rgba(255,138,30,.08);border-top:1px solid rgba(255,138,30,.2);">
+          <td style="${tdStyle}text-align:left;color:rgba(255,138,30,.8);font-weight:700;">Total por mes</td>
+          ${totalByMonth.map(v=>`<td style="${tdStyle}color:rgba(255,138,30,.9);font-weight:700;">${v>0?moneda+' '+fmtNum(v):'—'}</td>`).join('')}
+          <td style="${tdStyle}color:#FF8A1E;font-weight:700;">${moneda} ${fmtNum(grandTotal)}</td>
+        </tr>
+        <tr style="background:rgba(255,255,255,.03);">
+          <td style="${tdStyle}text-align:left;color:rgba(255,255,255,.35);">Acumulado</td>
+          ${acum.map(v=>`<td style="${tdStyle}color:rgba(255,255,255,.45);">${moneda} ${fmtNum(v)}</td>`).join('')}
+          <td style="${tdStyle}"></td>
+        </tr>
+      </tfoot>
+    </table>`;
+}
+
+function collectFlujoCaja(){
+  return JSON.parse(JSON.stringify(flujoState));
+}
+
+function aplicarFlujoCaja(state){
+  if(state) flujoState = state;
+}
+
 // ======================================================
 // HISTORIAL DE PROPUESTAS — GitHub /historico/
 // ======================================================
