@@ -126,20 +126,11 @@
   "empresasData": [],
   "addons": [
     {
-      "id": "facturacion",
-      "name": "Facturación y normas locales",
+      "id": "custom-addon-1",
+      "name": "Integración con AMAZON",
       "tipo": "ceo",
       "proveedor": "",
-      "desc": "CEO creará los reportes necesarios para la fácil extracción de datos para la presentación a la DGII: reportes de compras y gastos, ventas, compras internacionales y NCF anulados, ITBIS y retenciones (IT-1, IR-17), y generación directa del archivo TXT.",
-      "on": true,
-      "video": ""
-    },
-    {
-      "id": "conciliacion",
-      "name": "Conciliación bancaria",
-      "tipo": "ceo",
-      "proveedor": "",
-      "desc": "Herramienta que permite cargar los estados bancarios digitales exportados desde cada banco (DataReservas, BHD BankOffice, Netbanking Popular, etc.) directamente al sistema, aplicando reconciliación automática, semiautomática o manual.",
+      "desc": "",
       "on": true,
       "video": ""
     },
@@ -154,12 +145,21 @@
     },
     {
       "id": "custom-addon-3",
-      "name": "Actualización de Tasa Cambiaria Automatizada",
+      "name": "Add-on CEO 3",
       "tipo": "ceo",
       "proveedor": "",
       "desc": "",
       "on": true,
       "video": ""
+    },
+    {
+      "id": "custom-addon-4",
+      "name": "SAP CUSTOMER CHECKOUT",
+      "tipo": "ceo",
+      "proveedor": "",
+      "desc": "Es una solución de software de Punto de Venta (POS) diseñada para agilizar las operaciones en comercios, restaurantes y recintos de entretenimiento. Permite gestionar ventas, pagos y programas de fidelización, sincronizando toda la información en tiempo real con sistemas ERP como SAP Business One.\n\nAlcance:\n\n-Gestión de Ventas: Permite procesar pagos, gestionar devoluciones, aplicar descuentos y manejar cupones o tarjetas de regalo.\n\n-Integración en Tiempo Real: Centraliza automáticamente los datos de ventas y clientes directamente en el back office del ERP.\n\n-Modo Offline: Garantiza la continuidad operativa. El sistema sigue procesando ventas sin conexión a internet y sincroniza la información al restablecer la red.\n\n-Control de Inventario: Actualiza el stock de mercancía al instante tras cada venta, evitando quiebres de stock",
+      "on": true,
+      "video": "https://www.youtube.com/watch?v=ee7xpcRiCgo&list=PLMXsX8qVTqtJHS1s7whHJ76tJw6uA4ykT&index=2"
     }
   ],
   "presupuesto": [
@@ -196,6 +196,29 @@
       ]
     },
     {
+      "name": "SAP Customer Checkout",
+      "subsegmentos": [
+        {
+          "name": "Licenciamiento SAP Customer Checkout",
+          "lines": [
+            {
+              "type": "concepto",
+              "desc": "SAP Customer Checkout",
+              "cant": "1",
+              "unit": "terminal/mes",
+              "punit": "85",
+              "total": "85.00",
+              "pagoTipo": "mensual"
+            }
+          ],
+          "pago": "100% Con la firma.",
+          "itbis": false,
+          "subtotal": "US$ 85.00",
+          "total": "US$ 85.00"
+        }
+      ]
+    },
+    {
       "name": "Servicio de consultoría",
       "subsegmentos": [
         {
@@ -209,78 +232,21 @@
               "punit": "75",
               "total": "13,500.00",
               "pagoTipo": "unico"
+            },
+            {
+              "type": "concepto",
+              "desc": "Servicio de Consultoría SAP Customer Checkout",
+              "cant": "90",
+              "unit": "horas/estimadas",
+              "punit": "75",
+              "total": "6,750.00",
+              "pagoTipo": "unico"
             }
           ],
           "pago": "Depósito del 10% de los servicios para dar inicio al proyecto. El resto será facturado proporcional a las horas trabajadas mensualmente por el equipo de consultoría.",
           "itbis": false,
-          "subtotal": "US$ 13,500.00",
-          "total": "US$ 13,500.00"
-        }
-      ]
-    },
-    {
-      "name": "Facturación Electrónica",
-      "subsegmentos": [
-        {
-          "name": "Facturación Electrónica RD",
-          "lines": [
-            {
-              "type": "concepto",
-              "desc": "FE · Servicio de Implementación - Rep. Dom.",
-              "cant": "1",
-              "unit": "empresa",
-              "punit": "2000",
-              "total": "2,000.00",
-              "pagoTipo": "unico"
-            },
-            {
-              "type": "descuento",
-              "desc": "Descuento Implementación FE",
-              "discType": "%",
-              "discVal": "10",
-              "pagoTipo": "unico"
-            },
-            {
-              "type": "subtotal",
-              "text": "",
-              "computed": "US$ 1,800.00"
-            },
-            {
-              "type": "separador",
-              "text": "Anualidades"
-            },
-            {
-              "type": "concepto",
-              "desc": "FE · Bolsa Transaccional - Rep. Dom.",
-              "cant": "1",
-              "unit": "año",
-              "punit": "400",
-              "total": "400.00",
-              "pagoTipo": "anual"
-            },
-            {
-              "type": "concepto",
-              "desc": "FE · Servicio de Integración - Rep. Dom.",
-              "cant": "1",
-              "unit": "año/empresa",
-              "punit": "600",
-              "total": "600.00",
-              "pagoTipo": "anual"
-            },
-            {
-              "type": "subtotal",
-              "text": "Anualidad",
-              "computed": "US$ 1,000.00"
-            },
-            {
-              "type": "texto",
-              "text": "Paquete transaccional preparado para 300 transacciones mensuales estimadas."
-            }
-          ],
-          "pago": "Implementación: 50% con el pago y 50% al ser emisor electrónico.\nAnualidad: 100% al ser emisor electrónico.",
-          "itbis": false,
-          "subtotal": "US$ 3,000.00",
-          "total": "US$ 2,700.00"
+          "subtotal": "US$ 20,250.00",
+          "total": "US$ 20,250.00"
         }
       ]
     },
@@ -333,6 +299,103 @@
       ]
     },
     {
+      "name": "Facturación Electrónica",
+      "subsegmentos": [
+        {
+          "name": "Facturación Electrónica RD",
+          "lines": [
+            {
+              "type": "separador",
+              "text": "IMPLEMENTACIÓN SAP BUSINESS ONE"
+            },
+            {
+              "type": "concepto",
+              "desc": "FE · Servicio de Implementación - Rep. Dom.",
+              "cant": "1",
+              "unit": "empresa",
+              "punit": "2000",
+              "total": "2,000.00",
+              "pagoTipo": "unico"
+            },
+            {
+              "type": "descuento",
+              "desc": "Descuento Implementación FE",
+              "discType": "%",
+              "discVal": "10",
+              "pagoTipo": "unico"
+            },
+            {
+              "type": "subtotal",
+              "text": "",
+              "computed": "US$ 1,800.00"
+            },
+            {
+              "type": "separador",
+              "text": "Anualidades"
+            },
+            {
+              "type": "concepto",
+              "desc": "FE · Bolsa Transaccional - Rep. Dom.",
+              "cant": "1",
+              "unit": "año",
+              "punit": "400",
+              "total": "400.00",
+              "pagoTipo": "anual"
+            },
+            {
+              "type": "concepto",
+              "desc": "FE · Servicio de Integración - Rep. Dom.",
+              "cant": "1",
+              "unit": "año/empresa",
+              "punit": "600",
+              "total": "600.00",
+              "pagoTipo": "anual"
+            },
+            {
+              "type": "subtotal",
+              "text": "Anualidad",
+              "computed": "US$ 1,000.00"
+            },
+            {
+              "type": "texto",
+              "text": "Paquete transaccional preparado para 300 transacciones mensuales estimadas."
+            },
+            {
+              "type": "separador",
+              "text": "IMPLEMENTACIÓN SAP CUSTOMER CHECKOUT"
+            },
+            {
+              "type": "concepto",
+              "desc": "FE · Servicio de Implementación - Rep. Dom. - CCO",
+              "cant": "1",
+              "unit": "empresa",
+              "punit": "1500",
+              "total": "1,500.00",
+              "pagoTipo": "unico"
+            },
+            {
+              "type": "subtotal",
+              "text": "Pago Único",
+              "computed": "US$ 1,500.00"
+            },
+            {
+              "type": "concepto",
+              "desc": "FE · Servicio de Integración - Rep. Dom.",
+              "cant": "1",
+              "unit": "año/empresa",
+              "punit": "600",
+              "total": "600.00",
+              "pagoTipo": "anual"
+            }
+          ],
+          "pago": "Implementación: 50% con el pago y 50% al ser emisor electrónico.\nAnualidad: 100% al ser emisor electrónico.",
+          "itbis": false,
+          "subtotal": "US$ 5,100.00",
+          "total": "US$ 4,590.00"
+        }
+      ]
+    },
+    {
       "name": "Infraestructura y equipos",
       "subsegmentos": [
         {
@@ -340,7 +403,7 @@
           "lines": [
             {
               "type": "texto",
-              "text": "Esta propuesta considera que la infraestructura utilizada será la misma que las empresas de Estados Unidos y Panamá. En caso contrario, recomendaría utilizar un servidor multitenant con un costo aproximado de 40 dólares por usuario/mes o single Tenant con un costo aproximado de 700 dólares/mes."
+              "text": "Esta propuesta considera que la infraestructura utilizada será la misma que las empresas de Estados Unidos y Panamá.\n\nEn caso contrario, recomendaría utilizar un servidor multitenant con un costo aproximado de 40 dólares por usuario/mes + un servidor para integración de B1 Integration service o single Tenant con un costo aproximado de 900 dólares/mes."
             }
           ],
           "pago": "",
@@ -351,7 +414,7 @@
       ]
     }
   ],
-  "grandTotal": 16901,
+  "grandTotal": 25626,
   "metodologia": {
     "duracion": "4 a 6 meses",
     "jefe": "Carlos Mendoza"
