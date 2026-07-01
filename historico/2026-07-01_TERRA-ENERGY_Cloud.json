@@ -144,15 +144,6 @@
       "video": ""
     },
     {
-      "id": "custom-addon-3",
-      "name": "Add-on CEO 3",
-      "tipo": "ceo",
-      "proveedor": "",
-      "desc": "",
-      "on": true,
-      "video": ""
-    },
-    {
       "id": "custom-addon-4",
       "name": "SAP CUSTOMER CHECKOUT",
       "tipo": "ceo",
