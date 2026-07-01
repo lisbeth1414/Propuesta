@@ -1,0 +1,459 @@
+{
+  "cliente": {
+    "nombre": "TERRA ENERGY",
+    "sector": "Retail y comercio",
+    "contacto": "Carlos Mendoza",
+    "telefono": "+1 (829) 383-6347",
+    "fecha": "1 de julio de 2026",
+    "validez": "31 de julio de 2026",
+    "fechaISO": "2026-07-01",
+    "validezISO": "2026-07-31",
+    "licencia": "Cloud",
+    "moneda": "US$",
+    "responsable": "Lisbeth Luzon",
+    "logo": ""
+  },
+  "situacion": [
+    "Aumento de la confiabilidad del sistema",
+    "Disminuir el trabajo manual",
+    "Disponibilidad de información financiera ágil",
+    "Integración entre el core financiero y los sistemas verticales",
+    "Unificar los sistemas de Información",
+    "Agilizar las operaciones y reportería"
+  ],
+  "modulos": {
+    "00": {
+      "name": "Funciones comunes",
+      "items": [
+        "Gestión de notificaciones",
+        "Consultas formateadas (lógica personalizada)",
+        "Seguridad y control de acceso",
+        "KPIs y dashboards personalizados",
+        "Formatos de impresión estándar y personalizados",
+        "Aplicación de norma fiscal (DGII)",
+        "Gestión de aprobaciones"
+      ],
+      "note": ""
+    },
+    "01": {
+      "name": "Compras",
+      "items": [
+        "Datos maestros de proveedores",
+        "Portafolio de productos y servicios",
+        "Compras locales",
+        "Compras internacionales",
+        "Devoluciones a proveedores",
+        "Planificación de necesidades (MRP)"
+      ],
+      "note": ""
+    },
+    "02": {
+      "name": "Inventario",
+      "items": [
+        "Clasificación de productos (grupos de artículos)",
+        "Recuento de inventario",
+        "Grupos de unidades de medida",
+        "Gestión de precios",
+        "Recepción de productos",
+        "Traslado de mercancía entre stocks",
+        "Reportes personalizados",
+        "Modelo Drop Shipping"
+      ],
+      "note": ""
+    },
+    "03": {
+      "name": "Ventas y CRM",
+      "items": [
+        "Datos maestros de clientes",
+        "Gestión de oportunidades",
+        "Reportes personalizados de ventas"
+      ],
+      "note": ""
+    },
+    "04": {
+      "name": "Gestión de servicios",
+      "items": [
+        "Reparaciones y garantía"
+      ],
+      "note": ""
+    },
+    "05": {
+      "name": "Recursos humanos",
+      "items": [
+        "Carga de datos maestros de empleados"
+      ],
+      "note": ""
+    },
+    "06": {
+      "name": "Contabilidad y finanzas",
+      "items": [
+        "Plan de cuentas",
+        "Contabilidad de costos",
+        "Gestión de activos fijos",
+        "Gestión de procesos bancarios",
+        "Gestión de efectivo",
+        "Reembolso de gastos",
+        "Reportes contables y financieros personalizados"
+      ],
+      "note": ""
+    },
+    "07": {
+      "name": "Socios de negocio",
+      "items": [
+        "Prospectos",
+        "Clientes",
+        "Proveedores"
+      ],
+      "note": ""
+    },
+    "08": {
+      "name": "Bancos / Tesorería",
+      "items": [
+        "Pagos entrantes y salientes",
+        "Depósitos"
+      ],
+      "note": ""
+    },
+    "09": {
+      "name": "Norma fiscal (DGII)",
+      "items": [
+        "Normas Fiscales estándares Panamá y Estados Unidos"
+      ],
+      "note": ""
+    }
+  },
+  "fuera": [],
+  "empresasData": [],
+  "addons": [
+    {
+      "id": "facturacion",
+      "name": "Facturación y normas locales",
+      "tipo": "ceo",
+      "proveedor": "",
+      "desc": "CEO creará los reportes necesarios para la fácil extracción de datos para la presentación a la DGII: reportes de compras y gastos, ventas, compras internacionales y NCF anulados, ITBIS y retenciones (IT-1, IR-17), y generación directa del archivo TXT.",
+      "on": true,
+      "video": ""
+    },
+    {
+      "id": "conciliacion",
+      "name": "Conciliación bancaria",
+      "tipo": "ceo",
+      "proveedor": "",
+      "desc": "Herramienta que permite cargar los estados bancarios digitales exportados desde cada banco (DataReservas, BHD BankOffice, Netbanking Popular, etc.) directamente al sistema, aplicando reconciliación automática, semiautomática o manual.",
+      "on": true,
+      "video": ""
+    },
+    {
+      "id": "custom-addon-2",
+      "name": "Certificado SSL",
+      "tipo": "ceo",
+      "proveedor": "",
+      "desc": "",
+      "on": true,
+      "video": ""
+    },
+    {
+      "id": "custom-addon-3",
+      "name": "Actualización de Tasa Cambiaria Automatizada",
+      "tipo": "ceo",
+      "proveedor": "",
+      "desc": "",
+      "on": true,
+      "video": ""
+    }
+  ],
+  "presupuesto": [
+    {
+      "name": "SAP Business One",
+      "subsegmentos": [
+        {
+          "name": "Licenciamiento",
+          "lines": [
+            {
+              "type": "concepto",
+              "desc": "SAP B1 Cloud Professional User, SAP HANA",
+              "cant": "2",
+              "unit": "usuario/mes",
+              "punit": "91",
+              "total": "182.00",
+              "pagoTipo": "mensual"
+            },
+            {
+              "type": "concepto",
+              "desc": "SAP B1 Cloud Limited User, SAP HANA",
+              "cant": "2",
+              "unit": "usuario/mes",
+              "punit": "47",
+              "total": "94.00",
+              "pagoTipo": "mensual"
+            }
+          ],
+          "pago": "100% con la firma.",
+          "itbis": false,
+          "subtotal": "US$ 276.00",
+          "total": "US$ 276.00"
+        }
+      ]
+    },
+    {
+      "name": "Servicio de consultoría",
+      "subsegmentos": [
+        {
+          "name": "Implementación SAP",
+          "lines": [
+            {
+              "type": "concepto",
+              "desc": "Servicio de Consultoría SAP Business One",
+              "cant": "180",
+              "unit": "horas/estimadas",
+              "punit": "75",
+              "total": "13,500.00",
+              "pagoTipo": "unico"
+            }
+          ],
+          "pago": "Depósito del 10% de los servicios para dar inicio al proyecto. El resto será facturado proporcional a las horas trabajadas mensualmente por el equipo de consultoría.",
+          "itbis": false,
+          "subtotal": "US$ 13,500.00",
+          "total": "US$ 13,500.00"
+        }
+      ]
+    },
+    {
+      "name": "Add-ons CEO Consultoría",
+      "subsegmentos": [
+        {
+          "name": "Addons CEO",
+          "lines": [
+            {
+              "type": "concepto",
+              "desc": "Automatización de Tasa Cambiaria",
+              "cant": "1",
+              "unit": "empresa",
+              "punit": "365",
+              "total": "365.00",
+              "pagoTipo": "anual"
+            },
+            {
+              "type": "concepto",
+              "desc": "Certificado SSL",
+              "cant": "1",
+              "unit": "dominio",
+              "punit": "60",
+              "total": "60.00",
+              "pagoTipo": "anual"
+            },
+            {
+              "type": "concepto",
+              "desc": "Conciliación Bancaria",
+              "cant": "1",
+              "unit": "empresa",
+              "punit": "2500",
+              "total": "2,500.00",
+              "pagoTipo": "unico"
+            },
+            {
+              "type": "descuento",
+              "desc": "Descuento",
+              "discType": "$",
+              "discVal": "2500",
+              "pagoTipo": "unico"
+            }
+          ],
+          "pago": "",
+          "itbis": false,
+          "subtotal": "US$ 2,925.00",
+          "total": "US$ 425.00"
+        }
+      ]
+    },
+    {
+      "name": "Facturación Electrónica",
+      "subsegmentos": [
+        {
+          "name": "Facturación Electrónica RD",
+          "lines": [
+            {
+              "type": "concepto",
+              "desc": "FE · Servicio de Implementación - Rep. Dom.",
+              "cant": "1",
+              "unit": "empresa",
+              "punit": "2000",
+              "total": "2,000.00",
+              "pagoTipo": "unico"
+            },
+            {
+              "type": "descuento",
+              "desc": "Descuento Implementación FE",
+              "discType": "%",
+              "discVal": "10",
+              "pagoTipo": "unico"
+            },
+            {
+              "type": "subtotal",
+              "text": "",
+              "computed": "US$ 1,800.00"
+            },
+            {
+              "type": "separador",
+              "text": "Anualidades"
+            },
+            {
+              "type": "concepto",
+              "desc": "FE · Bolsa Transaccional - Rep. Dom.",
+              "cant": "1",
+              "unit": "año",
+              "punit": "400",
+              "total": "400.00",
+              "pagoTipo": "anual"
+            },
+            {
+              "type": "concepto",
+              "desc": "FE · Servicio de Integración - Rep. Dom.",
+              "cant": "1",
+              "unit": "año/empresa",
+              "punit": "600",
+              "total": "600.00",
+              "pagoTipo": "anual"
+            },
+            {
+              "type": "subtotal",
+              "text": "Anualidad",
+              "computed": "US$ 1,000.00"
+            },
+            {
+              "type": "texto",
+              "text": "Paquete transaccional preparado para 300 transacciones mensuales estimadas."
+            }
+          ],
+          "pago": "Implementación: 50% con el pago y 50% al ser emisor electrónico.\nAnualidad: 100% al ser emisor electrónico.",
+          "itbis": false,
+          "subtotal": "US$ 3,000.00",
+          "total": "US$ 2,700.00"
+        }
+      ]
+    }
+  ],
+  "grandTotal": 18035.75,
+  "metodologia": {
+    "duracion": "4 a 6 meses",
+    "jefe": "Carlos Mendoza"
+  },
+  "supuestosExtra": [],
+  "marca": {
+    "color": "#FF8A1E",
+    "filename": "RD_TERRA ENERGY_Cloud"
+  },
+  "moneda": "US$",
+  "industria": {
+    "sector": "retail",
+    "video": "https://ceodo-my.sharepoint.com/personal/lisbeth_ceo_do/_layouts/15/embed.aspx?UniqueId=08872b38-ef97-4687-8037-75de2379d429&embed=%7B%22ust%22%3Afalse%2C%22hv%22%3A%22CopyEmbedCode%22%7D&referrer=StreamWebApp&referrerScenario=EmbedDialog.Create",
+    "selectedVideoId": "vid-default",
+    "videoLib": [
+      {
+        "id": "vid-default",
+        "nombre": "SAP Business One — Overview general (Default)",
+        "industria": "default",
+        "url": "https://ceodo-my.sharepoint.com/:v:/g/personal/lisbeth_ceo_do/IQA4K4cIl--HRoA3dd4jedQpAYfhpiImg7-fceX0FutRW2w?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJTdHJlYW1XZWJBcHAiLCJyZWZlcnJhbFZpZXciOiJTaGFyZURpYWxvZy1MaW5rIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXcifX0%3D&e=4oLyi9",
+        "embedUrl": "https://ceodo-my.sharepoint.com/personal/lisbeth_ceo_do/_layouts/15/embed.aspx?UniqueId=08872b38-ef97-4687-8037-75de2379d429&embed=%7B%22ust%22%3Afalse%2C%22hv%22%3A%22CopyEmbedCode%22%7D&referrer=StreamWebApp&referrerScenario=EmbedDialog.Create"
+      },
+      {
+        "id": "vid-retail",
+        "nombre": "SAP B1 — Retail / Comercio",
+        "industria": "retail",
+        "url": "https://ceodo-my.sharepoint.com/:v:/g/personal/lisbeth_ceo_do/IQCIpwK6YuRhQ7-1gcklhJ80AU10ygIVmH5nnzBiw5dHBa0?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJTdHJlYW1XZWJBcHAiLCJyZWZlcnJhbFZpZXciOiJTaGFyZURpYWxvZy1MaW5rIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXcifX0%3D&e=C9bydt",
+        "embedUrl": "https://ceodo-my.sharepoint.com/personal/lisbeth_ceo_do/_layouts/15/embed.aspx?UniqueId=ba02a788-e462-4361-bfb5-81c925849f34&embed=%7B%22ust%22%3Afalse%2C%22hv%22%3A%22CopyEmbedCode%22%7D&referrer=StreamWebApp&referrerScenario=EmbedDialog.Create"
+      }
+    ],
+    "refClients": [
+      {
+        "on": true,
+        "nombre": "Grupo Alterra",
+        "sector": "Retail · Alimenticios y ferreteros (Ferremix · Supermix)",
+        "contacto": "Alberto Pappaterra · Presidente",
+        "desc": "Implementación SAP B1 multi-empresa (Ferremix y Supermix). Consolidación financiera y operativa.",
+        "industria": "retail",
+        "logo": ""
+      },
+      {
+        "on": true,
+        "nombre": "Grupo Bonanza",
+        "sector": "Importación y distribución · Vehículos y electrodomésticos",
+        "contacto": "Gerencia General",
+        "desc": "Implementación SAP B1 para operaciones de importación, distribución y servicios post-venta.",
+        "industria": "distribucion",
+        "logo": ""
+      },
+      {
+        "on": true,
+        "nombre": "Cementos Cibao",
+        "sector": "Manufactura · Cemento y materiales de construcción",
+        "contacto": "Gerencia General",
+        "desc": "Implementación SAP B1 cubriendo producción, inventario y distribución regional.",
+        "industria": "manufactura",
+        "logo": ""
+      },
+      {
+        "on": true,
+        "nombre": "Grupo Delgado",
+        "sector": "Industria · Farmacéuticos y pinturas",
+        "contacto": "Gerencia General",
+        "desc": "Implementación SAP B1 para producción y distribución de productos farmacéuticos y pinturas.",
+        "industria": "manufactura",
+        "logo": ""
+      },
+      {
+        "on": true,
+        "nombre": "CooProHarina",
+        "sector": "Agroindustria · Industria panificadora",
+        "contacto": "Gerencia General",
+        "desc": "Implementación SAP B1 para cooperativa de producción y comercialización agroindustrial.",
+        "industria": "agroindustria",
+        "logo": ""
+      },
+      {
+        "on": true,
+        "nombre": "Jaysa Muebles",
+        "sector": "Distribución · Muebles de oficina",
+        "contacto": "Gerencia General",
+        "desc": "Implementación SAP B1 para importación y distribución de muebles corporativos.",
+        "industria": "distribucion",
+        "logo": ""
+      }
+    ],
+    "paises": {
+      "rd": true,
+      "usa": true,
+      "pr": false,
+      "gtm": true,
+      "pan": true,
+      "nic": false,
+      "hon": false,
+      "jam": false,
+      "bvi": false
+    },
+    "provincias": [
+      "Distrito Nacional",
+      "Duarte",
+      "El Seibo",
+      "Hermanas Mirabal",
+      "Hato Mayor",
+      "La Altagracia",
+      "La Romana",
+      "La Vega",
+      "María Trinidad Sánchez",
+      "Monte Plata",
+      "Monseñor Nouel",
+      "Puerto Plata",
+      "San Cristóbal",
+      "San Pedro de Macorís",
+      "Santiago",
+      "Santo Domingo",
+      "Valverde"
+    ]
+  },
+  "_historico": {
+    "fecha_entrega": "2026-07-01",
+    "version": "v6",
+    "entregado": true
+  }
+}
