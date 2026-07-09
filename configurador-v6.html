@@ -4856,7 +4856,7 @@ function renderFlujoCaja(){
       } else if(t === 'anual'){
         const selMes = typeof flujoState[ssId] === 'number' ? flujoState[ssId] : 12;
         html += `
-          <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:8px;">
+          <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:8px;" id="flujo-card-anual-${ssId}" data-total="${total}">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
               <div style="font-weight:600;font-size:13px;">${label2}</div>
               <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:${color};">${moneda} ${fmtNum(total)}</div>
@@ -4867,7 +4867,7 @@ function renderFlujoCaja(){
                 const sel = mes === selMes;
                 return `<div style="text-align:center;">
                   <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--soft);margin-bottom:2px;">M${mes}</div>
-                  <button onclick="setFlujoAnual('${ssId}',${mes})" style="width:100%;background:${sel?`rgba(155,114,207,.2)`:'var(--bgs)'};border:1px solid ${sel?`rgba(155,114,207,.5)`:'var(--border)'};border-radius:6px;padding:5px 2px;font-family:'JetBrains Mono',monospace;font-size:9px;color:${sel?`#9B72CF`:'var(--soft)'};cursor:pointer;font-weight:${sel?'700':'400'};">
+                  <button class="anual-mes-btn" data-mes="${mes}" onclick="setFlujoAnual('${ssId}',${mes})" style="width:100%;background:${sel?`rgba(155,114,207,.2)`:'var(--bgs)'};border:1px solid ${sel?`rgba(155,114,207,.5)`:'var(--border)'};border-radius:6px;padding:5px 2px;font-family:'JetBrains Mono',monospace;font-size:9px;color:${sel?`#9B72CF`:'var(--soft)'};cursor:pointer;font-weight:${sel?'700':'400'};">
                     ${sel ? `${moneda} ${fmtNum(total)}` : '—'}
                   </button>
                 </div>`;
@@ -4912,16 +4912,27 @@ function renderFlujoCaja(){
 }
 
 function setFlujoAnual(ssId, mes){
-  // Save current % values from DOM before re-render
-  document.querySelectorAll('[id^="flujo-card-"]').forEach(card => {
-    const id = card.id.replace('flujo-card-','');
-    if(Array.isArray(flujoState[id])){
-      const inputs = card.querySelectorAll('input[type="number"]');
-      inputs.forEach((inp, i) => { flujoState[id][i] = parseFloat(inp.value)||0; });
-    }
-  });
+  // Save this specific subseg's month
   flujoState[ssId] = mes;
-  renderFlujoCaja();
+
+  // Update ONLY the buttons of this specific card — no full re-render
+  const card = document.getElementById('flujo-card-anual-'+ssId);
+  if(card){
+    // Get the total for this subseg from the button's data attribute
+    const total = parseFloat(card.dataset.total||0);
+    const moneda = document.getElementById('c-moneda')?.value || 'US$';
+    card.querySelectorAll('.anual-mes-btn').forEach(btn => {
+      const btnMes = parseInt(btn.dataset.mes);
+      const sel = btnMes === mes;
+      btn.style.background = sel ? 'rgba(155,114,207,.2)' : 'var(--bgs)';
+      btn.style.borderColor = sel ? 'rgba(155,114,207,.5)' : 'var(--border)';
+      btn.style.color = sel ? '#9B72CF' : 'var(--soft)';
+      btn.style.fontWeight = sel ? '700' : '400';
+      btn.textContent = sel ? `${moneda} ${fmtNum(total)}` : '—';
+    });
+  }
+  // Just update the table
+  renderFlujoTabla(null, null);
 }
 
 function updateFlujoUnico(ssId, idx, val){
