@@ -1044,9 +1044,15 @@ const SEGS_DEF = [
   ]},
   // 4. Facturación Electrónica
   { id:'fact-elec', name:'Facturación Electrónica', subtitle:'Implementación · Integración · Transaccional', on:false, subsegmentos:[
-    { id:'fe-impl', name:'Implementación', lines:[], pago:'', nota:'' },
-    { id:'fe-int', name:'Integración', lines:[], pago:'', nota:'' },
-    { id:'fe-trans', name:'Bolsa transaccional (anual)', lines:[], pago:'Pago anual al inicio de cada período.', nota:'' }
+    { id:'fe-impl', name:'Implementación', lines:[
+      { type:'concepto', desc:'FE - Servicio de Implementación', cant:1, punit:0, total:'', pagoTipo:'unico' }
+    ], pago:'50% con el inicio de la implementación y 50% con la certificación de la DGII.', nota:'' },
+    { id:'fe-int', name:'Integración', lines:[
+      { type:'concepto', desc:'FE - Servicio de Integración', cant:1, punit:0, total:'', pagoTipo:'anual' }
+    ], pago:'100% con la certificación de la DGII.', nota:'' },
+    { id:'fe-trans', name:'Bolsa transaccional (anual)', lines:[
+      { type:'concepto', desc:'FE - Bolsa Transaccional', cant:1, punit:0, total:'', pagoTipo:'anual' }
+    ], pago:'100% del mes con la certificación de la DGII.', nota:'Bolsa transaccional: XXXXX transacciones por mes, válido para XXXXX empresa. Transacciones adicionales tienen un costo de XXXXX.' }
   ]},
   // 5. Add-ons CEO
   { id:'addons-ceo', name:'Add-ons CEO Consultoría', subtitle:'Soluciones propias', on:true, subsegmentos:[
