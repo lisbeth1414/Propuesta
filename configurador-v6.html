@@ -946,7 +946,7 @@ input[type=color]{width:100%;height:42px;border-radius:var(--rs);border:1.5px so
     <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
       <div style="font-weight:600;font-size:13px;color:var(--text);">📅 Fecha estimada de inicio del proyecto</div>
       <div style="display:flex;align-items:center;gap:8px;">
-        <select id="flujo-mes-inicio" onchange="renderFlujoTabla(null,null)" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--white);">
+        <select id="flujo-mes-inicio" onchange="renderFlujoCaja()" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--white);">
           <option value="1">Enero</option><option value="2">Febrero</option>
           <option value="3">Marzo</option><option value="4">Abril</option>
           <option value="5">Mayo</option><option value="6">Junio</option>
@@ -954,7 +954,7 @@ input[type=color]{width:100%;height:42px;border-radius:var(--rs);border:1.5px so
           <option value="9">Septiembre</option><option value="10">Octubre</option>
           <option value="11">Noviembre</option><option value="12">Diciembre</option>
         </select>
-        <input type="number" id="flujo-anio-inicio" value="2026" min="2024" max="2030" onchange="renderFlujoTabla(null,null)"
+        <input type="number" id="flujo-anio-inicio" value="2026" min="2024" max="2030" onchange="renderFlujoCaja()"
           style="width:80px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--white);">
       </div>
       <div style="font-size:12px;color:var(--soft);">M1 = el mes y año seleccionados · La tabla mostrará los meses reales.</div>
@@ -4900,8 +4900,16 @@ function renderFlujoCaja(){
           </div>`;
       } else if(t === 'anual'){
         const selMes = typeof flujoState[ssId] === 'number' ? flujoState[ssId] : 12;
-        const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-        const opts = meses.map((m,i) => '<option value="'+(i+1)+'"'+(i+1===selMes?' selected':'')+'>'+m+' (M'+(i+1)+')</option>').join('');
+        // Get start date to show real month names
+        const MESES_C = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+        const startM = parseInt(document.getElementById('flujo-mes-inicio')?.value||1);
+        const startY = parseInt(document.getElementById('flujo-anio-inicio')?.value||2026);
+        const opts = Array.from({length:12},(_,i) => {
+          const mIdx = (startM - 1 + i) % 12;
+          const y = startY + Math.floor((startM - 1 + i) / 12);
+          const label = 'M'+(i+1)+' — '+MESES_C[mIdx]+' '+y;
+          return '<option value="'+(i+1)+'"'+((i+1)===selMes?' selected':'')+'>'+label+'</option>';
+        }).join('');
         html += `
           <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:8px;">
             <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
