@@ -53,20 +53,61 @@ button{font-family:'Inter',sans-serif;}
 .tabs-nav{display:flex;gap:4px;background:var(--white);padding:8px;border-radius:var(--r);box-shadow:var(--shadowlg);margin-bottom:24px;overflow-x:auto;position:sticky;top:12px;z-index:20;border:1px solid var(--border);scrollbar-width:none;}
 .tabs-nav::-webkit-scrollbar{display:none;}
 /* ── SIDEBAR NAVIGATION ── */
-.app-layout{display:flex;min-height:calc(100vh - 160px);}
-.sidebar{width:210px;flex-shrink:0;background:var(--white);border-right:1px solid var(--border);border-radius:var(--r) 0 0 var(--r);position:sticky;top:24px;max-height:calc(100vh - 160px);overflow-y:auto;display:flex;flex-direction:column;scrollbar-width:none;}
-.sidebar::-webkit-scrollbar{display:none;}
-.sidebar-head{padding:16px 16px 10px;border-bottom:1px solid var(--border);}
-.sidebar-logo{font-family:'JetBrains Mono',monospace;font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accd);font-weight:700;}
-.sidebar-sub{font-size:.68rem;color:var(--soft);margin-top:2px;}
-.sidebar-nav{flex:1;padding:8px 0;}
-.sidebar-section{font-family:'JetBrains Mono',monospace;font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;color:var(--soft);padding:10px 16px 4px;opacity:.6;}
-.tab-btn{width:100%;padding:9px 16px;border-radius:0;font-weight:500;font-size:12px;cursor:pointer;color:var(--soft);white-space:nowrap;transition:all .15s;display:flex;align-items:center;gap:8px;border:none;background:transparent;text-align:left;}
-.tab-btn svg{width:14px;height:14px;flex-shrink:0;opacity:.6;}
+.app-layout{display:flex;min-height:calc(100vh - 160px);gap:0;}
+.sidebar{
+  width:48px;flex-shrink:0;
+  background:var(--white);border-right:1px solid var(--border);
+  border-radius:var(--r) 0 0 var(--r);
+  position:sticky;top:24px;max-height:calc(100vh - 160px);
+  overflow:hidden;display:flex;flex-direction:column;
+  transition:width .2s cubic-bezier(.4,0,.2,1);
+  z-index:50;
+}
+.sidebar:hover{width:192px;box-shadow:4px 0 24px rgba(0,0,0,.08);}
+.sidebar-head{
+  padding:12px 0;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  min-height:44px;overflow:hidden;flex-shrink:0;
+}
+.sidebar-logo{
+  font-family:'JetBrains Mono',monospace;font-size:.58rem;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--accd);
+  font-weight:700;white-space:nowrap;opacity:0;
+  transition:opacity .15s .05s;padding-left:12px;
+}
+.sidebar:hover .sidebar-logo{opacity:1;}
+.sidebar-icon-wrap{
+  width:48px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+}
+.sidebar-icon{
+  width:18px;height:18px;color:var(--accd);flex-shrink:0;
+}
+.sidebar-nav{flex:1;padding:6px 0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;}
+.sidebar-nav::-webkit-scrollbar{display:none;}
+.sidebar-section{
+  font-family:'JetBrains Mono',monospace;font-size:.5rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--soft);
+  padding:8px 0 3px 16px;opacity:0;white-space:nowrap;
+  transition:opacity .15s;
+}
+.sidebar:hover .sidebar-section{opacity:.6;}
+.tab-btn{
+  width:100%;padding:8px 0;border-radius:0;font-weight:500;font-size:11.5px;
+  cursor:pointer;color:var(--soft);white-space:nowrap;
+  transition:all .15s;display:flex;align-items:center;gap:0;
+  border:none;background:transparent;text-align:left;
+  border-right:2px solid transparent;
+}
+.tab-btn svg{width:15px;height:15px;flex-shrink:0;opacity:.55;transition:opacity .15s;
+  margin:0 auto;display:block;}
+.sidebar:hover .tab-btn svg{margin:0;margin-left:16px;margin-right:10px;}  
+.tab-btn-label{opacity:0;transition:opacity .15s .05s;font-size:11.5px;}
+.sidebar:hover .tab-btn-label{opacity:1;}
 .tab-btn:hover{color:var(--text);background:var(--bgs);}
-.tab-btn.active{color:var(--accd);background:rgba(255,138,30,.08);font-weight:700;border-right:3px solid var(--accent);}
+.tab-btn:hover svg{opacity:1;}
+.tab-btn.active{color:var(--accd);background:rgba(255,138,30,.07);border-right-color:var(--accent);}
 .tab-btn.active svg{opacity:1;}
-.tab-content-wrap{flex:1;min-width:0;padding:0 0 0 24px;}
+.tab-content-wrap{flex:1;min-width:0;padding:0 0 0 20px;}
 .tab-btn:hover{background:var(--bgs);color:var(--text);}
 .tab-btn.active{background:linear-gradient(135deg,var(--accent),var(--accd));color:white;box-shadow:0 4px 12px var(--accg);}
 .tab-btn.has-data::after{content:"•";margin-left:2px;color:var(--green);}
@@ -473,48 +514,50 @@ input[type=color]{width:100%;height:42px;border-radius:var(--rs);border:1.5px so
   <!-- ── SIDEBAR ── -->
   <nav class="sidebar">
     <div class="sidebar-head">
+      <div class="sidebar-icon-wrap">
+        <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+      </div>
       <div class="sidebar-logo">CEO Consultoría</div>
-      <div class="sidebar-sub">Configurador de Propuestas</div>
     </div>
     <div class="sidebar-nav">
       <div class="sidebar-section">Propuesta</div>
       <button class="tab-btn" onclick="switchTab('t-industria')" id="btn-t-industria">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>00 · Industria
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg><span class="tab-btn-label">00 · Industria</span>
       </button>
       <button class="tab-btn active" onclick="switchTab('t-cliente')" id="btn-t-cliente">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>01 · Cliente
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span class="tab-btn-label">01 · Cliente</span>
       </button>
       <button class="tab-btn" onclick="switchTab('t-situacion')" id="btn-t-situacion">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>02 · Situación
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span class="tab-btn-label">02 · Situación</span>
       </button>
       <button class="tab-btn" onclick="switchTab('t-modulos')" id="btn-t-modulos">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>03 · Módulos
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span class="tab-btn-label">03 · Módulos</span>
       </button>
       <button class="tab-btn" onclick="switchTab('t-empresas')" id="btn-t-empresas">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>04 · Empresas
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="tab-btn-label">04 · Empresas</span>
       </button>
       <button class="tab-btn" onclick="switchTab('t-addons')" id="btn-t-addons">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 3 7l9 5 9-5-9-5Z"/><path d="M3 12l9 5 9-5"/><path d="M3 17l9 5 9-5"/></svg>05 · Add-ons
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 3 7l9 5 9-5-9-5Z"/><path d="M3 12l9 5 9-5"/><path d="M3 17l9 5 9-5"/></svg><span class="tab-btn-label">05 · Add-ons</span>
       </button>
       <button class="tab-btn" onclick="switchTab('t-presupuesto')" id="btn-t-presupuesto">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>06 · Presupuesto
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg><span class="tab-btn-label">06 · Presupuesto</span>
       </button>
       <button class="tab-btn" onclick="switchTab('t-metodologia')" id="btn-t-metodologia">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 16l4-4 3 3 5-6"/></svg>07 · Metodología
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 16l4-4 3 3 5-6"/></svg><span class="tab-btn-label">07 · Metodología</span>
       </button>
       <div class="sidebar-section">Configuración</div>
       <button class="tab-btn" onclick="switchTab('t-marca')" id="btn-t-marca">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M16.95 7.05a7 7 0 1 0 0 9.9"/></svg>08 · Marca
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M16.95 7.05a7 7 0 1 0 0 9.9"/></svg><span class="tab-btn-label">08 · Marca</span>
       </button>
       <button class="tab-btn" onclick="switchTab('t-precios')" id="btn-t-precios">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>09 · Precios
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg><span class="tab-btn-label">09 · Precios</span>
       </button>
       <button class="tab-btn" onclick="switchTab('t-videos')" id="btn-t-videos">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 10l4.553-2.069A1 1 0 0 1 21 8.82v6.36a1 1 0 0 1-1.447.89L15 14M3 8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z"/></svg>10 · Videos
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 10l4.553-2.069A1 1 0 0 1 21 8.82v6.36a1 1 0 0 1-1.447.89L15 14M3 8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z"/></svg><span class="tab-btn-label">10 · Videos</span>
       </button>
       <div class="sidebar-section">Financiero</div>
       <button class="tab-btn" onclick="switchTab('t-flujo');renderFlujoCaja()" id="btn-t-flujo">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>11 · Flujo de Caja
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span class="tab-btn-label">11 · Flujo de Caja</span>
       </button>
     </div>
   </nav>
