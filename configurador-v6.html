@@ -4816,6 +4816,7 @@ const FLUJO_DEFAULTS = {
 
 // State: { [ssId]: number[] (12 values) or number (month for anual) }
 let flujoState = {};
+let _flujoSubsegs = null; // cached subsegmentos for renderFlujoTabla
 
 function renderFlujoCaja(){
   const data = collectData();
@@ -4859,6 +4860,9 @@ function renderFlujoCaja(){
       flujoState[ssId] = FLUJO_DEFAULTS[ssId] || [100,0,0,0,0,0,0,0,0,0,0,0];
     }
   });
+
+  // Cache subsegmentos for renderFlujoTabla
+  _flujoSubsegs = subsegmentos;
 
   let html = '';
 
@@ -5016,23 +5020,12 @@ function updateFlujoUnico(ssId, idx, val){
 }
 
 function renderFlujoTabla(subsegmentos, moneda){
-  // If called from updateFlujoUnico, re-collect
+  // Use cached subsegmentos from last renderFlujoCaja call
   if(!subsegmentos){
+    if(!_flujoSubsegs) return;
+    subsegmentos = _flujoSubsegs;
     const data = collectData();
     moneda = data.cliente?.moneda || 'US$';
-    subsegmentos = [];
-    (data.presupuesto||[]).forEach(seg => {
-      (seg.subsegmentos||[]).forEach(ss => {
-        const lines = (ss.lines||[]).filter(l => l.type==='concepto');
-        if(!lines.length) return;
-        const tally = {unico:0,mensual:0,anual:0};
-        lines.forEach(l => { const v=parseFloat((l.total||'').toString().replace(/[^0-9.\-]/g,'')); if(!isNaN(v)) tally[l.pagoTipo||'unico']+=v; });
-        const tipo = Object.entries(tally).sort((a,b)=>b[1]-a[1])[0][0];
-        const total = parseFloat((ss.total||'').toString().replace(moneda,'').replace(/[^0-9.\-]/g,''));
-        if(isNaN(total)||total<=0) return;
-        subsegmentos.push({segName:seg.name,ssId:ss.id,ssName:ss.name,tipo,total});
-      });
-    });
   }
 
   const wrap = document.getElementById('flujo-tabla-wrap');
