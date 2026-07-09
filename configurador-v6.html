@@ -4856,7 +4856,7 @@ function renderFlujoCaja(){
       } else if(t === 'anual'){
         const selMes = typeof flujoState[ssId] === 'number' ? flujoState[ssId] : 12;
         html += `
-          <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:8px;" id="flujo-card-anual-${ssId}" data-total="${total}">
+          <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:8px;" id="flujo-card-anual-${ssId}" data-total="${total}" data-ssid="${ssId}">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
               <div style="font-weight:600;font-size:13px;">${label2}</div>
               <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:${color};">${moneda} ${fmtNum(total)}</div>
@@ -4865,12 +4865,11 @@ function renderFlujoCaja(){
               ${Array.from({length:12},(_,i)=>{
                 const mes = i+1;
                 const sel = mes === selMes;
-                return `<div style="text-align:center;">
-                  <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--soft);margin-bottom:2px;">M${mes}</div>
-                  <button class="anual-mes-btn" data-mes="${mes}" onclick="setFlujoAnual('${ssId}',${mes})" style="width:100%;background:${sel?`rgba(155,114,207,.2)`:'var(--bgs)'};border:1px solid ${sel?`rgba(155,114,207,.5)`:'var(--border)'};border-radius:6px;padding:5px 2px;font-family:'JetBrains Mono',monospace;font-size:9px;color:${sel?`#9B72CF`:'var(--soft)'};cursor:pointer;font-weight:${sel?'700':'400'};">
-                    ${sel ? `${moneda} ${fmtNum(total)}` : '—'}
-                  </button>
-                </div>`;
+                return '<div style="text-align:center;">'
+                  + '<div style="font-family:\'JetBrains Mono\',monospace;font-size:9px;color:var(--soft);margin-bottom:2px;">M'+mes+'</div>'
+                  + '<button class="anual-mes-btn" data-mes="'+mes+'" onclick="setFlujoAnualBtn(this)" style="width:100%;background:'+(sel?'rgba(155,114,207,.2)':'var(--bgs)')+';border:1px solid '+(sel?'rgba(155,114,207,.5)':'var(--border)')+';border-radius:6px;padding:5px 2px;font-family:\'JetBrains Mono\',monospace;font-size:9px;color:'+(sel?'#9B72CF':'var(--soft)')+';cursor:pointer;font-weight:'+(sel?'700':'400')+'">'
+                  + (sel ? moneda+' '+fmtNum(total) : '—')
+                  + '</button></div>';
               }).join('')}
             </div>
           </div>`;
@@ -4909,6 +4908,14 @@ function renderFlujoCaja(){
 
   root.innerHTML = html;
   renderFlujoTabla(subsegmentos, moneda);
+}
+
+function setFlujoAnualBtn(btn){
+  const card = btn.closest('[data-ssid]');
+  if(!card) return;
+  const ssId = card.dataset.ssid;
+  const mes = parseInt(btn.dataset.mes);
+  setFlujoAnual(ssId, mes);
 }
 
 function setFlujoAnual(ssId, mes){
