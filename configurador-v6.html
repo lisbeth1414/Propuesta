@@ -53,17 +53,30 @@ button{font-family:'Inter',sans-serif;}
 .tabs-nav{display:flex;gap:4px;background:var(--white);padding:8px;border-radius:var(--r);box-shadow:var(--shadowlg);margin-bottom:24px;overflow-x:auto;position:sticky;top:12px;z-index:20;border:1px solid var(--border);scrollbar-width:none;}
 .tabs-nav::-webkit-scrollbar{display:none;}
 /* ── SIDEBAR NAVIGATION ── */
-.app-layout{display:flex;min-height:calc(100vh - 160px);gap:0;}
+.app-layout{display:flex;min-height:calc(100vh - 160px);gap:0;position:relative;}
 .sidebar{
   width:48px;flex-shrink:0;
   background:var(--white);border-right:1px solid var(--border);
   border-radius:var(--r) 0 0 var(--r);
   position:sticky;top:24px;max-height:calc(100vh - 160px);
-  overflow:hidden;display:flex;flex-direction:column;
-  transition:width .2s cubic-bezier(.4,0,.2,1);
-  z-index:50;
+  overflow:visible;display:flex;flex-direction:column;
+  z-index:30;
 }
-.sidebar:hover{width:192px;box-shadow:4px 0 24px rgba(0,0,0,.08);}
+/* Inner scrollable nav */
+.sidebar-inner{
+  width:48px;background:var(--white);
+  border-radius:var(--r) 0 0 var(--r);
+  display:flex;flex-direction:column;height:100%;
+  transition:width .2s cubic-bezier(.4,0,.2,1);
+  overflow:hidden;border-right:1px solid var(--border);
+  position:relative;
+}
+.sidebar:hover .sidebar-inner{
+  width:192px;
+  box-shadow:4px 0 24px rgba(0,0,0,.1);
+  position:absolute;left:0;top:0;bottom:0;
+}
+.tab-content-wrap{flex:1;min-width:0;padding:0 0 0 20px;position:relative;z-index:1;}
 .sidebar-head{
   padding:12px 0;border-bottom:1px solid var(--border);
   display:flex;align-items:center;justify-content:center;
@@ -97,6 +110,7 @@ button{font-family:'Inter',sans-serif;}
   transition:all .15s;display:flex;align-items:center;gap:0;
   border:none;background:transparent;text-align:left;
   border-right:2px solid transparent;
+  position:relative;z-index:10;
 }
 .tab-btn svg{width:15px;height:15px;flex-shrink:0;opacity:.55;transition:opacity .15s;
   margin:0 auto;display:block;}
@@ -513,6 +527,7 @@ input[type=color]{width:100%;height:42px;border-radius:var(--rs);border:1.5px so
 
   <!-- ── SIDEBAR ── -->
   <nav class="sidebar">
+    <div class="sidebar-inner">
     <div class="sidebar-head">
       <div class="sidebar-icon-wrap">
         <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
