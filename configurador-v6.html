@@ -933,9 +933,33 @@ input[type=color]{width:100%;height:42px;border-radius:var(--rs);border:1.5px so
   <div class="tab-content" id="t-flujo">
     <div class="sec-h">
       <div class="kicker">11 · Flujo de Caja</div>
-      <h2>Proyección de pagos — 12 meses</h2>
-      <p>Define cuándo y en qué proporción el cliente realiza cada pago. Los mensuales se distribuyen automáticamente. Los anuales y únicos los configuras tú.</p>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <h2 style="margin:0;">Proyección de pagos — 12 meses</h2>
+        <span style="display:inline-flex;align-items:center;gap:5px;padding:4px 12px;background:rgba(255,138,30,.12);border:1px solid rgba(255,138,30,.3);border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accd);font-weight:700;">
+          ⚠️ Estimado
+        </span>
+      </div>
+      <p style="margin-top:8px;">Define cuándo y en qué proporción el cliente realiza cada pago. Los montos son referenciales y sujetos al cronograma real del proyecto.</p>
     </div>
+
+    <!-- Fecha de inicio -->
+    <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+      <div style="font-weight:600;font-size:13px;color:var(--text);">📅 Fecha estimada de inicio del proyecto</div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <select id="flujo-mes-inicio" onchange="renderFlujoTabla(null,null)" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--white);">
+          <option value="1">Enero</option><option value="2">Febrero</option>
+          <option value="3">Marzo</option><option value="4">Abril</option>
+          <option value="5">Mayo</option><option value="6">Junio</option>
+          <option value="7">Julio</option><option value="8">Agosto</option>
+          <option value="9">Septiembre</option><option value="10">Octubre</option>
+          <option value="11">Noviembre</option><option value="12">Diciembre</option>
+        </select>
+        <input type="number" id="flujo-anio-inicio" value="2026" min="2024" max="2030" onchange="renderFlujoTabla(null,null)"
+          style="width:80px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--white);">
+      </div>
+      <div style="font-size:12px;color:var(--soft);">M1 = el mes y año seleccionados · La tabla mostrará los meses reales.</div>
+    </div>
+
     <div style="background:rgba(255,138,30,.07);border:1px solid rgba(255,138,30,.2);border-radius:12px;padding:12px 18px;margin-bottom:20px;font-size:12.5px;color:var(--text2);line-height:1.55;">
       <strong>💡 Recurrentes mensuales</strong> — se repiten automáticamente los 12 meses sin configuración.<br>
       <strong>Anuales</strong> — selecciona el mes en que el cliente realiza el pago.<br>
@@ -947,7 +971,7 @@ input[type=color]{width:100%;height:42px;border-radius:var(--rs);border:1.5px so
       </div>
     </div>
     <div id="flujo-tabla-wrap" style="display:none;margin-top:24px;">
-      <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--soft);margin-bottom:12px;">Vista previa — tabla de flujo de caja</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--soft);margin-bottom:12px;">Vista previa — flujo de caja estimado</div>
       <div id="flujo-tabla" style="overflow-x:auto;"></div>
     </div>
   </div>
@@ -2200,7 +2224,7 @@ function collectData(){
   };
 
   const industria = collectIndustria();
-  return { cliente, situacion, modulos, fuera, empresasData, addons, presupuesto, grandTotal, metodologia, supuestosExtra, marca, moneda, industria, flujo: collectFlujoCaja() };
+  return { cliente, situacion, modulos, fuera, empresasData, addons, presupuesto, grandTotal, metodologia, supuestosExtra, marca, moneda, industria, flujo: collectFlujoCaja(), flujoInicio: { mes: parseInt(document.getElementById('flujo-mes-inicio')?.value||1), anio: parseInt(document.getElementById('flujo-anio-inicio')?.value||2026) } };
 }
 
 // ======================================================
@@ -3315,7 +3339,13 @@ function buildProposalHTML(d){
           <thead>
             <tr style="background:rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.08);">
               <th style="padding:10px 12px;text-align:left;font-family:'JetBrains Mono',monospace;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.35);min-width:200px;">Concepto</th>
-              ${Array.from({length:12},(_,i)=>`<th style="padding:10px 8px;font-family:'JetBrains Mono',monospace;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.35);text-align:right;min-width:72px;">M${i+1}</th>`).join('')}
+              ${Array.from({length:12},(_,i)=>{
+                const MESES=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+                const si = d.flujoInicio || {mes:1,anio:2026};
+                const m = ((si.mes-1+i)%12);
+                const y = si.anio + Math.floor((si.mes-1+i)/12);
+                return `<th style="padding:10px 8px;font-family:'JetBrains Mono',monospace;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.35);text-align:right;min-width:72px;">${MESES[m]} ${y}</th>`;
+              }).join('')}
               <th style="padding:10px 12px;font-family:'JetBrains Mono',monospace;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.35);text-align:right;min-width:90px;">Total</th>
             </tr>
           </thead>
@@ -4834,21 +4864,21 @@ function renderFlujoCaja(){
 
   // Group by tipo
   const groups = [
-    { tipo:'mensual', label:'Mensuales', color:'#5B8CCC', note:'Se repite el mismo monto cada mes automáticamente.' },
-    { tipo:'anual',   label:'Anuales',   color:'#9B72CF', note:'Selecciona el mes en que se realiza el pago.' },
-    { tipo:'unico',   label:'Únicos',    color:'var(--accd)', note:'Distribuye el total en % por mes. Deben sumar 100%.' },
+    { tipo:'mensual', label:'💳 Recurrentes mensuales', color:'#5B8CCC', bg:'rgba(91,140,204,.08)', border:'rgba(91,140,204,.25)', note:'Se repite el mismo monto cada mes automáticamente.' },
+    { tipo:'anual',   label:'📅 Anuales',               color:'#9B72CF', bg:'rgba(155,114,207,.08)', border:'rgba(155,114,207,.25)', note:'Selecciona el mes proyectado en que el cliente realiza el pago.' },
+    { tipo:'unico',   label:'💰 Pagos únicos',          color:'var(--accd)', bg:'rgba(255,138,30,.06)', border:'rgba(255,138,30,.2)', note:'Distribuye el total en % por mes. Deben sumar 100%.' },
   ];
 
-  groups.forEach(({tipo, label, color, note}) => {
+  groups.forEach(({tipo, label, color, bg, border, note}) => {
     const items = subsegmentos.filter(s => s.tipo === tipo);
     if(!items.length) return;
 
     html += `
-      <div style="margin-bottom:28px;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:${color};margin-bottom:4px;display:flex;align-items:center;gap:10px;">
-          ${label} <span style="flex:1;height:1px;background:var(--border);display:block;"></span>
-        </div>
-        <div style="font-size:11.5px;color:var(--soft);margin-bottom:14px;">${note}</div>`;
+      <div style="margin-bottom:24px;">
+        <div style="background:${bg};border:1px solid ${border};border-radius:10px;padding:10px 16px;margin-bottom:10px;">
+          <div style="font-weight:700;font-size:13px;color:${color};margin-bottom:2px;">${label}</div>
+          <div style="font-size:11.5px;color:var(--soft);">${note}</div>
+        </div>`;
 
     items.forEach(({segName, ssId, ssName, tipo:t, total}) => {
       const label2 = `${segName} · ${ssName}`;
@@ -5025,12 +5055,22 @@ function renderFlujoTabla(subsegmentos, moneda){
   const thStyle = 'padding:7px 8px;font-family:"JetBrains Mono",monospace;font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;';
   const tdStyle = 'padding:6px 8px;font-family:"JetBrains Mono",monospace;font-size:10px;text-align:right;white-space:nowrap;border-bottom:1px solid rgba(255,255,255,.05);';
 
+  // Get real start date from fields
+  const MESES_NOMBRES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  const startMes = parseInt(document.getElementById('flujo-mes-inicio')?.value || 1);
+  const startAnio = parseInt(document.getElementById('flujo-anio-inicio')?.value || 2026);
+  const getMesHeader = (i) => {
+    const m = ((startMes - 1 + i) % 12);
+    const y = startAnio + Math.floor((startMes - 1 + i) / 12);
+    return MESES_NOMBRES[m] + ' ' + y;
+  };
+
   tableEl.innerHTML = `
     <table style="width:100%;border-collapse:collapse;font-size:11px;background:#0F0F18;border-radius:12px;overflow:hidden;color:#fff;">
       <thead>
         <tr style="background:rgba(255,255,255,.05);">
           <th style="${thStyle}text-align:left;color:rgba(255,255,255,.4);min-width:180px;">Concepto</th>
-          ${Array.from({length:12},(_,i)=>`<th style="${thStyle}color:rgba(255,255,255,.4);text-align:right;">M${i+1}</th>`).join('')}
+          ${Array.from({length:12},(_,i)=>`<th style="${thStyle}color:rgba(255,255,255,.4);text-align:right;">${getMesHeader(i)}</th>`).join('')}
           <th style="${thStyle}color:rgba(255,255,255,.4);text-align:right;">Total</th>
         </tr>
       </thead>
