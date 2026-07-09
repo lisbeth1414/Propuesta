@@ -4917,7 +4917,7 @@ function renderFlujoCaja(){
               <div style="display:flex;align-items:center;gap:12px;">
                 <div>
                   <label style="font-size:11px;color:var(--soft);margin-right:6px;">Mes de pago:</label>
-                  <select onchange="setFlujoAnualSelect(this,'${ssId}')"
+                  <select data-ssid="${ssId}" onchange="setFlujoAnualSelect(this)"
                     style="padding:5px 8px;border:1px solid var(--border);border-radius:8px;font-size:12px;background:var(--white);color:#9B72CF;font-weight:600;cursor:pointer;">
                     ${opts}
                   </select>
@@ -4963,7 +4963,8 @@ function renderFlujoCaja(){
   renderFlujoTabla(subsegmentos, moneda);
 }
 
-function setFlujoAnualSelect(sel, ssId){
+function setFlujoAnualSelect(sel){
+  const ssId = sel.dataset.ssid;
   flujoState[ssId] = parseInt(sel.value);
   renderFlujoTabla(null, null);
 }
