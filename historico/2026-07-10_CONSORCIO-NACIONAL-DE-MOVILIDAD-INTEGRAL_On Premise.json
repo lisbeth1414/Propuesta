@@ -340,8 +340,8 @@
   ],
   "grandTotal": 53103.67,
   "metodologia": {
-    "duracion": "5 a 6 meses",
-    "jefe": ""
+    "duracion": "2 a 3 meses",
+    "jefe": "ILEANA MERCEDES"
   },
   "supuestosExtra": [],
   "marca": {
@@ -350,7 +350,7 @@
   },
   "moneda": "US$",
   "industria": {
-    "sector": "",
+    "sector": "construccion",
     "video": "https://ceodo-my.sharepoint.com/personal/lisbeth_ceo_do/_layouts/15/embed.aspx?UniqueId=08872b38-ef97-4687-8037-75de2379d429&embed=%7B%22ust%22%3Afalse%2C%22hv%22%3A%22CopyEmbedCode%22%7D&referrer=StreamWebApp&referrerScenario=EmbedDialog.Create",
     "selectedVideoId": "vid-default",
     "videoLib": [
@@ -456,9 +456,7 @@
       "Valverde"
     ]
   },
-  "flujo": {
-    "undefined": 1
-  },
+  "flujo": {},
   "flujoInicio": {
     "mes": 7,
     "anio": 2026
