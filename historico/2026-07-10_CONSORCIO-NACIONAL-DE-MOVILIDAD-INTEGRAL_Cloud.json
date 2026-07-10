@@ -151,25 +151,25 @@
               "type": "concepto",
               "desc": "SAP B1 Cloud Professional User",
               "cant": "2",
-              "unit": "usuario/mes",
-              "punit": "91",
-              "total": "182.00",
-              "pagoTipo": "mensual"
+              "unit": "usuario/año",
+              "punit": "1092",
+              "total": "2,184.00",
+              "pagoTipo": "anual"
             },
             {
               "type": "concepto",
               "desc": "SAP B1 Cloud Limited User",
               "cant": "24",
-              "unit": "usuario/mes",
-              "punit": "47",
-              "total": "1,128.00",
-              "pagoTipo": "mensual"
+              "unit": "usuario/año",
+              "punit": "584",
+              "total": "14,016.00",
+              "pagoTipo": "anual"
             }
           ],
           "pago": "Licenciamiento Suscripción:\n100% con la firma\n",
           "itbis": false,
-          "subtotal": "US$ 1,310.00",
-          "total": "US$ 1,310.00"
+          "subtotal": "US$ 16,200.00",
+          "total": "US$ 16,200.00"
         }
       ]
     },
@@ -297,36 +297,9 @@
           "total": "US$ 365.00"
         }
       ]
-    },
-    {
-      "name": "Infraestructura y equipos",
-      "subsegmentos": [
-        {
-          "name": "Infraestructura AZURE - OPCIONAL",
-          "lines": [
-            {
-              "type": "concepto",
-              "desc": "Infraestructura Azure - hasta 25 usuarios recurrentes",
-              "cant": "1",
-              "unit": "infraestructura",
-              "punit": "900",
-              "total": "900.00",
-              "pagoTipo": "mensual"
-            },
-            {
-              "type": "texto",
-              "text": "Mensualidad estimada. \n\nQueda abierta la capacidad de tener infraestructura física, como SANESTO."
-            }
-          ],
-          "pago": "100% con la firma.",
-          "itbis": false,
-          "subtotal": "US$ 900.00",
-          "total": "US$ 900.00"
-        }
-      ]
     }
   ],
-  "grandTotal": 24273.67,
+  "grandTotal": 49063.67,
   "metodologia": {
     "duracion": "5 a 6 meses",
     "jefe": ""
