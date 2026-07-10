@@ -971,7 +971,16 @@ input[type=color]{width:100%;height:42px;border-radius:var(--rs);border:1.5px so
       </div>
     </div>
     <div id="flujo-tabla-wrap" style="display:none;margin-top:24px;">
-      <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--soft);margin-bottom:12px;">Vista previa — flujo de caja estimado</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--soft);">Vista previa — flujo de caja estimado</div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2);cursor:pointer;">
+          <div class="toggle-wrap">
+            <span id="flujo-include-txt">No incluir en propuesta</span>
+            <button class="toggle" id="flujo-include-toggle" onclick="toggleFlujoEnPropuesta()"></button>
+          </div>
+          Incluir en propuesta generada
+        </label>
+      </div>
       <div id="flujo-tabla" style="overflow-x:auto;"></div>
     </div>
   </div>
@@ -2224,7 +2233,7 @@ function collectData(){
   };
 
   const industria = collectIndustria();
-  return { cliente, situacion, modulos, fuera, empresasData, addons, presupuesto, grandTotal, metodologia, supuestosExtra, marca, moneda, industria, flujo: collectFlujoCaja(), flujoInicio: { mes: parseInt(document.getElementById('flujo-mes-inicio')?.value||1), anio: parseInt(document.getElementById('flujo-anio-inicio')?.value||2026) } };
+  return { cliente, situacion, modulos, fuera, empresasData, addons, presupuesto, grandTotal, metodologia, supuestosExtra, marca, moneda, industria, flujo: collectFlujoCaja(), flujoInicio: { mes: parseInt(document.getElementById('flujo-mes-inicio')?.value||1), anio: parseInt(document.getElementById('flujo-anio-inicio')?.value||2026) }, flujoEnPropuesta: getFlujoEnPropuesta() };
 }
 
 // ======================================================
@@ -3326,7 +3335,7 @@ function buildProposalHTML(d){
   const flujoAcum = flujoTotalByMonth.reduce((acc,v,i)=>{acc.push((acc[i-1]||0)+v);return acc;},[]);
   const typeColor = {mensual:'#5B8CCC',anual:'#9B72CF',unico:ac};
 
-  const flujoHTML = flujoRows.length ? `
+  const flujoHTML = (flujoRows.length && d.flujoEnPropuesta) ? `
   <section style="background:#0A0A0F;padding:88px 0;margin-top:32px;" id="sflujo">
     <div class="pg">
       <div style="display:flex;align-items:center;gap:14px;font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:${ac2};margin-bottom:22px;" class="rev">
@@ -5009,6 +5018,18 @@ function renderFlujoCaja(){
   });
 
   renderFlujoTabla(subsegmentos, moneda);
+}
+
+function toggleFlujoEnPropuesta(){
+  const btn = document.getElementById('flujo-include-toggle');
+  const txt = document.getElementById('flujo-include-txt');
+  if(!btn) return;
+  const on = btn.classList.toggle('on');
+  if(txt) txt.textContent = on ? 'Incluir en propuesta' : 'No incluir en propuesta';
+}
+
+function getFlujoEnPropuesta(){
+  return document.getElementById('flujo-include-toggle')?.classList.contains('on') || false;
 }
 
 function setFlujoAnualSelect(sel){
