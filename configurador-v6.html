@@ -4903,33 +4903,34 @@ function renderFlujoCaja(){
             </div>
           </div>`;
       } else if(t === 'anual'){
-        const selMes = typeof flujoState[ssId] === 'number' ? flujoState[ssId] : 12;
-        // Get start date to show real month names
+        const _ssId = String(ssId); // explicit local copy to avoid template literal scope issue
+        const selMes = typeof flujoState[_ssId] === 'number' ? flujoState[_ssId] : 12;
         const MESES_C = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
         const startM = parseInt(document.getElementById('flujo-mes-inicio')?.value||1);
         const startY = parseInt(document.getElementById('flujo-anio-inicio')?.value||2026);
-        const opts = Array.from({length:12},(_,i) => {
+        let opts = '';
+        for(let i=0;i<12;i++){
           const mIdx = (startM - 1 + i) % 12;
           const y = startY + Math.floor((startM - 1 + i) / 12);
-          const label = 'M'+(i+1)+' — '+MESES_C[mIdx]+' '+y;
-          return '<option value="'+(i+1)+'"'+((i+1)===selMes?' selected':'')+'>'+label+'</option>';
-        }).join('');
-        html += `
-          <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:8px;">
-            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-              <div style="font-weight:600;font-size:13px;">${label2}</div>
-              <div style="display:flex;align-items:center;gap:12px;">
-                <div>
-                  <label style="font-size:11px;color:var(--soft);margin-right:6px;">Mes de pago:</label>
-                  <select data-ssid="${ssId}" onchange="setFlujoAnualSelect(this)"
-                    style="padding:5px 8px;border:1px solid var(--border);border-radius:8px;font-size:12px;background:var(--white);color:#9B72CF;font-weight:600;cursor:pointer;">
-                    ${opts}
-                  </select>
-                </div>
-                <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:${color};font-weight:700;">${moneda} ${fmtNum(total)}</div>
-              </div>
-            </div>
-          </div>`;
+          const lbl = 'M'+(i+1)+' — '+MESES_C[mIdx]+' '+y;
+          const sel2 = (i+1)===selMes ? ' selected' : '';
+          opts += '<option value="'+(i+1)+'"'+sel2+'>'+lbl+'</option>';
+        }
+        const anualDiv = document.createElement('div');
+        anualDiv.style.cssText = 'background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:8px;';
+        anualDiv.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">'
+          + '<div style="font-weight:600;font-size:13px;">'+label2+'</div>'
+          + '<div style="display:flex;align-items:center;gap:12px;">'
+          + '<div><label style="font-size:11px;color:var(--soft);margin-right:6px;">Mes de pago:</label>'
+          + '<select style="padding:5px 8px;border:1px solid var(--border);border-radius:8px;font-size:12px;background:var(--white);color:#9B72CF;font-weight:600;cursor:pointer;">'+opts+'</select></div>'
+          + '<div style="font-family:\'JetBrains Mono\',monospace;font-size:12px;color:'+color+';font-weight:700;">'+moneda+' '+fmtNum(total)+'</div>'
+          + '</div></div>';
+        // Attach event listener directly — no string interpolation
+        const selectEl = anualDiv.querySelector('select');
+        selectEl.addEventListener('change', (function(id){ return function(){ flujoState[id]=parseInt(this.value); renderFlujoTabla(null,null); }; })(_ssId));
+        root.appendChild(anualDiv);
+        // Skip html += for this one since we appended directly
+        if(false){ html += ''; }
       } else {
         // Único — editable % fields
         const dist = Array.isArray(flujoState[ssId]) ? flujoState[ssId] : [100,0,0,0,0,0,0,0,0,0,0,0];
