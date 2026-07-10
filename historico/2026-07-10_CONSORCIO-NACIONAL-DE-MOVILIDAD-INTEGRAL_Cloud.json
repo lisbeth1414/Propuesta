@@ -297,6 +297,33 @@
           "total": "US$ 365.00"
         }
       ]
+    },
+    {
+      "name": "Infraestructura y equipos",
+      "subsegmentos": [
+        {
+          "name": "Infraestructura AZURE - OPCIONAL",
+          "lines": [
+            {
+              "type": "concepto",
+              "desc": "Infraestructura Azure - hasta 25 usuarios recurrentes",
+              "cant": "1",
+              "unit": "infraestructura",
+              "punit": "0",
+              "total": "10800",
+              "pagoTipo": "anual"
+            },
+            {
+              "type": "texto",
+              "text": "Anualidad estimada. \n\nQueda abierta la capacidad de tener infraestructura física, como SANESTO."
+            }
+          ],
+          "pago": "100% con la firma.",
+          "itbis": true,
+          "subtotal": "—",
+          "total": "—"
+        }
+      ]
     }
   ],
   "grandTotal": 38263.67,
