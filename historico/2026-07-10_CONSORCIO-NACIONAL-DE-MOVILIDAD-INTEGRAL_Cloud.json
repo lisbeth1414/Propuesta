@@ -309,8 +309,8 @@
               "desc": "Infraestructura Azure - hasta 25 usuarios recurrentes",
               "cant": "1",
               "unit": "infraestructura",
-              "punit": "0",
-              "total": "10800",
+              "punit": "10800",
+              "total": "10,800.00",
               "pagoTipo": "anual"
             },
             {
@@ -320,13 +320,13 @@
           ],
           "pago": "100% con la firma.",
           "itbis": true,
-          "subtotal": "—",
-          "total": "—"
+          "subtotal": "US$ 10,800.00",
+          "total": "US$ 10,800.00"
         }
       ]
     }
   ],
-  "grandTotal": 38263.67,
+  "grandTotal": 49063.67,
   "metodologia": {
     "duracion": "2 a 3 meses",
     "jefe": "ILEANA MERCEDEZ"
