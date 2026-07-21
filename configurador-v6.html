@@ -4903,16 +4903,17 @@ function renderFlujoCaja(){
           + '<div style="font-family:JetBrains Mono,monospace;font-size:12px;color:'+color+';">'+moneda+' '+fmtNum(monthly)+'/mes × 12 = '+moneda+' '+fmtNum(total)+'</div>'
           + '</div></div>';
       } else if(t === 'anual'){
-        // Simple approach: input with position-based id
-        const inputId = 'flujo-anual-input-' + itemIdx;
+        // Store ssId as plain text in a hidden element — no JS variable needed
         const curMes = typeof flujoState[ssId] === 'number' ? flujoState[ssId] : 12;
+        const inputId = 'flujo-anual-input-' + itemIdx;
+        const ssIdSafe = ssId.replace(/[^a-zA-Z0-9\-_]/g, '');
         html += '<div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:8px;">'
+          + '<span style="display:none;" class="flujo-ssid-store">'+ssIdSafe+'</span>'
           + '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">'
           + '<div style="font-weight:600;font-size:13px;">'+label2+'</div>'
           + '<div style="display:flex;align-items:center;gap:10px;">'
           + '<label style="font-size:11px;color:var(--soft);">Mes (1–12):</label>'
           + '<input type="number" id="'+inputId+'" min="1" max="12" value="'+curMes+'"'
-          + ' data-ssid-idx="'+itemIdx+'"'
           + ' style="width:60px;padding:5px 8px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:JetBrains Mono,monospace;font-weight:700;color:#9B72CF;text-align:center;"'
           + ' oninput="updateFlujoAnual(this)">'
           + '<div style="font-family:JetBrains Mono,monospace;font-size:12px;color:'+color+';font-weight:700;">'+moneda+' '+fmtNum(total)+'</div>'
@@ -4967,11 +4968,10 @@ function getFlujoEnPropuesta(){
 }
 
 function updateFlujoAnual(input){
-  // Read position index from data attribute, look up ssId from cached subsegmentos
-  const idx = parseInt(input.getAttribute('data-ssid-idx'));
-  const annuals = (_flujoSubsegs||[]).filter(s => s.tipo === 'anual');
-  if(idx >= 0 && idx < annuals.length){
-    const ssId = annuals[idx].ssId;
+  // Read ssId from hidden span inside the same card
+  const card = input.closest('div[style*="border-radius:12px"]');
+  const ssId = card ? card.querySelector('.flujo-ssid-store')?.textContent?.trim() : null;
+  if(ssId){
     flujoState[ssId] = parseInt(input.value)||1;
     renderFlujoTabla(null, null);
   }
