@@ -4893,32 +4893,30 @@ function renderFlujoCaja(){
           <div style="font-size:11.5px;color:var(--soft);">${note}</div>
         </div>`;
 
-    items.forEach(({segName, ssId, ssName, tipo:t, total}) => {
-      const label2 = `${segName} · ${ssName}`;
+    items.forEach(({segName, ssId, ssName, tipo:t, total}, itemIdx) => {
+      const label2 = segName + ' · ' + ssName;
       if(t === 'mensual'){
         const monthly = total / 12;
-        html += `
-          <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:8px;">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-              <div style="font-weight:600;font-size:13px;">${label2}</div>
-              <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:${color};">${moneda} ${fmtNum(monthly)}/mes × 12 = ${moneda} ${fmtNum(total)}</div>
-            </div>
-            <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:4px;">
-              ${Array.from({length:12},(_,i)=>`
-                <div style="text-align:center;">
-                  <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--soft);margin-bottom:2px;">M${i+1}</div>
-                  <div style="background:rgba(91,140,204,.12);border:1px solid rgba(91,140,204,.2);border-radius:6px;padding:4px 2px;font-family:'JetBrains Mono',monospace;font-size:9px;color:${color};text-align:center;">${moneda} ${fmtNum(monthly)}</div>
-                </div>`).join('')}
-            </div>
-          </div>`;
+        html += '<div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:8px;">'
+          + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">'
+          + '<div style="font-weight:600;font-size:13px;">'+label2+'</div>'
+          + '<div style="font-family:JetBrains Mono,monospace;font-size:12px;color:'+color+';">'+moneda+' '+fmtNum(monthly)+'/mes × 12 = '+moneda+' '+fmtNum(total)+'</div>'
+          + '</div></div>';
       } else if(t === 'anual'){
-        const _ssId = String(ssId);
-        const selMes = typeof flujoState[_ssId] === 'number' ? flujoState[_ssId] : 12;
-        const MESES_C = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-        const startM = parseInt(document.getElementById('flujo-mes-inicio')?.value||1);
-        const startY = parseInt(document.getElementById('flujo-anio-inicio')?.value||2026);
-        // Use placeholder — will be replaced after root.innerHTML is set
-        html += '<div data-anual-placeholder="'+_ssId+'" data-selmес="'+selMes+'" data-startm="'+startM+'" data-starty="'+startY+'" data-total="'+total+'" data-label="'+label2.replace(/"/g,'&quot;')+'" data-color="'+color+'" data-moneda="'+moneda+'"></div>';
+        // Simple approach: input with position-based id
+        const inputId = 'flujo-anual-input-' + itemIdx;
+        const curMes = typeof flujoState[ssId] === 'number' ? flujoState[ssId] : 12;
+        html += '<div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:8px;">'
+          + '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">'
+          + '<div style="font-weight:600;font-size:13px;">'+label2+'</div>'
+          + '<div style="display:flex;align-items:center;gap:10px;">'
+          + '<label style="font-size:11px;color:var(--soft);">Mes (1–12):</label>'
+          + '<input type="number" id="'+inputId+'" min="1" max="12" value="'+curMes+'"'
+          + ' data-ssid-idx="'+itemIdx+'"'
+          + ' style="width:60px;padding:5px 8px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:JetBrains Mono,monospace;font-weight:700;color:#9B72CF;text-align:center;"'
+          + ' oninput="updateFlujoAnual(this)">'
+          + '<div style="font-family:JetBrains Mono,monospace;font-size:12px;color:'+color+';font-weight:700;">'+moneda+' '+fmtNum(total)+'</div>'
+          + '</div></div></div>';
       } else {
         // Único — editable % fields
         const dist = Array.isArray(flujoState[ssId]) ? flujoState[ssId] : [100,0,0,0,0,0,0,0,0,0,0,0];
@@ -4953,70 +4951,6 @@ function renderFlujoCaja(){
   });
 
   root.innerHTML = html;
-
-  // Replace anual placeholders with real DOM elements (event listeners can't survive innerHTML)
-  root.querySelectorAll('[data-anual-placeholder]').forEach(placeholder => {
-    const ssId = placeholder.getAttribute('data-anual-placeholder');
-    const selMes = parseInt(placeholder.getAttribute('data-selmес')||12);
-    const startM = parseInt(placeholder.getAttribute('data-startm')||1);
-    const startY = parseInt(placeholder.getAttribute('data-starty')||2026);
-    const total = parseFloat(placeholder.getAttribute('data-total')||0);
-    const label2 = placeholder.getAttribute('data-label')||'';
-    const color = placeholder.getAttribute('data-color')||'var(--accd)';
-    const moneda2 = placeholder.getAttribute('data-moneda')||'US$';
-
-    const MESES_C = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-    const div = document.createElement('div');
-    div.style.cssText = 'background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:8px;';
-
-    const inner = document.createElement('div');
-    inner.style.cssText = 'display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;';
-
-    const labelEl = document.createElement('div');
-    labelEl.style.cssText = 'font-weight:600;font-size:13px;';
-    labelEl.textContent = label2;
-
-    const rightEl = document.createElement('div');
-    rightEl.style.cssText = 'display:flex;align-items:center;gap:12px;';
-
-    const selectWrap = document.createElement('div');
-    const lbl = document.createElement('label');
-    lbl.style.cssText = 'font-size:11px;color:var(--soft);margin-right:6px;';
-    lbl.textContent = 'Mes de pago:';
-
-    const sel = document.createElement('select');
-    sel.style.cssText = 'padding:5px 8px;border:1px solid var(--border);border-radius:8px;font-size:12px;background:var(--white);color:#9B72CF;font-weight:600;cursor:pointer;';
-
-    for(let i=0;i<12;i++){
-      const mIdx = (startM - 1 + i) % 12;
-      const y = startY + Math.floor((startM - 1 + i) / 12);
-      const opt = document.createElement('option');
-      opt.value = String(i+1);
-      opt.textContent = 'M'+(i+1)+' — '+MESES_C[mIdx]+' '+y;
-      if((i+1) === selMes) opt.selected = true;
-      sel.appendChild(opt);
-    }
-
-    // Capture ssId in closure — this is the KEY fix
-    sel.addEventListener('change', (function(id){
-      return function(){ flujoState[id] = parseInt(this.value); renderFlujoTabla(null,null); };
-    })(ssId));
-
-    const amtEl = document.createElement('div');
-    amtEl.style.cssText = 'font-family:\'JetBrains Mono\',monospace;font-size:12px;color:'+color+';font-weight:700;';
-    amtEl.textContent = moneda2+' '+fmtNum(total);
-
-    selectWrap.appendChild(lbl);
-    selectWrap.appendChild(sel);
-    rightEl.appendChild(selectWrap);
-    rightEl.appendChild(amtEl);
-    inner.appendChild(labelEl);
-    inner.appendChild(rightEl);
-    div.appendChild(inner);
-
-    placeholder.parentNode.replaceChild(div, placeholder);
-  });
-
   renderFlujoTabla(subsegmentos, moneda);
 }
 
@@ -5030,6 +4964,17 @@ function toggleFlujoEnPropuesta(){
 
 function getFlujoEnPropuesta(){
   return document.getElementById('flujo-include-toggle')?.classList.contains('on') || false;
+}
+
+function updateFlujoAnual(input){
+  // Read position index from data attribute, look up ssId from cached subsegmentos
+  const idx = parseInt(input.getAttribute('data-ssid-idx'));
+  const annuals = (_flujoSubsegs||[]).filter(s => s.tipo === 'anual');
+  if(idx >= 0 && idx < annuals.length){
+    const ssId = annuals[idx].ssId;
+    flujoState[ssId] = parseInt(input.value)||1;
+    renderFlujoTabla(null, null);
+  }
 }
 
 function setFlujoAnualSelect(sel){
