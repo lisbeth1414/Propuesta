@@ -2199,6 +2199,7 @@ function collectData(){
       const subtotalEl = document.getElementById('st-'+ss.id);
       const totalEl = document.getElementById('tot-'+ss.id);
       subsegmentos.push({
+        id: ss.id,
         name: ssEl.querySelector('[id^="ssb-"] input[type=text]')?.value || ss.name,
         lines, pago, itbis,
         subtotal: subtotalEl?.textContent || '',
@@ -4842,22 +4843,24 @@ function renderFlujoCaja(){
       // Determine dominant pagoTipo
       const tally = {unico:0, mensual:0, anual:0};
       lines.forEach(l => {
-        const v = parseFloat((l.total||'').toString().replace(/[^0-9.\-]/g,''));
-        if(!isNaN(v)) tally[l.pagoTipo||'unico'] += v;
+        const cant = parseFloat(l.cant||0);
+        const punit = parseFloat(l.punit||0);
+        const v = cant * punit || parseFloat((l.total||'').toString().replace(/[^0-9.\-]/g,'')) || 0;
+        tally[l.pagoTipo||'unico'] += v;
       });
       const tipo = Object.entries(tally).sort((a,b)=>b[1]-a[1])[0][0];
-      // Calculate total from lines directly (don't rely on ss.total DOM value)
-      let total = 0;
-      lines.forEach(l => {
-        const v = parseFloat((l.total||'').toString().replace(/[^0-9.\-]/g,''));
-        if(!isNaN(v)) total += v;
-      });
-      // Also try ss.total as fallback
-      if(total <= 0){
-        total = parseFloat((ss.total||'').toString().replace(moneda,'').replace(/[^0-9.\-]/g,''));
-      }
-      if(isNaN(total) || total <= 0) return;
-      subsegmentos.push({ segName: seg.name, ssId: ss.id, ssName: ss.name, tipo, total });
+      // Total = sum of cant*punit for all concepto lines
+      let total = lines.reduce((sum, l) => {
+        const cant = parseFloat(l.cant||0);
+        const punit = parseFloat(l.punit||0);
+        const v = cant * punit || parseFloat((l.total||'').toString().replace(/[^0-9.\-]/g,'')) || 0;
+        return sum + v;
+      }, 0);
+      // Fallback to ss.total from DOM
+      if(total <= 0) total = parseFloat((ss.total||'').toString().replace(moneda,'').replace(/[^0-9.\-]/g,'')) || 0;
+      if(total <= 0) return;
+      const ssId = ss.id || (seg.name + '-' + ss.name).replace(/\s+/g,'-').toLowerCase();
+      subsegmentos.push({ segName: seg.name, ssId, ssName: ss.name, tipo, total });
     });
   });
 
