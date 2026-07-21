@@ -946,7 +946,7 @@ input[type=color]{width:100%;height:42px;border-radius:var(--rs);border:1.5px so
     <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
       <div style="font-weight:600;font-size:13px;color:var(--text);">📅 Fecha estimada de inicio del proyecto</div>
       <div style="display:flex;align-items:center;gap:8px;">
-        <select id="flujo-mes-inicio" onchange="renderFlujoCaja()" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--white);">
+        <select id="flujo-mes-inicio" onchange="renderFlujoTabla(null,null)" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--white);">
           <option value="1">Enero</option><option value="2">Febrero</option>
           <option value="3">Marzo</option><option value="4">Abril</option>
           <option value="5">Mayo</option><option value="6">Junio</option>
@@ -954,7 +954,7 @@ input[type=color]{width:100%;height:42px;border-radius:var(--rs);border:1.5px so
           <option value="9">Septiembre</option><option value="10">Octubre</option>
           <option value="11">Noviembre</option><option value="12">Diciembre</option>
         </select>
-        <input type="number" id="flujo-anio-inicio" value="2026" min="2024" max="2030" onchange="renderFlujoCaja()"
+        <input type="number" id="flujo-anio-inicio" value="2026" min="2024" max="2030" onchange="renderFlujoTabla(null,null)"
           style="width:80px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--white);">
       </div>
       <div style="font-size:12px;color:var(--soft);">M1 = el mes y año seleccionados · La tabla mostrará los meses reales.</div>
@@ -2199,7 +2199,6 @@ function collectData(){
       const subtotalEl = document.getElementById('st-'+ss.id);
       const totalEl = document.getElementById('tot-'+ss.id);
       subsegmentos.push({
-        id: ss.id,
         name: ssEl.querySelector('[id^="ssb-"] input[type=text]')?.value || ss.name,
         lines, pago, itbis,
         subtotal: subtotalEl?.textContent || '',
@@ -4826,7 +4825,6 @@ const FLUJO_DEFAULTS = {
 
 // State: { [ssId]: number[] (12 values) or number (month for anual) }
 let flujoState = {};
-let _flujoSubsegs = null; // cached subsegmentos for renderFlujoTabla
 
 function renderFlujoCaja(){
   const data = collectData();
@@ -4843,24 +4841,13 @@ function renderFlujoCaja(){
       // Determine dominant pagoTipo
       const tally = {unico:0, mensual:0, anual:0};
       lines.forEach(l => {
-        const cant = parseFloat(l.cant||0);
-        const punit = parseFloat(l.punit||0);
-        const v = cant * punit || parseFloat((l.total||'').toString().replace(/[^0-9.\-]/g,'')) || 0;
-        tally[l.pagoTipo||'unico'] += v;
+        const v = parseFloat((l.total||'').toString().replace(/[^0-9.\-]/g,''));
+        if(!isNaN(v)) tally[l.pagoTipo||'unico'] += v;
       });
       const tipo = Object.entries(tally).sort((a,b)=>b[1]-a[1])[0][0];
-      // Total = sum of cant*punit for all concepto lines
-      let total = lines.reduce((sum, l) => {
-        const cant = parseFloat(l.cant||0);
-        const punit = parseFloat(l.punit||0);
-        const v = cant * punit || parseFloat((l.total||'').toString().replace(/[^0-9.\-]/g,'')) || 0;
-        return sum + v;
-      }, 0);
-      // Fallback to ss.total from DOM
-      if(total <= 0) total = parseFloat((ss.total||'').toString().replace(moneda,'').replace(/[^0-9.\-]/g,'')) || 0;
-      if(total <= 0) return;
-      const ssId = ss.id || (seg.name + '-' + ss.name).replace(/\s+/g,'-').toLowerCase();
-      subsegmentos.push({ segName: seg.name, ssId, ssName: ss.name, tipo, total });
+      const total = parseFloat((ss.total||'').toString().replace(moneda,'').replace(/[^0-9.\-]/g,''));
+      if(isNaN(total) || total <= 0) return;
+      subsegmentos.push({ segName: seg.name, ssId: ss.id, ssName: ss.name, tipo, total });
     });
   });
 
@@ -4882,9 +4869,6 @@ function renderFlujoCaja(){
     }
   });
 
-  // Cache subsegmentos for renderFlujoTabla
-  _flujoSubsegs = subsegmentos;
-
   let html = '';
 
   // Group by tipo
@@ -4905,31 +4889,44 @@ function renderFlujoCaja(){
           <div style="font-size:11.5px;color:var(--soft);">${note}</div>
         </div>`;
 
-    items.forEach(({segName, ssId, ssName, tipo:t, total}, itemIdx) => {
-      const label2 = segName + ' · ' + ssName;
+    items.forEach(({segName, ssId, ssName, tipo:t, total}) => {
+      const label2 = `${segName} · ${ssName}`;
       if(t === 'mensual'){
         const monthly = total / 12;
-        html += '<div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:8px;">'
-          + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">'
-          + '<div style="font-weight:600;font-size:13px;">'+label2+'</div>'
-          + '<div style="font-family:JetBrains Mono,monospace;font-size:12px;color:'+color+';">'+moneda+' '+fmtNum(monthly)+'/mes × 12 = '+moneda+' '+fmtNum(total)+'</div>'
-          + '</div></div>';
+        html += `
+          <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+              <div style="font-weight:600;font-size:13px;">${label2}</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:${color};">${moneda} ${fmtNum(monthly)}/mes × 12 = ${moneda} ${fmtNum(total)}</div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:4px;">
+              ${Array.from({length:12},(_,i)=>`
+                <div style="text-align:center;">
+                  <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--soft);margin-bottom:2px;">M${i+1}</div>
+                  <div style="background:rgba(91,140,204,.12);border:1px solid rgba(91,140,204,.2);border-radius:6px;padding:4px 2px;font-family:'JetBrains Mono',monospace;font-size:9px;color:${color};text-align:center;">${moneda} ${fmtNum(monthly)}</div>
+                </div>`).join('')}
+            </div>
+          </div>`;
       } else if(t === 'anual'){
-        // Store ssId as plain text in a hidden element — no JS variable needed
-        const curMes = typeof flujoState[ssId] === 'number' ? flujoState[ssId] : 12;
-        const inputId = 'flujo-anual-input-' + itemIdx;
-        const ssIdSafe = ssId.replace(/[^a-zA-Z0-9\-_]/g, '');
-        html += '<div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:8px;">'
-          + '<span style="display:none;" class="flujo-ssid-store">'+ssIdSafe+'</span>'
-          + '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">'
-          + '<div style="font-weight:600;font-size:13px;">'+label2+'</div>'
-          + '<div style="display:flex;align-items:center;gap:10px;">'
-          + '<label style="font-size:11px;color:var(--soft);">Mes (1–12):</label>'
-          + '<input type="number" id="'+inputId+'" min="1" max="12" value="'+curMes+'"'
-          + ' style="width:60px;padding:5px 8px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:JetBrains Mono,monospace;font-weight:700;color:#9B72CF;text-align:center;"'
-          + ' oninput="updateFlujoAnual(this)">'
-          + '<div style="font-family:JetBrains Mono,monospace;font-size:12px;color:'+color+';font-weight:700;">'+moneda+' '+fmtNum(total)+'</div>'
-          + '</div></div></div>';
+        const selMes = typeof flujoState[ssId] === 'number' ? flujoState[ssId] : 12;
+        const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+        const opts = meses.map((m,i) => '<option value="'+(i+1)+'"'+(i+1===selMes?' selected':'')+'>'+m+' (M'+(i+1)+')</option>').join('');
+        html += `
+          <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+              <div style="font-weight:600;font-size:13px;">${label2}</div>
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div>
+                  <label style="font-size:11px;color:var(--soft);margin-right:6px;">Mes de pago:</label>
+                  <select onchange="setFlujoAnualSelect(this,'${ssId}')"
+                    style="padding:5px 8px;border:1px solid var(--border);border-radius:8px;font-size:12px;background:var(--white);color:#9B72CF;font-weight:600;cursor:pointer;">
+                    ${opts}
+                  </select>
+                </div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:${color};font-weight:700;">${moneda} ${fmtNum(total)}</div>
+              </div>
+            </div>
+          </div>`;
       } else {
         // Único — editable % fields
         const dist = Array.isArray(flujoState[ssId]) ? flujoState[ssId] : [100,0,0,0,0,0,0,0,0,0,0,0];
@@ -4967,30 +4964,7 @@ function renderFlujoCaja(){
   renderFlujoTabla(subsegmentos, moneda);
 }
 
-function toggleFlujoEnPropuesta(){
-  const btn = document.getElementById('flujo-include-toggle');
-  const txt = document.getElementById('flujo-include-txt');
-  if(!btn) return;
-  const on = btn.classList.toggle('on');
-  if(txt) txt.textContent = on ? 'Incluir en propuesta' : 'No incluir en propuesta';
-}
-
-function getFlujoEnPropuesta(){
-  return document.getElementById('flujo-include-toggle')?.classList.contains('on') || false;
-}
-
-function updateFlujoAnual(input){
-  // Read ssId from hidden span inside the same card
-  const card = input.closest('div[style*="border-radius:12px"]');
-  const ssId = card ? card.querySelector('.flujo-ssid-store')?.textContent?.trim() : null;
-  if(ssId){
-    flujoState[ssId] = parseInt(input.value)||1;
-    renderFlujoTabla(null, null);
-  }
-}
-
-function setFlujoAnualSelect(sel){
-  const ssId = sel.dataset.ssid;
+function setFlujoAnualSelect(sel, ssId){
   flujoState[ssId] = parseInt(sel.value);
   renderFlujoTabla(null, null);
 }
@@ -5042,12 +5016,23 @@ function updateFlujoUnico(ssId, idx, val){
 }
 
 function renderFlujoTabla(subsegmentos, moneda){
-  // Use cached subsegmentos from last renderFlujoCaja call
+  // If called from updateFlujoUnico, re-collect
   if(!subsegmentos){
-    if(!_flujoSubsegs) return;
-    subsegmentos = _flujoSubsegs;
     const data = collectData();
     moneda = data.cliente?.moneda || 'US$';
+    subsegmentos = [];
+    (data.presupuesto||[]).forEach(seg => {
+      (seg.subsegmentos||[]).forEach(ss => {
+        const lines = (ss.lines||[]).filter(l => l.type==='concepto');
+        if(!lines.length) return;
+        const tally = {unico:0,mensual:0,anual:0};
+        lines.forEach(l => { const v=parseFloat((l.total||'').toString().replace(/[^0-9.\-]/g,'')); if(!isNaN(v)) tally[l.pagoTipo||'unico']+=v; });
+        const tipo = Object.entries(tally).sort((a,b)=>b[1]-a[1])[0][0];
+        const total = parseFloat((ss.total||'').toString().replace(moneda,'').replace(/[^0-9.\-]/g,''));
+        if(isNaN(total)||total<=0) return;
+        subsegmentos.push({segName:seg.name,ssId:ss.id,ssName:ss.name,tipo,total});
+      });
+    });
   }
 
   const wrap = document.getElementById('flujo-tabla-wrap');
@@ -5422,6 +5407,17 @@ async function guardarEnHistorial(){
   } catch(err){
     console.warn('Historial no guardado:', err.message); // Silent fail
   }
+}
+
+function toggleFlujoEnPropuesta(){
+  const btn = document.getElementById('flujo-include-toggle');
+  const txt = document.getElementById('flujo-include-txt');
+  if(!btn) return;
+  const on = btn.classList.toggle('on');
+  if(txt) txt.textContent = on ? 'Incluir en propuesta' : 'No incluir en propuesta';
+}
+function getFlujoEnPropuesta(){
+  return document.getElementById('flujo-include-toggle')?.classList.contains('on') || false;
 }
 
 // ======================================================
