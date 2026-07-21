@@ -4846,7 +4846,16 @@ function renderFlujoCaja(){
         if(!isNaN(v)) tally[l.pagoTipo||'unico'] += v;
       });
       const tipo = Object.entries(tally).sort((a,b)=>b[1]-a[1])[0][0];
-      const total = parseFloat((ss.total||'').toString().replace(moneda,'').replace(/[^0-9.\-]/g,''));
+      // Calculate total from lines directly (don't rely on ss.total DOM value)
+      let total = 0;
+      lines.forEach(l => {
+        const v = parseFloat((l.total||'').toString().replace(/[^0-9.\-]/g,''));
+        if(!isNaN(v)) total += v;
+      });
+      // Also try ss.total as fallback
+      if(total <= 0){
+        total = parseFloat((ss.total||'').toString().replace(moneda,'').replace(/[^0-9.\-]/g,''));
+      }
       if(isNaN(total) || total <= 0) return;
       subsegmentos.push({ segName: seg.name, ssId: ss.id, ssName: ss.name, tipo, total });
     });
