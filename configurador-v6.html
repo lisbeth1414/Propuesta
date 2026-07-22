@@ -4833,21 +4833,25 @@ function renderFlujoCaja(){
   const root = document.getElementById('flujo-render');
   if(!root) return;
 
-  // Collect active subsegments with their totals and pagoTipo
+  // Collect active subsegments using segsState for reliable ssIds
   const subsegmentos = [];
-  (data.presupuesto||[]).forEach(seg => {
-    (seg.subsegmentos||[]).forEach(ss => {
-      const lines = (ss.lines||[]).filter(l => l.type === 'concepto');
+  segsState.forEach(seg => {
+    if(!seg.on) return;
+    seg.subsegmentos.forEach(ss => {
+      // Get lines from DOM using reliable ss.id from segsState
+      const container = document.getElementById('lines-'+ss.id);
+      if(!container) return;
+      const lines = [...container.querySelectorAll('.bud-line[data-type="concepto"]')].map(l => ({
+        cant: parseFloat(l.querySelector('.cant')?.value||0),
+        punit: parseFloat(l.querySelector('.punit')?.value||0),
+        pagoTipo: l.querySelector('.pago-tipo-sel')?.value||'unico'
+      }));
       if(!lines.length) return;
-      // Determine dominant pagoTipo
       const tally = {unico:0, mensual:0, anual:0};
-      lines.forEach(l => {
-        const v = parseFloat((l.total||'').toString().replace(/[^0-9.\-]/g,''));
-        if(!isNaN(v)) tally[l.pagoTipo||'unico'] += v;
-      });
+      lines.forEach(l => { tally[l.pagoTipo] += l.cant * l.punit; });
       const tipo = Object.entries(tally).sort((a,b)=>b[1]-a[1])[0][0];
-      const total = parseFloat((ss.total||'').toString().replace(moneda,'').replace(/[^0-9.\-]/g,''));
-      if(isNaN(total) || total <= 0) return;
+      const total = Object.values(tally).reduce((a,b)=>a+b,0);
+      if(total <= 0) return;
       subsegmentos.push({ segName: seg.name, ssId: ss.id, ssName: ss.name, tipo, total });
     });
   });
