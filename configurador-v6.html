@@ -4852,14 +4852,9 @@ function renderFlujoCaja(){
   });
 
   if(!subsegmentos.length){
-    // If we have cached subsegments, use those instead of showing empty
-    if(_flujoSubsegs && _flujoSubsegs.length){
-      subsegmentos.push(..._flujoSubsegs);
-    } else {
-      root.innerHTML = '<div style="padding:32px;text-align:center;color:var(--soft);font-size:13px;">Activa segmentos en el Tab de Presupuesto y regresa aquí para configurar el flujo.</div>';
-      document.getElementById('flujo-tabla-wrap').style.display = 'none';
-      return;
-    }
+    root.innerHTML = '<div style="padding:32px;text-align:center;color:var(--soft);font-size:13px;">Agrega líneas con montos en el Tab de Presupuesto para configurar el flujo.</div>';
+    document.getElementById('flujo-tabla-wrap').style.display = 'none';
+    return;
   }
 
   // Initialize state for new subsegments
