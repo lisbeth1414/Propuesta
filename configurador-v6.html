@@ -3324,7 +3324,7 @@ function buildProposalHTML(d){
       if(isNaN(total)||total<=0) return;
       const months = new Array(12).fill(0);
       const state = flujoData[ss.id];
-      if(tipo==='mensual'){ months.fill(total/12); }
+      if(tipo==='mensual'){ months.fill(total); }
       else if(tipo==='anual'){ const m=(typeof state==='number'?state:12)-1; months[m]=total; }
       else { const dist=Array.isArray(state)?state:[100,...new Array(11).fill(0)]; dist.forEach((p,i)=>months[i]=total*p/100); }
       flujoRows.push({ label:`${seg.name} · ${ss.name}`, tipo, total, months });
@@ -5049,7 +5049,7 @@ function renderFlujoTabla(subsegmentos, moneda){
   const monthlyByRow = subsegmentos.map(({ssId,tipo,total,segName,ssName}) => {
     const months = new Array(12).fill(0);
     if(tipo==='mensual'){
-      months.fill(total/12);
+      months.fill(total);
     } else if(tipo==='anual'){
       const mes = (typeof flujoState[ssId]==='number' ? flujoState[ssId] : 12) - 1;
       months[mes] = total;
