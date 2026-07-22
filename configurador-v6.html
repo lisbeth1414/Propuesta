@@ -2199,6 +2199,7 @@ function collectData(){
       const subtotalEl = document.getElementById('st-'+ss.id);
       const totalEl = document.getElementById('tot-'+ss.id);
       subsegmentos.push({
+        id: ss.id,
         name: ssEl.querySelector('[id^="ssb-"] input[type=text]')?.value || ss.name,
         lines, pago, itbis,
         subtotal: subtotalEl?.textContent || '',
