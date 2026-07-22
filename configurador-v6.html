@@ -4897,12 +4897,12 @@ function renderFlujoCaja(){
     items.forEach(({segName, ssId, ssName, tipo:t, total}) => {
       const label2 = `${segName} · ${ssName}`;
       if(t === 'mensual'){
-        const monthly = total / 12;
+        const monthly = total; // monthly amount repeats each month
         html += `
           <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:8px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
               <div style="font-weight:600;font-size:13px;">${label2}</div>
-              <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:${color};">${moneda} ${fmtNum(monthly)}/mes × 12 = ${moneda} ${fmtNum(total)}</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:${color};">${moneda} ${fmtNum(total)} × 12 meses = ${moneda} ${fmtNum(total*12)}</div>
             </div>
             <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:4px;">
               ${Array.from({length:12},(_,i)=>`
