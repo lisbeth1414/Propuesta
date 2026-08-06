@@ -832,8 +832,17 @@ input[type=color]{width:100%;height:42px;border-radius:var(--rs);border:1.5px so
   <div class="tab-content" id="t-presupuesto">
     <div class="sec-h">
       <div class="kicker">06 · Inversión</div>
-      <h2>Presupuesto</h2>
-      <p>Cada segmento puede tener múltiples sub-segmentos. Dentro de cada sub-segmento agrega líneas de concepto, descuento, texto o separador.</p>
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <h2 style="margin:0;">Presupuesto</h2>
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2);cursor:pointer;">
+          <div class="toggle-wrap">
+            <span id="presup-include-txt">No incluir precios en propuesta</span>
+            <button class="toggle" id="presup-include-toggle" onclick="togglePresupEnPropuesta()"></button>
+          </div>
+          Incluir precios en propuesta
+        </label>
+      </div>
+      <p style="margin-top:8px;">Cada segmento puede tener múltiples sub-segmentos. Dentro de cada sub-segmento agrega líneas de concepto, descuento, texto o separador.</p>
     </div>
     <div id="segs-render"></div>
     <button class="btn-add" onclick="addCustomSeg()" style="margin-top:4px;">
@@ -2234,7 +2243,7 @@ function collectData(){
   };
 
   const industria = collectIndustria();
-  return { cliente, situacion, modulos, fuera, empresasData, addons, presupuesto, grandTotal, metodologia, supuestosExtra, marca, moneda, industria, flujo: collectFlujoCaja(), flujoInicio: { mes: parseInt(document.getElementById('flujo-mes-inicio')?.value||1), anio: parseInt(document.getElementById('flujo-anio-inicio')?.value||2026) }, flujoEnPropuesta: getFlujoEnPropuesta() };
+  return { cliente, situacion, modulos, fuera, empresasData, addons, presupuesto, grandTotal, metodologia, supuestosExtra, marca, moneda, industria, flujo: collectFlujoCaja(), flujoInicio: { mes: parseInt(document.getElementById('flujo-mes-inicio')?.value||1), anio: parseInt(document.getElementById('flujo-anio-inicio')?.value||2026) }, flujoEnPropuesta: getFlujoEnPropuesta(), presupEnPropuesta: getPresupEnPropuesta() };
 }
 
 // ======================================================
@@ -3741,7 +3750,7 @@ ${fueraHTML}
   </div>
 </section>
 
-<section style="background:var(--cr);color:var(--tic);padding:88px 0;margin-top:32px;" id="spr">
+${d.presupEnPropuesta ? `<section style="background:var(--cr);color:var(--tic);padding:88px 0;margin-top:32px;" id="spr">
   <div class="pg">
     <div style="display:flex;align-items:center;gap:14px;font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:${acD};margin-bottom:14px;" class="rev">06 · Inversión<span style="flex:1;height:1px;background:rgba(20,12,5,.18);display:block;"></span></div>
     <h2 class="rev" style="font-family:'Fraunces',serif;font-weight:700;font-size:clamp(2rem,4vw,3rem);letter-spacing:-.01em;margin:10px 0 12px;color:var(--tic);">Presupuesto</h2>
@@ -3832,7 +3841,7 @@ ${fueraHTML}
   </div>
 </section>
 
-<!-- TÉRMINOS Y CONDICIONES (updated) -->
+` : ''}<!-- TÉRMINOS Y CONDICIONES (updated) -->
 ${flujoHTML}
 <section style="background:#fff;color:#1C140E;padding:88px 0;" id="ste">
   <div class="pg">
@@ -5412,6 +5421,17 @@ async function guardarEnHistorial(){
   } catch(err){
     console.warn('Historial no guardado:', err.message); // Silent fail
   }
+}
+
+function togglePresupEnPropuesta(){
+  const btn = document.getElementById('presup-include-toggle');
+  const txt = document.getElementById('presup-include-txt');
+  if(!btn) return;
+  const on = btn.classList.toggle('on');
+  if(txt) txt.textContent = on ? 'Incluir precios en propuesta' : 'No incluir precios en propuesta';
+}
+function getPresupEnPropuesta(){
+  return document.getElementById('presup-include-toggle')?.classList.contains('on') || false;
 }
 
 function toggleFlujoEnPropuesta(){
