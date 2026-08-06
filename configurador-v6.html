@@ -3538,6 +3538,31 @@ body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;line-he
 @keyframes marquee-l{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 @keyframes marquee-r{from{transform:translateX(-50%)}to{transform:translateX(0)}}
 .marquee-wrap{overflow:hidden;padding:12px 0;}
+
+/* ===== PRINT BUTTON ===== */
+.print-btn{
+  position:fixed;bottom:28px;right:28px;z-index:999;
+  display:flex;align-items:center;gap:8px;
+  padding:12px 20px;background:${ac};color:#fff;
+  border:none;border-radius:12px;cursor:pointer;
+  font-family:'Inter',sans-serif;font-size:13px;font-weight:700;
+  box-shadow:0 4px 20px rgba(0,0,0,.3);
+  transition:background .2s,transform .15s;
+}
+.print-btn:hover{background:${acD};transform:translateY(-2px);}
+.print-btn svg{width:16px;height:16px;}
+
+/* ===== PRINT STYLES ===== */
+@media print{
+  .print-btn{display:none !important;}
+  .sb,.sidebar,.sb-brand,.sb-nav,.sb-footer{display:none !important;}
+  .main,.pg-wrap,.content-wrap{margin-left:0 !important;width:100% !important;}
+  body{background:#fff !important;}
+  section{page-break-inside:avoid;}
+  .marquee-wrap,.marquee-track{animation:none !important;}
+  a{color:inherit !important;text-decoration:none !important;}
+  .hero,.portada{page-break-after:always;}
+}
 .marquee-track{display:flex;white-space:nowrap;gap:0;}
 .marquee-track.ltr{animation:marquee-l 28s linear infinite;}
 .marquee-track.rtl{animation:marquee-r 32s linear infinite;}
@@ -3947,6 +3972,15 @@ const ro = new IntersectionObserver(e => {
 }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
 revs.forEach(el => ro.observe(el));
 <\/script>
+
+<button class="print-btn" onclick="window.print()" title="Guardar como PDF o imprimir">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+    <rect x="6" y="14" width="12" height="8"/>
+  </svg>
+  Guardar como PDF
+</button>
+
 </body></html>`;
 }
 
