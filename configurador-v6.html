@@ -1032,23 +1032,19 @@ input[type=color]{width:100%;height:42px;border-radius:var(--rs);border:1.5px so
             <option>Alcance abierto</option>
           </select>
         </div>
-        <div class="field"><label>Gerente de Proyecto CEO Consultoría</label><input type="text" id="pmo-gp-ceo" placeholder="Nombre del gerente"></div>
-        <div class="field"><label>Gerente de Proyecto Cliente</label><input type="text" id="pmo-gp-cliente" placeholder="Nombre del gerente cliente"></div>
+        <div class="field"><label>Gerente de Proyecto — CEO Consultoría</label><input type="text" id="pmo-gp-ceo" placeholder="Nombre del gerente"></div>
+        <div class="field"><label>Gerente de Proyecto — Cliente</label><input type="text" id="pmo-gp-cliente" placeholder="Nombre del gerente cliente"></div>
         <div class="field"><label>Patrocinador del Proyecto</label><input type="text" id="pmo-patrocinador" placeholder="Nombre del patrocinador"></div>
         <div class="field"><label>Sistema actual del cliente</label><input type="text" id="pmo-sistema-actual" placeholder="Ej. QuickBooks, Excel, ninguno"></div>
-        <div class="field"><label>Infraestructura preferida</label>
-          <select id="pmo-infra">
-            <option value="">Por determinar</option>
-            <option>Cloud Azure (Private)</option>
-            <option>Cloud SAP (Public)</option>
-            <option>On Premise</option>
-            <option>GIGAS Cloud</option>
-          </select>
-        </div>
         <div class="field"><label>Volumen de facturación (facturas/mes)</label><input type="number" id="pmo-volumen" placeholder="200"></div>
+        <div class="field"><label>Cantidad de usuarios SAP</label><input type="number" id="pmo-usuarios" placeholder="14"></div>
         <div class="field" style="grid-column:1/-1;"><label>Sucursales / Dirección</label><input type="text" id="pmo-sucursales" placeholder="Ej. 1 sucursal — Av. Winston Churchill 202, Santo Domingo"></div>
-        <div class="field" style="grid-column:1/-1;"><label>Objetivo del proyecto</label><textarea id="pmo-objetivo" style="min-height:72px;resize:vertical;" placeholder="Describe el objetivo principal del proyecto..."></textarea></div>
-        <div class="field" style="grid-column:1/-1;"><label>Descripción del proyecto</label><textarea id="pmo-descripcion" style="min-height:72px;resize:vertical;" placeholder="Contexto general del cliente y del proyecto..."></textarea></div>
+        <div class="field" style="grid-column:1/-1;"><label>Descripción del proyecto</label><textarea id="pmo-descripcion" style="min-height:90px;resize:vertical;" placeholder="Contexto general del cliente, su industria y antecedentes del proyecto..."></textarea></div>
+        <div class="field" style="grid-column:1/-1;"><label>Objetivo del proyecto</label><textarea id="pmo-objetivo" style="min-height:80px;resize:vertical;" placeholder="Objetivo principal — qué problema resuelve este proyecto para el cliente..."></textarea></div>
+        <div class="field" style="grid-column:1/-1;"><label>Objetivos específicos del proyecto</label><textarea id="pmo-objetivos-esp" style="min-height:100px;resize:vertical;" placeholder="• Eficientizar el tiempo de sus operaciones&#10;• Mantener el control de su inventario actualizado&#10;• Unificar la gestión de servicio y finanzas&#10;• Reportería más ágil y rápida"></textarea></div>
+        <div class="field" style="grid-column:1/-1;"><label>Infraestructura a utilizar</label><textarea id="pmo-infra" style="min-height:72px;resize:vertical;" placeholder="Ej. Cloud Azure Private — 1 E16s v5 (16 vCPUs, 128 GB RAM), Linux SUSE, 2 disks P30. Costo estimado: US$1,499/mes.&#10;O: Cloud SAP (Public Cloud), On Premise, GIGAS Cloud..."></textarea></div>
+        <div class="field" style="grid-column:1/-1;"><label>Comentarios del proceso de venta</label><textarea id="pmo-comentarios-venta" style="min-height:100px;resize:vertical;" placeholder="Historial de negociación, particularidades del cliente, personas involucradas, fechas clave..."></textarea></div>
+        <div class="field" style="grid-column:1/-1;"><label>Comentarios y observaciones adicionales</label><textarea id="pmo-comentarios" style="min-height:100px;resize:vertical;" placeholder="Consideraciones especiales, dependencias, notas técnicas relevantes..."></textarea></div>
       </div>
     </div>
 
@@ -1062,14 +1058,24 @@ input[type=color]{width:100%;height:42px;border-radius:var(--rs);border:1.5px so
     <!-- C. MÓDULOS DEL ALCANCE -->
     <div style="background:var(--white);border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin-bottom:16px;">
       <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accd);margin-bottom:4px;font-weight:700;">C · Módulos SAP Business One Incluidos</div>
-      <p style="font-size:12px;color:var(--soft);margin-bottom:14px;">Sincronizado con Tab 03 · Módulos. Edita los módulos allá y se reflejará aquí.</p>
+      <p style="font-size:12px;color:var(--soft);margin-bottom:14px;">Sincronizado con Tab 03 · Módulos.</p>
       <div id="pmo-modulos-render" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"></div>
     </div>
 
     <!-- D. ADD-ONS -->
     <div style="background:var(--white);border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin-bottom:16px;">
       <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accd);margin-bottom:4px;font-weight:700;">D · Add-ons y Soluciones Complementarias</div>
-      <div id="pmo-addons-render" style="margin-top:10px;"></div>
+      <p style="font-size:12px;color:var(--soft);margin-bottom:12px;">Completa el proveedor y quién se encarga de la integración de cada add-on.</p>
+      <div style="display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:0;border:1px solid var(--border);border-radius:10px;overflow:hidden;font-size:12.5px;">
+        <div style="padding:8px 12px;background:var(--bgs);font-weight:600;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--soft);">Add-on / Solución</div>
+        <div style="padding:8px 12px;background:var(--bgs);font-weight:600;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--soft);">Proveedor</div>
+        <div style="padding:8px 12px;background:var(--bgs);font-weight:600;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--soft);">Quién integra</div>
+        <div style="padding:8px 12px;background:var(--bgs);"></div>
+      </div>
+      <div id="pmo-addons-table" style="border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;overflow:hidden;"></div>
+      <button onclick="addAddonPMO()" class="btn-sec" style="margin-top:10px;font-size:12px;padding:7px 14px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:12px;height:12px;"><path d="M12 5v14M5 12h14"/></svg> Agregar add-on
+      </button>
     </div>
 
     <!-- E. RIESGOS -->
@@ -1090,15 +1096,9 @@ input[type=color]{width:100%;height:42px;border-radius:var(--rs);border:1.5px so
       </button>
     </div>
 
-    <!-- G. COMENTARIOS -->
+    <!-- G. CONTACTOS -->
     <div style="background:var(--white);border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin-bottom:16px;">
-      <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accd);margin-bottom:10px;font-weight:700;">G · Comentarios y Observaciones</div>
-      <textarea id="pmo-comentarios" style="min-height:100px;resize:vertical;width:100%;" placeholder="Observaciones adicionales, notas del proceso de venta, consideraciones especiales..."></textarea>
-    </div>
-
-    <!-- H. CONTACTOS -->
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin-bottom:16px;">
-      <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accd);margin-bottom:14px;font-weight:700;">H · Contactos del Proyecto</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accd);margin-bottom:14px;font-weight:700;">G · Contactos del Proyecto</div>
       <div id="pmo-contactos-list"></div>
       <button onclick="addContactoPMO()" class="btn-sec" style="margin-top:8px;font-size:12px;padding:7px 14px;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:12px;height:12px;"><path d="M12 5v14M5 12h14"/></svg> Agregar contacto
@@ -5386,16 +5386,27 @@ function renderPMOModulos(){
 }
 
 function renderPMOAddons(){
-  const el = document.getElementById('pmo-addons-render');
+  const el = document.getElementById('pmo-addons-table');
   if(!el) return;
+  if(el.children.length) return; // already rendered
   const activos = (typeof ADDONS_DEF !== 'undefined' ? ADDONS_DEF : []).filter(a => a.on);
-  if(!activos.length){
-    el.innerHTML = '<p style="font-size:12px;color:var(--soft);">Activa add-ons en el Tab 05 para verlos aquí.</p>';
-    return;
-  }
-  el.innerHTML = '<div style="display:flex;flex-wrap:wrap;gap:8px;">'
-    + activos.map(a => `<span style="padding:5px 12px;background:rgba(255,138,30,.1);border:1px solid rgba(255,138,30,.25);border-radius:999px;font-size:12px;color:var(--accd);">${a.name}</span>`).join('')
-    + '</div>';
+  activos.forEach(a => addAddonPMO(a.name, 'CEO Consultoría', 'CEO Consultoría'));
+  if(!activos.length) addAddonPMO();
+}
+
+function addAddonPMO(addon='', proveedor='', integra=''){
+  const el = document.getElementById('pmo-addons-table');
+  if(!el) return;
+  const div = document.createElement('div');
+  div.style.cssText = 'display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:0;border-bottom:1px solid var(--border);';
+  div.innerHTML = `
+    <input type="text" value="${addon}" placeholder="Nombre del add-on o solución" style="padding:8px 12px;border:none;border-right:1px solid var(--border);font-size:12.5px;outline:none;">
+    <input type="text" value="${proveedor}" placeholder="Proveedor" style="padding:8px 12px;border:none;border-right:1px solid var(--border);font-size:12.5px;outline:none;">
+    <input type="text" value="${integra}" placeholder="Quién integra" style="padding:8px 12px;border:none;border-right:1px solid var(--border);font-size:12.5px;outline:none;">
+    <button onclick="this.parentNode.remove()" style="background:none;border:none;cursor:pointer;color:var(--soft);padding:8px 12px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>`;
+  el.appendChild(div);
 }
 
 function addRiesgoPMO(text=''){
@@ -5457,7 +5468,10 @@ function collectPMOData(){
   }).filter(c => c.nombre);
 
   const modulos = [...document.querySelectorAll('#pmo-modulos-render > div')].map(d => d.textContent.trim()).filter(Boolean);
-  const addons = [...document.querySelectorAll('#pmo-addons-render span')].map(s => s.textContent.trim()).filter(Boolean);
+  const addons = [...document.querySelectorAll('#pmo-addons-table > div')].map(div => {
+    const inputs = div.querySelectorAll('input');
+    return { addon: inputs[0]?.value||'', proveedor: inputs[1]?.value||'', integra: inputs[2]?.value||'' };
+  }).filter(a => a.addon);
 
   return {
     nombre: g('pmo-nombre') || (collectData().cliente?.nombre ? 'Implementación SAP B1 — '+collectData().cliente.nombre : ''),
@@ -5472,9 +5486,12 @@ function collectPMOData(){
     sistemaActual: g('pmo-sistema-actual'),
     infra: g('pmo-infra'),
     volumen: g('pmo-volumen'),
+    usuarios: g('pmo-usuarios'),
     sucursales: g('pmo-sucursales'),
     objetivo: g('pmo-objetivo'),
+    objetivosEsp: g('pmo-objetivos-esp'),
     descripcion: g('pmo-descripcion'),
+    comentariosVenta: g('pmo-comentarios-venta'),
     comentarios: g('pmo-comentarios'),
     blueprint, riesgos, fuera, contactos, modulos, addons,
     cliente: collectData().cliente,
@@ -5526,8 +5543,8 @@ function buildAlcancePMOHTML(d){
     : '<tr><td colspan="2" style="padding:10px 12px;color:#888;">No se han seleccionado módulos.</td></tr>';
 
   const addonRows = d.addons.length
-    ? d.addons.map(a => `<tr><td style="padding:7px 12px;border-bottom:1px solid #f0f0f0;">${a}</td><td style="padding:7px 12px;border-bottom:1px solid #f0f0f0;color:#27ae60;font-weight:600;">✓ Incluido</td></tr>`).join('')
-    : '<tr><td colspan="2" style="padding:10px 12px;color:#888;">Ninguno seleccionado.</td></tr>';
+    ? d.addons.map(a => `<tr><td style="padding:7px 12px;border-bottom:1px solid #f0f0f0;">${a.addon}</td><td style="padding:7px 12px;border-bottom:1px solid #f0f0f0;">${a.proveedor||'—'}</td><td style="padding:7px 12px;border-bottom:1px solid #f0f0f0;">${a.integra||'—'}</td></tr>`).join('')
+    : '<tr><td colspan="3" style="padding:10px 12px;color:#888;">Ninguno seleccionado.</td></tr>';
 
   return `<!DOCTYPE html>
 <html lang="es">
@@ -5613,9 +5630,12 @@ tr:last-child td{border-bottom:none;}
       <div class="info-cell"><div class="info-label">Sistema Actual</div><div class="info-value">${fmt(d.sistemaActual)}</div></div>
       <div class="info-cell"><div class="info-label">Infraestructura</div><div class="info-value">${fmt(d.infra)||'Por determinar'}</div></div>
       <div class="info-cell"><div class="info-label">Volumen de Facturación</div><div class="info-value">${d.volumen ? d.volumen+' facturas/mes' : '—'}</div></div>
-      <div class="info-cell"><div class="info-label">Sucursales</div><div class="info-value">${fmt(d.sucursales)}</div></div>
-      ${d.objetivo ? `<div class="info-cell" style="grid-column:1/-1;"><div class="info-label">Objetivo del Proyecto</div><div class="info-value">${d.objetivo}</div></div>` : ''}
+      <div class="info-cell"><div class="info-label">Cantidad de Usuarios SAP</div><div class="info-value">${d.usuarios ? d.usuarios+' usuarios' : '—'}</div></div>
+      <div class="info-cell" style="grid-column:1/-1;"><div class="info-label">Sucursales</div><div class="info-value">${fmt(d.sucursales)}</div></div>
       ${d.descripcion ? `<div class="info-cell" style="grid-column:1/-1;"><div class="info-label">Descripción del Proyecto</div><div class="info-value">${d.descripcion}</div></div>` : ''}
+      ${d.objetivo ? `<div class="info-cell" style="grid-column:1/-1;"><div class="info-label">Objetivo del Proyecto</div><div class="info-value">${d.objetivo}</div></div>` : ''}
+      ${d.objetivosEsp ? `<div class="info-cell" style="grid-column:1/-1;"><div class="info-label">Objetivos Específicos</div><div class="info-value" style="white-space:pre-line;">${d.objetivosEsp}</div></div>` : ''}
+      ${d.infra ? `<div class="info-cell" style="grid-column:1/-1;"><div class="info-label">Infraestructura a Utilizar</div><div class="info-value" style="white-space:pre-line;">${d.infra}</div></div>` : ''}
     </div>
   </div>
 
@@ -5656,7 +5676,7 @@ tr:last-child td{border-bottom:none;}
   <div class="section">
     <div class="section-title">Add-ons y Soluciones Complementarias</div>
     <table>
-      <thead><tr><th>Solución</th><th style="width:140px;">Proveedor</th></tr></thead>
+      <thead><tr><th>Add-on / Solución</th><th style="width:160px;">Proveedor</th><th style="width:160px;">Quién integra</th></tr></thead>
       <tbody>${addonRows}</tbody>
     </table>
   </div>` : ''}
@@ -5675,11 +5695,18 @@ tr:last-child td{border-bottom:none;}
     ${d.fuera.map(f => `<div class="out-item"><span style="color:#ccc;font-size:16px;flex-shrink:0;">✗</span><span>${f}</span></div>`).join('')}
   </div>` : ''}
 
+  <!-- COMENTARIOS VENTA -->
+  ${d.comentariosVenta ? `
+  <div class="section">
+    <div class="section-title">Comentarios del Proceso de Venta</div>
+    <p style="color:#444;line-height:1.7;white-space:pre-line;">${d.comentariosVenta}</p>
+  </div>` : ''}
+
   <!-- COMENTARIOS -->
   ${d.comentarios ? `
   <div class="section">
     <div class="section-title">Comentarios y Observaciones Adicionales</div>
-    <p style="color:#444;line-height:1.7;">${d.comentarios}</p>
+    <p style="color:#444;line-height:1.7;white-space:pre-line;">${d.comentarios}</p>
   </div>` : ''}
 
   <!-- CONTACTOS -->
