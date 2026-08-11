@@ -1004,10 +1004,16 @@ input[type=color]{width:100%;height:42px;border-radius:var(--rs);border:1.5px so
       <div class="kicker">12 · PMO</div>
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
         <h2 style="margin:0;">Alcance de Implementación</h2>
-        <button onclick="generarAlcancePMO()" style="display:flex;align-items:center;gap:8px;padding:10px 20px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-          Generar Alcance PMO
-        </button>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button onclick="guardarAlcanceGitHub()" id="btn-guardar-alcance" style="display:flex;align-items:center;gap:6px;padding:9px 16px;background:var(--white);color:var(--accent);border:1.5px solid var(--accent);border-radius:10px;font-weight:700;font-size:12px;cursor:pointer;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            Guardar alcance
+          </button>
+          <button onclick="generarAlcancePMO()" style="display:flex;align-items:center;gap:8px;padding:10px 20px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Generar Alcance PMO
+          </button>
+        </div>
       </div>
       <p style="margin-top:8px;">Documento legal de definición de alcance del proyecto. No aparece en la propuesta comercial.</p>
     </div>
@@ -5713,6 +5719,73 @@ function collectPMOData(){
     riesgos, riesgosInternos, fuera, contactos, blueprint, modulos, addons,
     fecha_doc: new Date().toLocaleDateString('es-DO',{day:'2-digit',month:'long',year:'numeric'})
   };
+}
+
+async function guardarAlcanceGitHub(){
+  // Sync DOM to pmoState first
+  savePMOState();
+  const mainData = collectData();
+  pmoState.cliente = mainData.cliente;
+
+  // Ask for token if not stored
+  let token = _histToken;
+  if(!token){
+    token = prompt('Token de GitHub para guardar el alcance:');
+    if(!token) return;
+    _histToken = token;
+  }
+
+  const clienteSlug = (mainData.cliente?.nombre||'proyecto').replace(/[^a-zA-Z0-9]/g,'_').toLowerCase();
+  const path = `historico/alcance_${clienteSlug}.json`;
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify(pmoState, null, 2))));
+
+  try {
+    // Check if file exists to get SHA
+    let sha = null;
+    try {
+      const check = await fetch(`https://api.github.com/repos/${HIST_REPO}/contents/${path}`,
+        { headers:{ 'Authorization':'token '+token } });
+      if(check.ok){ const d = await check.json(); sha = d.sha; }
+    } catch(e){}
+
+    const body = { message:`Alcance PMO · ${mainData.cliente?.nombre||'proyecto'} · ${new Date().toLocaleDateString('es-DO')}`, content };
+    if(sha) body.sha = sha;
+
+    const resp = await fetch(`https://api.github.com/repos/${HIST_REPO}/contents/${path}`, {
+      method:'PUT',
+      headers:{ 'Authorization':'token '+token, 'Content-Type':'application/json' },
+      body: JSON.stringify(body)
+    });
+
+    if(resp.ok){
+      showToast('✅ Alcance guardado en GitHub');
+      document.getElementById('btn-guardar-alcance').style.borderColor = '#4CAF50';
+      document.getElementById('btn-guardar-alcance').style.color = '#4CAF50';
+      setTimeout(() => {
+        document.getElementById('btn-guardar-alcance').style.borderColor = '';
+        document.getElementById('btn-guardar-alcance').style.color = '';
+      }, 3000);
+    } else {
+      showToast('Error al guardar — verifica el token', true);
+    }
+  } catch(e){ showToast('Error: '+e.message, true); }
+}
+
+async function cargarAlcanceGitHub(clienteNombre){
+  if(!_histToken) return;
+  const clienteSlug = (clienteNombre||'proyecto').replace(/[^a-zA-Z0-9]/g,'_').toLowerCase();
+  const path = `historico/alcance_${clienteSlug}.json`;
+  try {
+    const resp = await fetch(`https://api.github.com/repos/${HIST_REPO}/contents/${path}`,
+      { headers:{ 'Authorization':'token '+_histToken } });
+    if(!resp.ok) return;
+    const data = await resp.json();
+    const content = JSON.parse(decodeURIComponent(escape(atob(data.content.replace(/\n/g,'')))));
+    Object.assign(pmoState, content);
+    // If tab is open, reload it
+    if(_pmoTabVisited) loadPMOState();
+    showToast('✅ Alcance cargado de GitHub');
+  } catch(e){ console.warn('No se pudo cargar alcance:', e); }
 }
 
 async function generarAlcancePMO(){
