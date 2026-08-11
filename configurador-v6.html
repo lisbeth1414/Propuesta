@@ -5526,17 +5526,29 @@ function initPMOTab(){
 function renderPMOModulos(){
   const el = document.getElementById('pmo-modulos-render');
   if(!el) return;
-  const mods = [];
-  segsState.forEach(seg => {
-    if(!seg.on) return;
-    seg.subsegmentos?.forEach(ss => mods.push({ seg: seg.name, ss: ss.name }));
-  });
-  // Also get modules from modsState
+
+  // From modsState (Tab 03 · Módulos)
   const modsActivos = (typeof modsState !== 'undefined' ? modsState : [])
     .filter(m => m.on)
-    .map(m => ({ seg: 'Módulos SAP B1', ss: m.name || m.label }));
+    .map(m => m.name || m.label || '');
 
-  const all = [...modsActivos];
+  // From segsState (Tab 06 · Presupuesto) — segment names
+  const segsActivos = [];
+  segsState.forEach(seg => {
+    if(!seg.on) return;
+    seg.subsegmentos?.forEach(ss => segsActivos.push(seg.name + ' · ' + ss.name));
+  });
+
+  // Add-ons activos
+  const addonsActivos = (typeof ADDONS_DEF !== 'undefined' ? ADDONS_DEF : [])
+    .filter(a => a.on).map(a => a.name);
+
+  const all = [...new Set([...modsActivos, ...segsActivos])].filter(Boolean);
+
+  // Save to pmoState
+  pmoState.modulos = all;
+  pmoState.addons = addonsActivos.map(a => ({addon:a, proveedor:'CEO Consultoría', integra:'CEO Consultoría'}));
+
   if(!all.length){
     el.innerHTML = '<p style="font-size:12px;color:var(--soft);">Activa módulos en el Tab 03 · Módulos para verlos aquí.</p>';
     return;
@@ -5544,7 +5556,7 @@ function renderPMOModulos(){
   el.innerHTML = all.map(m => `
     <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--bgs);border-radius:8px;font-size:12.5px;">
       <svg viewBox="0 0 24 24" fill="none" stroke="var(--accd)" stroke-width="2.5" style="width:13px;height:13px;flex-shrink:0;"><polyline points="20 6 9 17 4 12"/></svg>
-      ${m.ss}
+      ${m}
     </div>`).join('');
 }
 
@@ -5659,35 +5671,31 @@ function collectPMOData(){
     return { nombre: inputs[0]?.value||'', cargo: inputs[1]?.value||'', tel: inputs[2]?.value||'', email: inputs[3]?.value||'' };
   }).filter(c => c.nombre);
 
-  const modulos = [...document.querySelectorAll('#pmo-modulos-render > div')].map(d => d.textContent.trim()).filter(Boolean);
-  const addons = [...document.querySelectorAll('#pmo-addons-table > div')].map(div => {
-    const inputs = div.querySelectorAll('input');
-    return { addon: inputs[0]?.value||'', proveedor: inputs[1]?.value||'', integra: inputs[2]?.value||'' };
-  }).filter(a => a.addon);
+  // Modulos — always from pmoState (updated by renderPMOModulos)
+  const modulos = pmoState.modulos?.length ? pmoState.modulos :
+    [...document.querySelectorAll('#pmo-modulos-render > div')].map(d => d.textContent.trim()).filter(Boolean);
+  const addons = pmoState.addons?.length ? pmoState.addons :
+    [...document.querySelectorAll('#pmo-addons-table > div')].map(div => {
+      const inputs = div.querySelectorAll('input');
+      return { addon: inputs[0]?.value||'', proveedor: inputs[1]?.value||'', integra: inputs[2]?.value||'' };
+    }).filter(a => a.addon);
+
+  // Save everything to pmoState
+  Object.assign(pmoState, {
+    nombre: g('pmo-nombre'), fecha: g('pmo-fecha'), horas: g('pmo-horas'),
+    duracion: g('pmo-duracion'), gpCeo: g('pmo-gp-ceo'), gpCliente: g('pmo-gp-cliente'),
+    patrocinador: g('pmo-patrocinador'), sistemaActual: g('pmo-sistema-actual'),
+    infra: g('pmo-infra'), volumen: g('pmo-volumen'), usuarios: g('pmo-usuarios'),
+    sucursales: g('pmo-sucursales'), objetivo: g('pmo-objetivo'),
+    objetivosEsp: g('pmo-objetivos-esp'), descripcion: g('pmo-descripcion'),
+    comentariosVenta: g('pmo-comentarios-venta'), comentariosInternos: g('pmo-comentarios-internos'),
+    comentarios: g('pmo-comentarios'), blueprint, riesgos, fuera, contactos,
+  });
+  localStorage.setItem('ceo_pmo_state', JSON.stringify(pmoState));
 
   return {
-    nombre: g('pmo-nombre'),
-    fecha: g('pmo-fecha'),
-    horas: g('pmo-horas'),
-    duracion: g('pmo-duracion'),
-    tipoPresup: g('pmo-tipo-presup'),
-    tipoAlcance: g('pmo-tipo-alcance'),
-    gpCeo: g('pmo-gp-ceo'),
-    gpCliente: g('pmo-gp-cliente'),
-    patrocinador: g('pmo-patrocinador'),
-    sistemaActual: g('pmo-sistema-actual'),
-    infra: g('pmo-infra'),
-    volumen: g('pmo-volumen'),
-    usuarios: g('pmo-usuarios'),
-    sucursales: g('pmo-sucursales'),
-    objetivo: g('pmo-objetivo'),
-    objetivosEsp: g('pmo-objetivos-esp'),
-    descripcion: g('pmo-descripcion'),
-    comentariosVenta: g('pmo-comentarios-venta'), // internal only
-    comentariosInternos: g('pmo-comentarios-internos'), // internal only
-    riesgosInternos,
-    comentarios: g('pmo-comentarios'),
-    blueprint, riesgos, fuera, contactos, modulos, addons,
+    ...pmoState,
+    riesgos, riesgosInternos, fuera, contactos, blueprint, modulos, addons,
     fecha_doc: new Date().toLocaleDateString('es-DO',{day:'2-digit',month:'long',year:'numeric'})
   };
 }
