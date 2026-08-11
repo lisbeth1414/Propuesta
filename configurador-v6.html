@@ -1319,7 +1319,7 @@ function switchTab(id){
   if(btn) btn.classList.add('active');
   const sel = document.getElementById('mobile-select');
   if(sel) sel.value = id;
-  if(id === 't-alcance') initPMOTab();
+  if(id === 't-alcance'){ _pmoTabVisited = true; initPMOTab(); }
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -5646,9 +5646,12 @@ function addContactoPMO(nombre='', cargo='', tel='', email=''){
 
 function collectPMOData(){
   const g = id => document.getElementById(id)?.value?.trim() || '';
-  // If tab is open, read from DOM and update pmoState
-  const tabOpen = !!document.getElementById('pmo-nombre');
-  if(tabOpen) savePMOState(); // sync DOM -> pmoState
+  // Only read from DOM if user actually visited the tab this session
+  if(_pmoTabVisited) savePMOState(); // sync DOM -> pmoState
+  // If never visited, return pmoState (loaded from localStorage on init)
+  if(!_pmoTabVisited && (pmoState.nombre || pmoState.gpCeo || pmoState.objetivo)){
+    return { ...pmoState, fecha_doc: new Date().toLocaleDateString('es-DO',{day:'2-digit',month:'long',year:'numeric'}) };
+  }
 
   const blueprint = PMO_BLUEPRINT.map(q => ({
     label: q.label,
@@ -5947,6 +5950,18 @@ tr:last-child td{border-bottom:none;}
 }
 
 // ======================================================
+// Load PMO state from localStorage on startup
+(function(){
+  try {
+    const raw = localStorage.getItem('ceo_pmo_state');
+    if(raw){
+      const s = JSON.parse(raw);
+      Object.assign(pmoState, s);
+      console.log('✅ PMO state restored:', pmoState.nombre || '(sin nombre)');
+    }
+  } catch(e){ console.warn('PMO restore error:', e); }
+})();
+
 // HISTORIAL DE PROPUESTAS — GitHub /historico/
 // ======================================================
 const HIST_REPO = 'lisbeth1414/Propuesta';
