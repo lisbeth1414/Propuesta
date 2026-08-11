@@ -5376,7 +5376,8 @@ const PMO_FUERA_DEFAULT = [
 function savePMOState(){
   try {
     const g = id => document.getElementById(id)?.value?.trim() || '';
-    const state = {
+    // Write to global pmoState first
+    Object.assign(pmoState, {
       nombre: g('pmo-nombre'),
       fecha: g('pmo-fecha'),
       horas: g('pmo-horas'),
@@ -5415,16 +5416,22 @@ function savePMOState(){
         const inputs = div.querySelectorAll('input');
         return { nombre: inputs[0]?.value||'', cargo: inputs[1]?.value||'', tel: inputs[2]?.value||'', email: inputs[3]?.value||'' };
       }).filter(c => c.nombre),
-    };
-    localStorage.setItem('ceo_pmo_state', JSON.stringify(state));
+    });
+    // Also persist to localStorage as backup
+    localStorage.setItem('ceo_pmo_state', JSON.stringify(pmoState));
   } catch(e) { console.warn('PMO save error:', e); }
 }
 
 function loadPMOState(){
   try {
-    const raw = localStorage.getItem('ceo_pmo_state');
-    if(!raw) return;
-    const s = JSON.parse(raw);
+    // Try pmoState global first, then localStorage
+    let s = (pmoState.nome || pmoState.nombre || pmoState.gpCeo) ? pmoState : null;
+    if(!s){
+      const raw = localStorage.getItem('ceo_pmo_state');
+      if(!raw) return;
+      s = JSON.parse(raw);
+      Object.assign(pmoState, s); // sync to global
+    }
     const set = (id, val) => { const el = document.getElementById(id); if(el && val) el.value = val; };
     set('pmo-nombre', s.nombre); set('pmo-fecha', s.fecha);
     set('pmo-horas', s.horas); set('pmo-duracion', s.duracion);
@@ -5626,14 +5633,10 @@ function addContactoPMO(nombre='', cargo='', tel='', email=''){
 }
 
 function collectPMOData(){
-  // If DOM fields are empty (tab not yet opened), try localStorage
-  const tabOpened = !!document.getElementById('pmo-nombre');
-  const fromStorage = !tabOpened ? (() => {
-    try { return JSON.parse(localStorage.getItem('ceo_pmo_state') || 'null'); } catch(e){ return null; }
-  })() : null;
-  if(fromStorage) return { ...fromStorage, fecha_doc: new Date().toLocaleDateString('es-DO',{day:'2-digit',month:'long',year:'numeric'}) };
-
   const g = id => document.getElementById(id)?.value?.trim() || '';
+  // If tab is open, read from DOM and update pmoState
+  const tabOpen = !!document.getElementById('pmo-nombre');
+  if(tabOpen) savePMOState(); // sync DOM -> pmoState
 
   const blueprint = PMO_BLUEPRINT.map(q => ({
     label: q.label,
