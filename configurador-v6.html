@@ -2841,6 +2841,7 @@ function updateMapPreview(){ /* Preview is shown in the generated output */ }
 // ======================================================
 function guardarJSON(){
   try {
+    if(_pmoTabVisited) savePMOState(); // sync PMO DOM -> pmoState before saving
     const data = collectData();
     // Include precios catalog in the saved draft
     data.precios = PRECIOS_CATS.map(cat => ({
