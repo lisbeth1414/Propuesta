@@ -5789,6 +5789,7 @@ async function generarAlcancePMO(){
   // Get cliente from main collectData (safe — no recursion since collectPMOData no longer calls collectData)
   const mainData = collectData();
   data.cliente = mainData.cliente;
+  data.modulos03 = mainData.modulos; // Tab 03 detailed modules
   if(!data.nombre) data.nombre = 'Implementación SAP B1' + (mainData.cliente?.nombre ? ' — ' + mainData.cliente.nombre : '');
 
   try {
@@ -5826,9 +5827,21 @@ function buildAlcancePMOHTML(d){
   const fmt = s => s || '—';
   const bpSiNo = v => v==='si'?'Sí':v==='no'?'No':v==='parcial'?'Parcialmente':'Por confirmar';
 
-  const modRows = d.modulos.length
-    ? d.modulos.map(m => `<tr><td style="padding:7px 12px;border-bottom:1px solid #f0f0f0;">${m}</td><td style="padding:7px 12px;border-bottom:1px solid #f0f0f0;color:#27ae60;font-weight:600;">✓ Incluido</td></tr>`).join('')
-    : '<tr><td colspan="2" style="padding:10px 12px;color:#888;">No se han seleccionado módulos.</td></tr>';
+  // Build module rows from Tab 03 data (detailed) or pmoState.modulos (simple)
+  let modRows = '';
+  if(d.modulos03 && Object.keys(d.modulos03).length){
+    // Detailed from Tab 03 — group by module with items
+    modRows = Object.entries(d.modulos03).map(([code, mod]) => {
+      const items = (mod.items||[]).map(i =>
+        `<tr><td style="padding:5px 12px 5px 28px;border-bottom:1px solid #f5f5f5;color:#555;font-size:11px;">· ${i}</td><td style="padding:5px 12px;border-bottom:1px solid #f5f5f5;color:#27ae60;font-size:11px;">✓</td></tr>`
+      ).join('');
+      return `<tr style="background:#f8f8f8;"><td style="padding:8px 12px;border-bottom:1px solid #e8e8e8;font-weight:700;color:#1a1a1a;">${mod.name}</td><td style="padding:8px 12px;border-bottom:1px solid #e8e8e8;color:#27ae60;font-weight:700;">✓ Incluido</td></tr>${items}`;
+    }).join('');
+  } else if(d.modulos && d.modulos.length){
+    modRows = d.modulos.map(m => `<tr><td style="padding:7px 12px;border-bottom:1px solid #f0f0f0;">${m}</td><td style="padding:7px 12px;border-bottom:1px solid #f0f0f0;color:#27ae60;font-weight:600;">✓ Incluido</td></tr>`).join('');
+  } else {
+    modRows = '<tr><td colspan="2" style="padding:10px 12px;color:#888;">No se han seleccionado módulos.</td></tr>';
+  }
 
   const addonRows = d.addons.length
     ? d.addons.map(a => `<tr><td style="padding:7px 12px;border-bottom:1px solid #f0f0f0;">${a.addon}</td><td style="padding:7px 12px;border-bottom:1px solid #f0f0f0;">${a.proveedor||'—'}</td><td style="padding:7px 12px;border-bottom:1px solid #f0f0f0;">${a.integra||'—'}</td></tr>`).join('')
@@ -5973,7 +5986,7 @@ tr:last-child td{border-bottom:none;}
   ${d.riesgos.length ? `
   <div class="section">
     <div class="section-title">Riesgos Identificados</div>
-    ${d.riesgos.map(r => `<div class="risk-item"><span class="risk-icon">⚠</span><span>${r}</span></div>`).join('')}
+    ${d.riesgos.map(r => `<div class="risk-item"><span class="risk-icon">⚠</span><span>${typeof r === 'object' ? r.text : r}</span></div>`).join('')}
   </div>` : ''}
 
   <!-- FUERA DEL ALCANCE -->
