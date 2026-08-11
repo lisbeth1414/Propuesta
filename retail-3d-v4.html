@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SAP CCO · Experiencia Retail · CEO Consultoría</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;}
+canvas{display:block;position:fixed;inset:0;}
+
+#loading{position:fixed;inset:0;background:#f0f0f0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;transition:opacity .8s;}
+#loading.out{opacity:0;pointer-events:none;}
+#l-logo{font-size:3rem;font-weight:900;color:#1a6fc4;letter-spacing:-.04em;font-family:Georgia,serif;}
+#l-sub{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#999;font-family:monospace;}
+#l-bar{width:200px;height:2px;background:#e0e0e0;border-radius:2px;}
+#l-fill{height:100%;background:#1a6fc4;width:0%;border-radius:2px;transition:width .2s;}
+#l-txt{font-size:.55rem;letter-spacing:.15em;text-transform:uppercase;color:#bbb;font-family:monospace;}
+
+#brand{position:fixed;top:28px;left:40px;font-family:monospace;font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.35);z-index:20;}
+#brand span{color:#E8721C;}
+
+/* Cart */
+#cart-hud{position:fixed;top:28px;right:36px;z-index:20;background:rgba(255,255,255,.96);border:1px solid #e0e0e0;border-radius:12px;padding:14px 18px;min-width:250px;max-width:290px;box-shadow:0 4px 24px rgba(0,0,0,.12);}
+#cart-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+#cart-label{font-size:.55rem;letter-spacing:.16em;text-transform:uppercase;color:#888;font-family:monospace;flex:1;}
+#cart-count{background:#E8721C;color:#fff;border-radius:999px;padding:2px 8px;font-size:.48rem;font-weight:700;}
+#cart-list{display:flex;flex-direction:column;gap:4px;max-height:190px;overflow-y:auto;}
+#cart-list::-webkit-scrollbar{width:2px;}
+#cart-list::-webkit-scrollbar-thumb{background:#E8721C;border-radius:2px;}
+.ci{display:flex;justify-content:space-between;align-items:center;padding:6px 8px;background:#f8f8f8;border-radius:6px;border-left:3px solid var(--clr,#E8721C);animation:cin .35s cubic-bezier(.16,1,.3,1);}
+@keyframes cin{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:none}}
+.ci-n{font-size:.68rem;color:#333;flex:1;}
+.ci-p{font-family:monospace;font-size:.65rem;color:#E8721C;white-space:nowrap;margin-left:8px;font-weight:600;}
+#cart-sep{height:1px;background:#eee;margin:8px 0;}
+#cart-total-row{display:flex;justify-content:space-between;align-items:center;}
+#cart-total-lbl{font-size:.55rem;color:#aaa;font-family:monospace;text-transform:uppercase;letter-spacing:.08em;}
+#cart-total{font-family:monospace;font-size:.95rem;font-weight:700;color:#1a1a1a;}
+#cart-btn{width:100%;margin-top:10px;padding:9px;background:#1a6fc4;border:none;border-radius:8px;color:#fff;font-size:.68rem;font-weight:700;cursor:pointer;display:none;transition:background .2s;}
+#cart-btn:hover{background:#1557a0;}
+#cart-btn.show{display:block;}
+
+/* Scene label */
+#scene-ui{position:fixed;bottom:44px;left:44px;z-index:10;pointer-events:none;max-width:440px;}
+#s-kicker{font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.6);font-family:monospace;margin-bottom:8px;}
+#s-title{font-size:clamp(1.9rem,3.5vw,3.2rem);font-weight:700;line-height:1.02;letter-spacing:-.03em;color:#fff;margin-bottom:10px;text-shadow:0 2px 20px rgba(0,0,0,.5);}
+#s-title em{color:#E8721C;font-style:italic;}
+#s-body{font-size:.82rem;line-height:1.65;color:rgba(255,255,255,.5);max-width:380px;text-shadow:0 1px 8px rgba(0,0,0,.5);}
+
+/* Aisle nav */
+#aisle-nav{position:fixed;left:36px;top:50%;transform:translateY(-50%);z-index:20;display:flex;flex-direction:column;gap:10px;}
+.an{display:flex;align-items:center;gap:8px;cursor:pointer;opacity:.3;transition:opacity .3s;}
+.an.on{opacity:1;}
+.an-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.an-lbl{font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;color:#fff;font-family:monospace;white-space:nowrap;text-shadow:0 1px 4px rgba(0,0,0,.8);}
+
+/* Dot nav */
+#dot-nav{position:fixed;right:36px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:9px;z-index:20;}
+.dn{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.25);border:none;cursor:pointer;transition:all .3s;}
+.dn.on{background:#E8721C;transform:scale(1.7);}
+
+/* Next */
+#btn-nxt{position:fixed;bottom:44px;right:36px;width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;cursor:pointer;z-index:20;display:flex;align-items:center;justify-content:center;transition:all .22s;backdrop-filter:blur(8px);}
+#btn-nxt:hover{background:rgba(255,255,255,.25);}
+
+/* Hint */
+#hint{position:fixed;bottom:44px;left:50%;transform:translateX(-50%);font-family:monospace;font-size:.5rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.25);z-index:10;pointer-events:none;}
+
+/* Toast */
+#toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.85);z-index:60;opacity:0;pointer-events:none;transition:all .28s;text-align:center;}
+#toast.show{opacity:1;transform:translate(-50%,-68%) scale(1);}
+#toast-inner{background:rgba(255,255,255,.97);border:1px solid #e0e0e0;border-radius:12px;padding:12px 20px;box-shadow:0 8px 32px rgba(0,0,0,.15);}
+#toast.remove #toast-inner{border-color:#ffcdd2;}
+#t-name{font-size:.74rem;color:#1a1a1a;font-weight:600;}
+#t-price{font-family:monospace;font-size:.64rem;color:#1a6fc4;margin-top:2px;}
+
+/* CCO Checkout overlay */
+#cco-overlay{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.6);
+  backdrop-filter:blur(12px);
+  z-index:100;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;
+  transition:opacity .5s;
+}
+#cco-overlay.open{opacity:1;pointer-events:all;}
+.cco-win{
+  width:920px;height:570px;
+  background:#f0f0f0;
+  border-radius:6px;
+  overflow:hidden;
+  display:flex;flex-direction:column;
+  font-family:'Segoe UI',Arial,sans-serif;
+  font-size:12px;
+  transform:scale(.88);
+  transition:transform .5s cubic-bezier(.16,1,.3,1);
+  box-shadow:0 40px 100px rgba(0,0,0,.8);
+}
+#cco-overlay.open .cco-win{transform:scale(1);}
+
+/* CCO TOP BAR */
+.cco-topbar{background:#212121;height:40px;display:flex;align-items:center;padding:0 10px;gap:8px;flex-shrink:0;}
+.cco-sap{background:#1a6fc4;color:#fff;font-weight:900;font-size:11px;padding:3px 7px;border-radius:2px;}
+.cco-div{width:1px;height:20px;background:#444;}
+.cco-info{display:flex;flex-direction:column;gap:1px;margin-left:2px;}
+.cco-date{font-size:9px;color:#888;font-family:monospace;}
+.cco-user{font-size:8.5px;color:#666;}
+.cco-sp{flex:1;}
+.cco-tbtn{padding:4px 10px;border-radius:2px;border:none;font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.04em;}
+.cco-tbtn.b{background:#1a6fc4;color:#fff;}
+.cco-tbtn.o{background:transparent;color:#888;border:1px solid #555;}
+.cco-ico{color:#666;font-size:11px;padding:0 5px;cursor:pointer;}
+
+/* CCO MAIN */
+.cco-main{flex:1;display:flex;overflow:hidden;}
+
+/* LEFT */
+.cco-left{flex:1;display:flex;flex-direction:column;background:#fff;border-right:1px solid #ddd;}
+.cco-colhead{display:grid;grid-template-columns:24px 88px 1fr 60px 50px 70px 60px 72px;background:#eaeaea;border-bottom:1px solid #ccc;padding:4px 8px;gap:4px;}
+.cco-colhead span{font-size:9px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.04em;}
+.cco-colhead span.r{text-align:right;}
+.cco-items{flex:1;overflow-y:auto;}
+.cco-row{display:grid;grid-template-columns:24px 88px 1fr 60px 50px 70px 60px 72px;padding:5px 8px;gap:4px;border-bottom:1px solid #f0f0f0;align-items:center;}
+.cco-row:hover{background:#f8f8f8;}
+.cco-row.sel{background:#1a6fc4;}
+.cco-row.sel *{color:#fff!important;}
+.ri{font-size:9.5px;color:#aaa;text-align:center;}
+.rid{font-size:9px;color:#888;font-family:monospace;}
+.rn{font-size:10.5px;color:#222;font-weight:500;}
+.rs{font-size:8.5px;color:#999;margin-top:1px;}
+.rr{text-align:right;font-size:10.5px;color:#333;}
+.rr.m{color:#bbb;font-size:9.5px;}
+.rr.b{font-weight:700;}
+.badge{display:inline-block;padding:1px 5px;border-radius:9px;font-size:8px;font-weight:700;letter-spacing:.04em;}
+.bm{background:#e3f2fd;color:#1565c0;}
+.ba{background:#e8f5e9;color:#2e7d32;}
+.bu{background:#fff3e0;color:#e65100;}
+
+/* TOTALS */
+.cco-totals{border-top:2px solid #e0e0e0;background:#fafafa;padding:7px 12px;display:flex;align-items:center;gap:20px;flex-shrink:0;}
+.tb{display:flex;flex-direction:column;gap:1px;}
+.tbl{font-size:8.5px;text-transform:uppercase;letter-spacing:.06em;color:#aaa;}
+.tbv{font-size:11px;font-weight:600;color:#333;}
+.tb-main{margin-left:auto;text-align:right;}
+.tb-main .tbl{font-size:9px;}
+.tb-big{font-size:26px;font-weight:700;color:#1a1a1a;line-height:1;margin-top:2px;}
+.tb-big .cur{font-size:13px;font-weight:600;color:#666;margin-right:2px;}
+.tb-open{font-size:10.5px;font-weight:600;color:#E8721C;margin-top:2px;}
+
+/* TABS */
+.cco-tabs{display:flex;background:#fff;border-top:1px solid #e0e0e0;flex-shrink:0;}
+.ctab{flex:1;padding:6px 2px;text-align:center;font-size:9px;font-weight:700;color:#aaa;border-bottom:2px solid transparent;cursor:pointer;text-transform:uppercase;letter-spacing:.04em;}
+.ctab.on{color:#1a6fc4;border-bottom-color:#1a6fc4;}
+
+/* ACTIONS */
+.cco-acts{background:#f5f5f5;border-top:1px solid #e0e0e0;display:grid;grid-template-columns:repeat(7,1fr);gap:3px;padding:4px 6px;flex-shrink:0;}
+.act{padding:5px 3px;border-radius:2px;border:none;font-size:8.5px;font-weight:600;cursor:pointer;text-align:center;line-height:1.3;}
+.ag{background:#c8e6c9;color:#1b5e20;}
+.ar{background:#ffcdd2;color:#b71c1c;}
+.ab{background:#bbdefb;color:#0d47a1;}
+.ao{background:#ffe0b2;color:#bf360c;}
+.an2{background:#eee;color:#757575;}
+.ad{background:#f5f5f5;color:#ccc;cursor:default;}
+
+/* RIGHT */
+.cco-right{width:260px;flex-shrink:0;background:#fff;display:flex;flex-direction:column;}
+.cco-rcpt-h{padding:8px 10px;border-bottom:1px solid #eee;}
+.cco-rcpt-id{font-size:9px;color:#666;font-family:monospace;}
+.cco-rcpt-pl{font-size:9px;color:#1a6fc4;font-weight:600;margin-top:2px;}
+.cco-cust{padding:8px 10px;border-bottom:1px solid #eee;display:flex;gap:8px;align-items:center;}
+.cust-av{width:32px;height:32px;border-radius:50%;background:#1a6fc4;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+.cust-n{font-size:11px;font-weight:700;color:#1a1a1a;}
+.cust-s{font-size:8.5px;color:#aaa;line-height:1.5;margin-top:2px;}
+.cco-sum{flex:1;padding:8px 10px;overflow-y:auto;}
+.sum-ttl{font-size:8.5px;text-transform:uppercase;letter-spacing:.1em;color:#ccc;margin-bottom:8px;font-weight:600;}
+.sum-line{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f5f5f5;}
+.sum-line:last-child{border:none;}
+.sl-n{font-size:9.5px;color:#333;flex:1;line-height:1.3;}
+.sl-s{font-size:8px;color:#bbb;margin-top:1px;}
+.sl-p{font-family:monospace;font-size:9.5px;font-weight:600;color:#1a1a1a;white-space:nowrap;margin-left:8px;}
+.cco-np{padding:6px 10px;border-top:1px solid #eee;}
+.np-g{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;}
+.np{padding:6px;text-align:center;font-size:12px;font-weight:600;color:#333;background:#f5f5f5;border:1px solid #e0e0e0;border-radius:2px;cursor:pointer;}
+.np.bk{background:#ffcdd2;border-color:#ef9a9a;color:#c62828;font-size:10px;}
+.np.ok{background:#43a047;border-color:#388e3c;color:#fff;font-size:13px;grid-column:span 2;}
+.cco-pay{padding:6px 10px;border-top:1px solid #eee;}
+.pay-cats{display:flex;gap:3px;margin-bottom:4px;}
+.pcat{flex:1;padding:3px 2px;text-align:center;font-size:7.5px;font-weight:700;border-radius:2px;cursor:pointer;line-height:1.3;}
+.pay-btns{display:grid;grid-template-columns:1fr 1fr;gap:3px;}
+.pb{padding:7px 4px;border-radius:2px;border:none;font-size:9px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:3px;}
+.pb.bl{background:#1a6fc4;color:#fff;}
+.pb.ex{background:#1a6fc4;color:#fff;grid-column:span 2;padding:8px;}
+.pb.ca{background:#ffcdd2;color:#c62828;grid-column:span 2;border:1px solid #ef9a9a;}
+
+/* STATUS */
+.cco-status{background:#1a1a1a;height:18px;display:flex;align-items:center;padding:0 10px;justify-content:space-between;flex-shrink:0;}
+.cco-status span{font-size:8px;font-family:monospace;color:#555;}
+.cco-status .online{color:#43a047;}
+.sb-bar{width:40px;height:3px;background:#333;border-radius:2px;overflow:hidden;}
+.sb-bar-fill{height:100%;background:#43a047;}
+
+/* Close btn */
+#cco-close{position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.2);border:none;color:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;z-index:101;transition:background .2s;}
+#cco-close:hover{background:rgba(255,255,255,.35);}
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div id="l-logo">SAP</div>
+  <div id="l-sub">Customer Checkout · CEO Consultoría</div>
+  <div id="l-bar"><div id="l-fill"></div></div>
+  <div id="l-txt">Preparando tu experiencia...</div>
+</div>
+
+<div id="brand"><span>CEO</span> Consultoría · SAP® Recognized Expertise</div>
+<div id="dot-nav"></div>
+<div id="aisle-nav"></div>
+
+<div id="cart-hud">
+  <div id="cart-head">
+    <span style="font-size:1rem;">🛒</span>
+    <span id="cart-label">Tu carrito</span>
+    <span id="cart-count">0</span>
+  </div>
+  <div id="cart-list"><div style="font-size:.65rem;color:#bbb;text-align:center;padding:12px 0;line-height:1.6;">Explora los pasillos<br>y haz clic en los productos</div></div>
+  <div id="cart-sep"></div>
+  <div id="cart-total-row">
+    <span id="cart-total-lbl">Total estimado</span>
+    <span id="cart-total">US$ 0</span>
+  </div>
+  <button id="cart-btn" onclick="openCCO()">Ver propuesta en SAP CCO →</button>
+</div>
+
+<div id="scene-ui">
+  <div id="s-kicker"></div>
+  <div id="s-title"></div>
+  <div id="s-body"></div>
+</div>
+
+<button id="btn-nxt" onclick="next()">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:15px;height:15px;"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+</button>
+<div id="hint">↑↓ flechas · clic en productos para agregar</div>
+
+<div id="toast"><div id="toast-inner"><div id="t-name"></div><div id="t-price"></div></div></div>
+
+<!-- CCO CHECKOUT OVERLAY -->
+<div id="cco-overlay">
+  <button id="cco-close" onclick="closeCCO()">✕</button>
+  <div class="cco-win">
+    <div class="cco-topbar">
+      <div class="cco-sap">SAP</div>
+      <div class="cco-div"></div>
+      <div class="cco-info">
+        <div class="cco-date" id="cco-date">📅 — · CEO01-root</div>
+        <div class="cco-user">👤 Admin · CEO Consultoría S.R.L.</div>
+      </div>
+      <div class="cco-sp"></div>
+      <button class="cco-tbtn b">🔍</button>
+      <button class="cco-tbtn b" style="margin-left:3px;">📋</button>
+      <div class="cco-div"></div>
+      <button class="cco-tbtn b">SALES</button>
+      <button class="cco-tbtn o">FUNCTIONS</button>
+      <div class="cco-div"></div>
+      <span class="cco-ico">🔍</span><span class="cco-ico">👤</span><span class="cco-ico">⏻</span>
+    </div>
+
+    <div class="cco-main">
+      <!-- LEFT -->
+      <div class="cco-left">
+        <div class="cco-colhead">
+          <span>#</span><span>SKU</span><span>CONCEPTO</span>
+          <span class="r">CANT.</span><span>TIPO</span>
+          <span class="r">PRECIO</span><span class="r">DCTO</span><span class="r">TOTAL</span>
+        </div>
+        <div class="cco-items" id="cco-items"></div>
+        <div class="cco-totals" id="cco-totals"></div>
+        <div class="cco-tabs">
+          <div class="ctab on">HOME</div>
+          <div class="ctab">LICENCIAS</div>
+          <div class="ctab">SERVICIOS</div>
+          <div class="ctab">FACTURACIÓN E.</div>
+          <div class="ctab">ADD-ONS</div>
+        </div>
+        <div class="cco-acts">
+          <button class="act ag">Imprimir</button>
+          <button class="act ao">Flujo de caja</button>
+          <button class="act an2">Guardar</button>
+          <button class="act an2">Compartir link</button>
+          <button class="act ab">Contrato</button>
+          <button class="act ab">Reunión</button>
+          <button class="act an2">PDF</button>
+          <button class="act ar">Cancelar</button>
+          <button class="act an2">+ Concepto</button>
+          <button class="act ad">Descuento</button>
+          <button class="act an2">Moneda</button>
+          <button class="act an2">Dividir</button>
+          <button class="act ao">Ajuste</button>
+          <button class="act ad"></button>
+        </div>
+      </div>
+
+      <!-- RIGHT -->
+      <div class="cco-right">
+        <div class="cco-rcpt-h">
+          <div class="cco-rcpt-id" id="cco-rcpt-id">Receipt ID: CEO-2026-00001</div>
+          <div class="cco-rcpt-pl">Price list: SAP Customer Checkout · Cloud</div>
+        </div>
+        <div class="cco-cust" id="cco-cust">
+          <div class="cust-av">C</div>
+          <div>
+            <div class="cust-n">Cliente</div>
+            <div class="cust-s">Santo Domingo, RD<br>Partner: CEO Consultoría</div>
+          </div>
+        </div>
+        <div class="cco-sum">
+          <div class="sum-ttl">Resumen de inversión</div>
+          <div id="cco-summary"></div>
+          <div style="margin-top:10px;padding:7px 8px;background:#e3f2fd;border-radius:3px;border-left:3px solid #1a6fc4;">
+            <div style="font-size:8.5px;color:#1565c0;font-weight:700;text-transform:uppercase;letter-spacing:.06em;">SAP Recognized Expertise</div>
+            <div style="font-size:8.5px;color:#666;margin-top:2px;line-height:1.4;">+400 POS activos · 25+ implementaciones exitosas</div>
+          </div>
+        </div>
+        <div class="cco-np">
+          <div class="np-g">
+            <div class="np">1</div><div class="np">2</div><div class="np">3</div>
+            <div class="np">4</div><div class="np">5</div><div class="np">6</div>
+            <div class="np">7</div><div class="np">8</div><div class="np">9</div>
+            <div class="np">.</div><div class="np">0</div><div class="np">X</div>
+            <div class="np bk">←</div>
+            <div class="np ok">✓</div>
+          </div>
+        </div>
+        <div class="cco-pay">
+          <div class="pay-cats">
+            <div class="pcat" style="background:#e3f2fd;color:#0d47a1;">SAP<br>Cloud</div>
+            <div class="pcat" style="background:#e8f5e9;color:#1b5e20;">FE<br>DGII</div>
+            <div class="pcat" style="background:#fce4ec;color:#880e4f;">Add<br>ons</div>
+            <div class="pcat" style="background:#fff3e0;color:#e65100;">Dev<br>s</div>
+            <div class="pcat" style="background:#f3e5f5;color:#4a148c;">Serv<br>.</div>
+          </div>
+          <div class="pay-btns">
+            <button class="pb bl">💳 Firma</button>
+            <button class="pb bl">📋 Detalle</button>
+            <button class="pb ex" onclick="window.location='mailto:ventas@ceo.do'">✉ Solicitar propuesta · ventas@ceo.do</button>
+            <button class="pb ca" onclick="closeCCO()">✕ Cerrar</button>
+          </div>
+        </div>
+        <div class="cco-status">
+          <span class="online">● Online · SAP CCO v2.0</span>
+          <div class="sb-bar"><div class="sb-bar-fill"></div></div>
+          <span>Terminal: CEO-001 · Lisbeth Luzon</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ── DATA ──────────────────────────────────────────────────────
+// Receive data from configurador or use defaults
+var PROP_DATA = window.__CEO_PROP__ || null;
+
+var SCENES = [
+  {id:'entrance',label:'Entrada',color:'#E8721C',hex:0xE8721C,
+   kicker:'Bienvenido · CEO Consultoría',
+   title:'Tu tienda,<br><em>reinventada.</em>',
+   body:'Recorre los pasillos y selecciona lo que necesita tu negocio. Al final, tu propuesta completa en SAP Customer Checkout.',
+   products:[]},
+  {id:'licencias',label:'Licencias',color:'#4A90D9',hex:0x4A90D9,
+   kicker:'Pasillo 1 · Licenciamiento SAP',
+   title:'<em>Licencias</em><br>SAP.',
+   body:'El ERP #1 del mundo en nube pública SAP, nube privada Azure o instalación local. Respaldo directo de SAP SE.',
+   products:[
+     {name:'SAP Business One Cloud',sub:'5 usuarios · Nube pública SAP',price:1800,type:'mensual',on:true},
+     {name:'SAP Customer Checkout',sub:'15 POS · CCO Cloud · 1.26M tx/año',price:915,type:'mensual',on:true},
+     {name:'SAP B1 On Premise',sub:'Licencia perpetua · servidor propio',price:25000,type:'unico',on:false},
+     {name:'Usuario adicional',sub:'Por usuario SAP B1 · mensual',price:120,type:'mensual',on:false},
+   ]},
+  {id:'consultoria',label:'Consultoría',color:'#9B72CF',hex:0x9B72CF,
+   kicker:'Pasillo 2 · Servicios Profesionales',
+   title:'<em>Consultoría</em><br>certificada.',
+   body:'Equipo SAP Recognized Expertise. Metodología AIP. +25 implementaciones exitosas en la región.',
+   products:[
+     {name:'Implementación SAP B1',sub:'260 hrs · Blueprint a Go-Live',price:18090,type:'unico',on:true},
+     {name:'Implementación SAP CCO',sub:'POS completo · integrado con B1',price:4500,type:'unico',on:true},
+     {name:'Portal de Promociones',sub:'Suscripción mensual',price:250,type:'mensual',on:false},
+     {name:'Capacitación usuarios',sub:'Talleres presenciales certificados',price:2200,type:'unico',on:false},
+   ]},
+  {id:'facturacion',label:'Facturación E.',color:'#4CAF50',hex:0x4CAF50,
+   kicker:'Pasillo 3 · Facturación Electrónica DGII',
+   title:'<em>FE · DGII</em><br>certificada.',
+   body:'e-CF, NCF electrónicos, reportes 606/607/608 — integrado nativamente en SAP Business One.',
+   products:[
+     {name:'FE · Implementación B1 + CCO',sub:'Certificación DGII incluida',price:2625,type:'unico',on:true},
+     {name:'FE · Integración anual',sub:'100% con certificación DGII',price:600,type:'anual',on:true},
+     {name:'Bolsa transaccional',sub:'52,000 tx/mes · $0.018 adicional',price:10077,type:'anual',on:true},
+     {name:'Soporte FE anual',sub:'Mantenimiento y actualizaciones',price:900,type:'anual',on:false},
+   ]},
+  {id:'addons',label:'Add-ons CEO',color:'#E8721C',hex:0xE8721C,
+   kicker:'Pasillo 4 · Add-ons CEO Consultoría',
+   title:'<em>Add-ons</em><br>exclusivos.',
+   body:'Desarrollados sobre el SDK oficial SAP. Funcionalidades que solo CEO Consultoría tiene en la región.',
+   products:[
+     {name:'Lector de precios',sub:'10 unidades · integrado SAP B1',price:985,type:'anual',on:true},
+     {name:'B1Wapp · WMS',sub:'7 unidades · gestión de almacén',price:920,type:'anual',on:true},
+     {name:'Conciliación bancaria',sub:'Todos los bancos RD · automático',price:1500,type:'anual',on:true},
+     {name:'Cotizador web',sub:'Portal de cotizaciones online',price:600,type:'anual',on:false},
+   ]},
+  {id:'checkout',label:'Checkout',color:'#E8721C',hex:0xE8721C,
+   kicker:'Checkout · Tu Propuesta SAP CCO',
+   title:'Todo en<br><em>tu propuesta.</em>',
+   body:'Revisa tu selección en SAP Customer Checkout. CEO Consultoría te envía la propuesta formal en menos de 24 horas.',
+   products:[]}
+];
+
+// Override with real configurador data if present
+if(PROP_DATA && PROP_DATA.presupuesto){
+  PROP_DATA.presupuesto.forEach(function(seg){
+    var sc = SCENES.find(function(s){ return s.id === seg.id; });
+    if(sc && seg.subsegmentos){
+      sc.products = seg.subsegmentos.map(function(ss){
+        return {name:ss.name, sub:ss.pago||'', price:parseFloat(ss.total)||0, type:ss.pagoTipo||'unico', on:true};
+      });
+    }
+  });
+}
+
+var AISLE_X = [0-10, 0-3.5, 3.5, 10];
+var cart = [];
+
+// Pre-fill
+SCENES.filter(function(s){return s.products.length;}).forEach(function(s){
+  s.products.forEach(function(p,i){
+    if(p.on) cart.push({sid:s.id,i:i,name:p.name,price:p.price,type:p.type,color:s.color,label:s.label});
+  });
+});
+
+function fmtP(p,t){ return t==='mensual'?'US$'+p+'/mes':t==='anual'?'US$'+p+'/año':'US$'+p.toLocaleString('en-US'); }
+function fmtT(t){ return t==='mensual'?'Mensual':t==='anual'?'Anual':'Único'; }
+
+function toggleItem(sid,i){
+  var sc=SCENES.find(function(s){return s.id===sid;});
+  var p=sc.products[i];
+  p.on=!p.on;
+  var idx=cart.findIndex(function(c){return c.sid===sid&&c.i===i;});
+  if(p.on) cart.push({sid:sid,i:i,name:p.name,price:p.price,type:p.type,color:sc.color,label:sc.label});
+  else if(idx>-1) cart.splice(idx,1);
+  flashToast(p.name,p.price,p.type,p.on);
+  refreshMesh(sid,i,p.on,sc.hex);
+  renderCart();
+}
+
+var toastT;
+function flashToast(name,price,type,adding){
+  var el=document.getElementById('toast');
+  document.getElementById('t-name').textContent=(adding?'✓ ':'✕ ')+name;
+  document.getElementById('t-price').textContent=adding?fmtP(price,type):'Removido';
+  document.getElementById('toast-inner').style.borderColor=adding?'#e0e0e0':'#ffcdd2';
+  el.className=adding?'show':'show remove';
+  clearTimeout(toastT);
+  toastT=setTimeout(function(){el.className='';},1800);
+}
+
+function renderCart(){
+  var list=document.getElementById('cart-list');
+  var tot=document.getElementById('cart-total');
+  var badge=document.getElementById('cart-count');
+  var btn=document.getElementById('cart-btn');
+  badge.textContent=cart.length;
+  btn.className=cart.length?'show':'';
+  if(!cart.length){
+    list.innerHTML='<div style="font-size:.65rem;color:#bbb;text-align:center;padding:12px 0;line-height:1.6;">Explora los pasillos<br>y haz clic en los productos</div>';
+    tot.textContent='US$ 0'; return;
+  }
+  list.innerHTML=cart.map(function(c){
+    return '<div class="ci" style="--clr:'+c.color+';border-left-color:'+c.color+'"><span class="ci-n">'+c.name+'</span><span class="ci-p">'+fmtP(c.price,c.type)+'</span></div>';
+  }).join('');
+  list.scrollTop=list.scrollHeight;
+  var total=cart.reduce(function(s,c){return s+(c.type==='mensual'?c.price*12:c.price);},0);
+  tot.textContent='US$ '+total.toLocaleString('en-US');
+}
+renderCart();
+
+// ── THREE.JS ─────────────────────────────────────────────────
+var R=new THREE.WebGLRenderer({antialias:true});
+R.setSize(innerWidth,innerHeight);
+R.setPixelRatio(Math.min(devicePixelRatio,2));
+R.shadowMap.enabled=true;
+R.shadowMap.type=THREE.PCFSoftShadowMap;
+R.toneMapping=THREE.ACESFilmicToneMapping;
+R.toneMappingExposure=1.4;
+document.body.insertBefore(R.domElement,document.getElementById('loading'));
+
+var W=new THREE.Scene();
+W.fog=new THREE.Fog(0xd4e4f0,20,55);
+W.background=new THREE.Color(0xd4e4f0);
+
+var CAM=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,0.1,200);
+CAM.position.set(0,2.8,20);
+
+// ── BRIGHT RETAIL LIGHTING ────────────────────────────────────
+// Strong ambient — supermarket feel
+W.add(new THREE.AmbientLight(0xffffff, 1.8));
+
+// Hemisphere for sky/ground
+var hemi=new THREE.HemisphereLight(0xfff8f0,0xe8eef5,0.8);
+W.add(hemi);
+
+// Ceiling fluorescent spots
+function mkFluro(x,z){
+  var l=new THREE.SpotLight(0xfff5e8,2.5,16,Math.PI/5,0.6,1.5);
+  l.position.set(x,7,z);
+  l.castShadow=true;
+  l.shadow.mapSize.set(512,512);
+  W.add(l);
+  W.add(l.target);
+  l.target.position.set(x,0,z);
+  return l;
+}
+var fluroLights=[];
+[0-10,0-3.5,3.5,10].forEach(function(x){
+  [0-5,0-1,3].forEach(function(z){
+    fluroLights.push(mkFluro(x,z));
+  });
+});
+fluroLights.push(mkFluro(0,8));
+fluroLights.push(mkFluro(0-6,8));
+fluroLights.push(mkFluro(6,8));
+
+// ── FLOOR — white tile ────────────────────────────────────────
+var floorMat=new THREE.MeshStandardMaterial({color:0xf0f0f0,roughness:0.08,metalness:0.1});
+var floor=new THREE.Mesh(new THREE.PlaneGeometry(60,40),floorMat);
+floor.rotation.x=0-Math.PI/2; floor.receiveShadow=true; W.add(floor);
+
+// Tile grout lines
+function tileLine(x1,z1,x2,z2){
+  var pts=[new THREE.Vector3(x1,.003,z1),new THREE.Vector3(x2,.003,z2)];
+  var geo=new THREE.BufferGeometry().setFromPoints(pts);
+  W.add(new THREE.Line(geo,new THREE.LineBasicMaterial({color:0xd8d8d8,transparent:true,opacity:.6})));
+}
+for(var tx=0-28;tx<=28;tx+=2) tileLine(tx,0-18,tx,18);
+for(var tz=0-18;tz<=18;tz+=2) tileLine(0-28,tz,28,tz);
+
+// ── CEILING ───────────────────────────────────────────────────
+var ceil=new THREE.Mesh(new THREE.PlaneGeometry(50,32),
+  new THREE.MeshStandardMaterial({color:0xf8f8f8,roughness:.95}));
+ceil.rotation.x=Math.PI/2; ceil.position.y=7.5; W.add(ceil);
+
+// Fluorescent tube fixtures
+function mkTubeFixture(x,z){
+  var fix=new THREE.Mesh(new THREE.BoxGeometry(2.8,.06,.18),
+    new THREE.MeshStandardMaterial({color:0xe0e0e0,roughness:.8}));
+  fix.position.set(x,7.44,z); W.add(fix);
+  var tube=new THREE.Mesh(new THREE.CylinderGeometry(.02,.02,2.5,8),
+    new THREE.MeshStandardMaterial({color:0xffffff,emissive:0xfff8e0,emissiveIntensity:3,roughness:1}));
+  tube.rotation.z=Math.PI/2; tube.position.set(x,7.42,z); W.add(tube);
+}
+[0-10,0-3.5,3.5,10].forEach(function(x){
+  [0-5,0-1,3].forEach(function(z){ mkTubeFixture(x,z); });
+});
+mkTubeFixture(0,8); mkTubeFixture(0-6,8); mkTubeFixture(6,8);
+
+// ── WALLS ─────────────────────────────────────────────────────
+var wallMat=new THREE.MeshStandardMaterial({color:0xf5f5f5,roughness:.85});
+var bw=new THREE.Mesh(new THREE.PlaneGeometry(44,9),wallMat);
+bw.position.set(0,4.5,0-9.5); W.add(bw);
+[0-22,22].forEach(function(x){
+  var sw=new THREE.Mesh(new THREE.PlaneGeometry(30,9),wallMat);
+  sw.position.set(x,4.5,0); sw.rotation.y=x<0?Math.PI/2:0-Math.PI/2; W.add(sw);
+});
+
+// CEO brand strip on back wall — orange accent
+var ceoStrip=new THREE.Mesh(new THREE.BoxGeometry(14,.08,.05),
+  new THREE.MeshStandardMaterial({color:0xE8721C,emissive:0xE8721C,emissiveIntensity:2}));
+ceoStrip.position.set(0,6.5,0-9.45); W.add(ceoStrip);
+var ceoL=new THREE.PointLight(0xE8721C,1.5,14); ceoL.position.set(0,5.8,0-8); W.add(ceoL);
+
+// Entrance arch — bright metal
+var archMat=new THREE.MeshStandardMaterial({color:0xcccccc,metalness:.8,roughness:.2});
+var archNeonMat=new THREE.MeshStandardMaterial({color:0xE8721C,emissive:0xE8721C,emissiveIntensity:3});
+[0-2.8,2.8].forEach(function(x){
+  var p=new THREE.Mesh(new THREE.BoxGeometry(.15,5.5,.15),archMat); p.position.set(x,2.75,15); W.add(p);
+  var n=new THREE.Mesh(new THREE.BoxGeometry(.04,5.5,.04),archNeonMat); n.position.set(x+(x<0?0.1:0-0.1),2.75,15.04); W.add(n);
+});
+var aT=new THREE.Mesh(new THREE.BoxGeometry(5.8,.15,.15),archMat); aT.position.set(0,5.5,15); W.add(aT);
+var aTN=new THREE.Mesh(new THREE.BoxGeometry(5.4,.04,.04),archNeonMat); aTN.position.set(0,5.65,15.04); W.add(aTN);
+var archL=new THREE.PointLight(0xE8721C,1,8); archL.position.set(0,4.5,15.5); W.add(archL);
+
+// Entry floor mat
+var entryMat2=new THREE.Mesh(new THREE.PlaneGeometry(6,3),
+  new THREE.MeshStandardMaterial({color:0xe8e8e8,roughness:.5}));
+entryMat2.rotation.x=0-Math.PI/2; entryMat2.position.set(0,.004,13); W.add(entryMat2);
+
+// ── GONDOLA SHELVES ───────────────────────────────────────────
+var pMeshMap={};
+
+function buildGondola(ax,scIdx){
+  var sc=SCENES.filter(function(s){return s.products.length;})[scIdx];
+  if(!sc) return;
+  pMeshMap[sc.id]=[];
+  var col=new THREE.Color(sc.hex);
+
+  // Shelf frame — white/grey metal
+  var frameMat=new THREE.MeshStandardMaterial({color:0xd0d0d0,metalness:.5,roughness:.4});
+  var backMat=new THREE.MeshStandardMaterial({color:0xe8e8e8,roughness:.9});
+  var shelfMat=new THREE.MeshStandardMaterial({color:0xf0f0f0,roughness:.7,metalness:.1});
+
+  [0-1,1].forEach(function(side){
+    var sx=ax+side*1.6;
+    // Back panel
+    var bp=new THREE.Mesh(new THREE.BoxGeometry(.06,5,8.5),backMat);
+    bp.position.set(sx,2.5,0-3); W.add(bp);
+    // Uprights
+    [0-6.8,0-.5].forEach(function(z){
+      var u=new THREE.Mesh(new THREE.BoxGeometry(.05,5,.05),frameMat);
+      u.position.set(sx,2.5,z+.4); W.add(u);
+    });
+  });
+
+  // Shelf boards
+  [.45,1.55,2.65,3.75].forEach(function(y){
+    var sb=new THREE.Mesh(new THREE.BoxGeometry(3.1,.055,.72),shelfMat);
+    sb.position.set(ax,y,0-3); sb.castShadow=true; W.add(sb);
+    var lip=new THREE.Mesh(new THREE.BoxGeometry(3.1,.07,.04),frameMat);
+    lip.position.set(ax,y+.063,0-2.67); W.add(lip);
+  });
+
+  // Aisle sign — colored
+  var signBg=new THREE.Mesh(new THREE.BoxGeometry(2.8,.55,.08),
+    new THREE.MeshStandardMaterial({color:new THREE.Color(sc.hex).multiplyScalar(.9),roughness:.4}));
+  signBg.position.set(ax,6.6,5.5); W.add(signBg);
+  var signEdge=new THREE.Mesh(new THREE.BoxGeometry(2.86,.61,.04),
+    new THREE.MeshStandardMaterial({color:0xffffff,roughness:.5}));
+  signEdge.position.set(ax,6.6,5.56); W.add(signEdge);
+  // Sign cables
+  [0-0.9,0.9].forEach(function(ox){
+    var cable=new THREE.Mesh(new THREE.CylinderGeometry(.008,.008,.52,4),
+      new THREE.MeshStandardMaterial({color:0xcccccc,metalness:.7}));
+    cable.position.set(ax+ox,7.1,5.5); W.add(cable);
+  });
+  var signL=new THREE.PointLight(sc.hex,.4,6); signL.position.set(ax,6.2,6); W.add(signL);
+
+  // Floor stripe — subtle color
+  var stripe=new THREE.Mesh(new THREE.PlaneGeometry(3,12),
+    new THREE.MeshStandardMaterial({color:new THREE.Color(sc.hex).multiplyScalar(.12),roughness:.4,transparent:true,opacity:.5}));
+  stripe.rotation.x=0-Math.PI/2; stripe.position.set(ax,.005,0-3); W.add(stripe);
+
+  // Products
+  var positions=[
+    {sx:0-0.85,sy:.9,sz:0-3.2},{sx:.85,sy:.9,sz:0-3.2},
+    {sx:0-0.85,sy:2.0,sz:0-3.2},{sx:.85,sy:2.0,sz:0-3.2},
+    {sx:0,sy:3.1,sz:0-3.2}
+  ];
+
+  sc.products.forEach(function(prod,pi){
+    var pos=positions[pi]||{sx:0,sy:3.1+pi*.8,sz:0-3.2};
+    var pw=.4+Math.random()*.14;
+    var ph=.5+Math.random()*.28;
+    var pd=.28+Math.random()*.1;
+
+    var pColor=prod.on?col.clone():new THREE.Color(0xe0e0e0);
+    var pMat=new THREE.MeshStandardMaterial({
+      color:pColor,
+      emissive:prod.on?col.clone().multiplyScalar(.2):new THREE.Color(0,0,0),
+      emissiveIntensity:prod.on?.3:0,
+      roughness:.5,metalness:.05
+    });
+    var pMesh=new THREE.Mesh(new THREE.BoxGeometry(pw,ph,pd),pMat);
+    pMesh.position.set(ax+pos.sx,pos.sy,pos.sz);
+    pMesh.castShadow=true;
+    pMesh.userData={sid:sc.id,pi:pi,type:'product'};
+    W.add(pMesh);
+    pMeshMap[sc.id].push(pMesh);
+
+    // Label strip on product front
+    var lblMat=new THREE.MeshStandardMaterial({
+      color:prod.on?new THREE.Color(sc.hex).multiplyScalar(.7):new THREE.Color(0xcccccc),roughness:.9
+    });
+    var lbl=new THREE.Mesh(new THREE.PlaneGeometry(pw*.8,ph*.25),lblMat);
+    lbl.position.set(ax+pos.sx,pos.sy+.05,pos.sz+pd/2+.002); W.add(lbl);
+
+    // Selection glow ring on shelf
+    if(prod.on){
+      var rg=new THREE.RingGeometry(pw*.6,pw*.74,20);
+      var rm=new THREE.MeshBasicMaterial({color:sc.hex,transparent:true,opacity:.6,side:THREE.DoubleSide});
+      var ring=new THREE.Mesh(rg,rm);
+      ring.rotation.x=0-Math.PI/2;
+      ring.position.set(ax+pos.sx,pos.sy-ph/2-.006,pos.sz);
+      ring.userData={type:'ring',sid:sc.id,pi:pi};
+      W.add(ring);
+    }
+  });
+}
+
+SCENES.filter(function(s){return s.products.length;}).forEach(function(sc,i){buildGondola(AISLE_X[i],i);});
+
+// ── CHECKOUT COUNTER ──────────────────────────────────────────
+var ctrMat=new THREE.MeshStandardMaterial({color:0xe8e8e8,roughness:.4,metalness:.3});
+var ctrTop=new THREE.Mesh(new THREE.BoxGeometry(8,.06,1.3),
+  new THREE.MeshStandardMaterial({color:0xffffff,roughness:.1,metalness:.5}));
+ctrTop.position.set(0,1.1,0-7.5); W.add(ctrTop);
+var ctrBody=new THREE.Mesh(new THREE.BoxGeometry(8,1.04,1.3),ctrMat);
+ctrBody.position.set(0,.54,0-7.5); ctrBody.castShadow=true; W.add(ctrBody);
+// Blue accent edge (SAP blue)
+var ctrEdge=new THREE.Mesh(new THREE.BoxGeometry(8,.06,.06),
+  new THREE.MeshStandardMaterial({color:0x1a6fc4,emissive:0x1a6fc4,emissiveIntensity:2}));
+ctrEdge.position.set(0,1.12,0-7.5); W.add(ctrEdge);
+var ctrL2=new THREE.PointLight(0x1a6fc4,.8,6); ctrL2.position.set(0,1.6,0-7); W.add(ctrL2);
+
+// POS terminals on counter
+function mkTerminal(x){
+  var base=new THREE.Mesh(new THREE.BoxGeometry(.38,.055,.32),
+    new THREE.MeshStandardMaterial({color:0xdddddd,roughness:.6}));
+  base.position.set(x,1.14,0-7.7); W.add(base);
+  var neck=new THREE.Mesh(new THREE.BoxGeometry(.06,.3,.06),
+    new THREE.MeshStandardMaterial({color:0xcccccc,roughness:.5}));
+  neck.position.set(x,1.3,0-7.75); W.add(neck);
+  var screen=new THREE.Mesh(new THREE.BoxGeometry(.85,.58,.04),
+    new THREE.MeshStandardMaterial({color:0x1a2a3a,emissive:0x0a1520,emissiveIntensity:1,roughness:.2}));
+  screen.position.set(x,1.72,0-7.85); screen.rotation.x=0-0.22; W.add(screen);
+  // SAP blue glow
+  var scrL=new THREE.PointLight(0x1a6fc4,.5,2.5); scrL.position.set(x,2,0-7.4); W.add(scrL);
+}
+[0-2.5,2.5].forEach(mkTerminal);
+
+// Price scanner
+function mkScanner(x,z){
+  var poleMat=new THREE.MeshStandardMaterial({color:0xcccccc,metalness:.6,roughness:.3});
+  var pole=new THREE.Mesh(new THREE.CylinderGeometry(.03,.035,1.3,8),poleMat);
+  pole.position.set(x,.65,z); W.add(pole);
+  var base=new THREE.Mesh(new THREE.CylinderGeometry(.11,.14,.05,12),poleMat);
+  base.position.set(x,.025,z); W.add(base);
+  var head=new THREE.Mesh(new THREE.BoxGeometry(.36,.24,.08),
+    new THREE.MeshStandardMaterial({color:0xf0f0f0,roughness:.3,metalness:.2}));
+  head.position.set(x,1.4,z); W.add(head);
+  var scrn=new THREE.Mesh(new THREE.BoxGeometry(.28,.16,.02),
+    new THREE.MeshStandardMaterial({color:0x0a2a0a,emissive:0x0a2a0a,emissiveIntensity:2}));
+  scrn.position.set(x,1.4,z+.05); W.add(scrn);
+  var scanBar=new THREE.Mesh(new THREE.PlaneGeometry(.22,.016),
+    new THREE.MeshBasicMaterial({color:0x00ff44,transparent:true,opacity:.95}));
+  scanBar.position.set(x,1.38,z+.07); W.add(scanBar);
+  var scanL=new THREE.PointLight(0x00ff44,.4,1.8); scanL.position.set(x,1.5,z+.3); W.add(scanL);
+  return {scanBar:scanBar,scanL:scanL};
+}
+var sc1=mkScanner(0-7.5,1.5);
+var sc2=mkScanner(7.5,1.5);
+
+// Shopping carts
+function mkCart(x,z){
+  var cMat=new THREE.MeshStandardMaterial({color:0xbbbbbb,metalness:.7,roughness:.3});
+  var basket=new THREE.Mesh(new THREE.BoxGeometry(.6,.44,.38),cMat);
+  basket.position.set(x,.72,z); W.add(basket);
+  var eg=new THREE.EdgesGeometry(new THREE.BoxGeometry(.6,.44,.38));
+  var em=new THREE.LineSegments(eg,new THREE.LineBasicMaterial({color:0x999999}));
+  em.position.set(x,.72,z); W.add(em);
+  var handle=new THREE.Mesh(new THREE.TorusGeometry(.2,.012,8,20,Math.PI),
+    new THREE.MeshStandardMaterial({color:0xaaaaaa,metalness:.6}));
+  handle.rotation.x=Math.PI/2; handle.position.set(x,1.05,z); W.add(handle);
+  [0-0.2,.2].forEach(function(ox){[0-0.14,.14].forEach(function(oz){
+    var w=new THREE.Mesh(new THREE.CylinderGeometry(.035,.035,.025,8),
+      new THREE.MeshStandardMaterial({color:0x888888}));
+    w.rotation.z=Math.PI/2; w.position.set(x+ox,.27,z+oz); W.add(w);
+  });});
+}
+mkCart(0-1.8,5.5); mkCart(1.8,5.5); mkCart(0-1.8,9.5);
+
+// ── RAYCASTER ─────────────────────────────────────────────────
+var ray=new THREE.Raycaster();
+var mouse2=new THREE.Vector2();
+var clickable=[];
+Object.values(pMeshMap).flat().forEach(function(m){clickable.push(m);});
+
+R.domElement.addEventListener('click',function(e){
+  mouse2.x=(e.clientX/innerWidth)*2-1;
+  mouse2.y=0-(e.clientY/innerHeight)*2+1;
+  ray.setFromCamera(mouse2,CAM);
+  var hits=ray.intersectObjects(clickable);
+  if(hits.length&&hits[0].object.userData.type==='product'){
+    toggleItem(hits[0].object.userData.sid,hits[0].object.userData.pi);
+  }
+});
+R.domElement.addEventListener('mousemove',function(e){
+  mouse2.x=(e.clientX/innerWidth)*2-1;
+  mouse2.y=0-(e.clientY/innerHeight)*2+1;
+  ray.setFromCamera(mouse2,CAM);
+  R.domElement.style.cursor=ray.intersectObjects(clickable).length?'pointer':'default';
+});
+
+function refreshMesh(sid,pi,on,hex){
+  var m=pMeshMap[sid]&&pMeshMap[sid][pi];if(!m) return;
+  var col=new THREE.Color(hex);
+  m.material.color=on?col.clone():new THREE.Color(0xe0e0e0);
+  m.material.emissive=on?col.clone().multiplyScalar(.2):new THREE.Color(0,0,0);
+  m.material.emissiveIntensity=on?.3:0;
+  W.children.filter(function(c){return c.userData.type==='ring'&&c.userData.sid===sid&&c.userData.pi===pi;})
+    .forEach(function(r){r.material.opacity=on?.6:0;});
+}
+
+// ── CAMERA ────────────────────────────────────────────────────
+// Pre-defined positions avoiding negative literals in objects
+var CAM_POS=[[0,2.8,20],[0-10,2.8,2],[0-3.5,2.8,2],[3.5,2.8,2],[10,2.8,2],[0,4.5,16]];
+var CAM_LOOK=[[0,2,0],[0-10,2,0-6],[0-3.5,2,0-6],[3.5,2,0-6],[10,2,0-6],[0,1,0-2]];
+
+var curIdx=0,flying=false;
+var lookPt=new THREE.Vector3(0,2,0);
+function ease(t){return t<.5?2*t*t:0-1+(4-2*t)*t;}
+
+function flyTo(idx,ms){
+  ms=ms||1900;
+  if(flying) return;
+  flying=true;
+  var cp=CAM_POS[idx],cl=CAM_LOOK[idx];
+  var fx=CAM.position.x,fy=CAM.position.y,fz=CAM.position.z;
+  var flx=lookPt.x,fly2=lookPt.y,flz=lookPt.z;
+  var t0=performance.now();
+  (function step(now){
+    var e=ease(Math.min((now-t0)/ms,1));
+    CAM.position.set(fx+(cp[0]-fx)*e,fy+(cp[1]-fy)*e,fz+(cp[2]-fz)*e);
+    lookPt.set(flx+(cl[0]-flx)*e,fly2+(cl[1]-fly2)*e,flz+(cl[2]-flz)*e);
+    CAM.lookAt(lookPt);
+    if(e<1) requestAnimationFrame(step); else flying=false;
+  })(t0);
+}
+
+function setUI(idx){
+  var s=SCENES[idx];
+  var ui=document.getElementById('scene-ui');
+  ui.style.opacity='0'; ui.style.transition='opacity .35s';
+  setTimeout(function(){
+    document.getElementById('s-kicker').textContent=s.kicker;
+    document.getElementById('s-title').innerHTML=s.title;
+    document.getElementById('s-body').textContent=s.body;
+    ui.style.opacity='1';
+  },320);
+  document.querySelectorAll('.dn').forEach(function(d,i){d.classList.toggle('on',i===idx);});
+  document.querySelectorAll('.an').forEach(function(d,i){d.classList.toggle('on',i===idx);});
+  if(s.id==='checkout') setTimeout(openCCO,1000);
+}
+
+function goTo(idx){curIdx=idx;flyTo(idx);setUI(idx);}
+function next(){goTo((curIdx+1)%SCENES.length);}
+document.addEventListener('keydown',function(e){
+  if(e.key==='ArrowRight'||e.key===' ') next();
+  if(e.key==='ArrowLeft') goTo(Math.max(0,curIdx-1));
+});
+
+// ── CCO MODAL ─────────────────────────────────────────────────
+function openCCO(){
+  buildCCO();
+  // Update date/time
+  var now=new Date();
+  document.getElementById('cco-date').textContent='📅 '+now.toLocaleDateString('es-DO',{month:'short',day:'2-digit',year:'numeric'})+' · CEO01-root';
+  document.getElementById('co-modal') && (document.getElementById('co-modal').classList.add('open'));
+  document.getElementById('cco-overlay').classList.add('open');
+}
+function closeCCO(){document.getElementById('cco-overlay').classList.remove('open');}
+
+function buildCCO(){
+  // Build items rows
+  var itemsEl=document.getElementById('cco-items');
+  var summaryEl=document.getElementById('cco-summary');
+  var totalsEl=document.getElementById('cco-totals');
+
+  // Customer name from prop data
+  var clientName=PROP_DATA&&PROP_DATA.cliente&&PROP_DATA.cliente.nombre||'Tu empresa';
+  var initials=clientName.split(' ').slice(0,2).map(function(w){return w[0];}).join('').toUpperCase();
+  document.getElementById('cco-rcpt-id').textContent='Receipt ID: CEO-'+new Date().getFullYear()+'-'+(Math.floor(Math.random()*900)+100);
+  document.getElementById('cco-cust').innerHTML='<div class="cust-av">'+initials+'</div><div><div class="cust-n">'+clientName+'</div><div class="cust-s">Santo Domingo, RD<br>Partner: CEO Consultoría S.R.L.</div></div>';
+
+  if(!cart.length){
+    itemsEl.innerHTML='<div style="padding:20px;text-align:center;color:#aaa;font-size:.8rem;">Regresa y agrega productos de los pasillos.</div>';
+    return;
+  }
+
+  // Group by segment
+  var byS={};
+  cart.forEach(function(c){if(!byS[c.sid])byS[c.sid]=[];byS[c.sid].push(c);});
+
+  var rowsHtml='';
+  var idx=1;
+  var skuMap={licencias:'LIC',consultoria:'SVC',facturacion:'FE',addons:'ADO'};
+  Object.keys(byS).forEach(function(sid){
+    byS[sid].forEach(function(c){
+      var sc=SCENES.find(function(s){return s.id===sid;});
+      var prod=sc.products[c.i];
+      var sku=(skuMap[sid]||'PRD')+'-'+(String(idx).padStart(2,'0'));
+      var badge=c.type==='mensual'?'<span class="badge bm">MES</span>':c.type==='anual'?'<span class="badge ba">ANUAL</span>':'<span class="badge bu">ÚNICO</span>';
+      var isSel=(idx===cart.length)?'sel':'';
+      rowsHtml+='<div class="cco-row '+isSel+'">'
+        +'<span class="ri">'+idx+'</span>'
+        +'<span class="rid">'+sku+'</span>'
+        +'<div><div class="rn">'+c.name+'</div><div class="rs">'+(prod.sub||'')+'</div></div>'
+        +'<span class="rr">1.00</span>'
+        +'<span class="rr">'+badge+'</span>'
+        +'<span class="rr">'+c.price.toLocaleString('en-US',{minimumFractionDigits:2})+'</span>'
+        +'<span class="rr m">0.00</span>'
+        +'<span class="rr b">'+c.price.toLocaleString('en-US',{minimumFractionDigits:2})+'</span>'
+        +'</div>';
+      idx++;
+    });
+  });
+  itemsEl.innerHTML=rowsHtml;
+
+  // Summary in right panel
+  var sumHtml='';
+  Object.keys(byS).forEach(function(sid){
+    byS[sid].forEach(function(c){
+      var prod=SCENES.find(function(s){return s.id===sid;}).products[c.i];
+      sumHtml+='<div class="sum-line"><div><div class="sl-n">'+c.name+'</div><div class="sl-s">'+fmtT(c.type)+'</div></div><div class="sl-p">'+fmtP(c.price,c.type)+'</div></div>';
+    });
+  });
+  summaryEl.innerHTML=sumHtml;
+
+  // Totals
+  var u=cart.filter(function(c){return c.type==='unico';}).reduce(function(s,c){return s+c.price;},0);
+  var m=cart.filter(function(c){return c.type==='mensual';}).reduce(function(s,c){return s+c.price;},0);
+  var a=cart.filter(function(c){return c.type==='anual';}).reduce(function(s,c){return s+c.price;},0);
+  var yr1=u+m*12+a;
+  totalsEl.innerHTML=''
+    +'<div class="tb"><span class="tbl">Impl. único</span><span class="tbv">US$ '+u.toLocaleString('en-US')+'</span></div>'
+    +'<div class="tb"><span class="tbl">Renta mensual</span><span class="tbv">US$ '+m.toLocaleString('en-US')+'/mes</span></div>'
+    +'<div class="tb"><span class="tbl">Rentas anuales</span><span class="tbv">US$ '+a.toLocaleString('en-US')+'/año</span></div>'
+    +'<div class="tb-main"><div class="tbl">Total · '+cart.length+' conceptos</div>'
+    +'<div class="tb-big"><span class="cur">US$</span>'+yr1.toLocaleString('en-US')+'</div>'
+    +'<div class="tb-open">Inversión estimada año 1</div></div>';
+}
+
+// ── NAV ───────────────────────────────────────────────────────
+document.getElementById('dot-nav').innerHTML=SCENES.map(function(s,i){
+  return '<button class="dn '+(i===0?'on':'')+'" onclick="goTo('+i+')" title="'+s.label+'"></button>';
+}).join('');
+document.getElementById('aisle-nav').innerHTML=SCENES.map(function(s,i){
+  return '<div class="an '+(i===0?'on':'')+'" onclick="goTo('+i+')">'
+    +'<div class="an-dot" style="background:'+s.color+';box-shadow:0 0 5px '+s.color+';"></div>'
+    +'<span class="an-lbl">'+s.label+'</span></div>';
+}).join('');
+
+// ── RENDER LOOP ───────────────────────────────────────────────
+var clock=new THREE.Clock();
+function animate(){
+  requestAnimationFrame(animate);
+  var t=clock.getElapsedTime();
+  // Scanner animation
+  sc1.scanBar.position.y=1.38+Math.sin(t*2.5)*.035;
+  sc1.scanL.intensity=.35+Math.sin(t*2.5)*.15;
+  sc2.scanBar.position.y=1.38+Math.sin(t*2.5+1.6)*.035;
+  sc2.scanL.intensity=.35+Math.sin(t*2.5+1.6)*.15;
+  // Subtle neon pulse
+  ceoL.intensity=1.4+Math.sin(t*7)*.08;
+  archL.intensity=.9+Math.sin(t*5+1)*.1;
+  ctrL2.intensity=.75+Math.sin(t*4)*.08;
+  R.render(W,CAM);
+}
+
+window.addEventListener('resize',function(){
+  CAM.aspect=innerWidth/innerHeight; CAM.updateProjectionMatrix();
+  R.setSize(innerWidth,innerHeight);
+});
+
+// ── LOADING ───────────────────────────────────────────────────
+var fill2=document.getElementById('l-fill');
+var loadEl=document.getElementById('loading');
+var prog=0;
+var li=setInterval(function(){
+  prog+=Math.random()*14;
+  fill2.style.width=Math.min(prog,95)+'%';
+  if(prog>=95){
+    clearInterval(li);
+    setTimeout(function(){
+      fill2.style.width='100%';
+      setTimeout(function(){
+        loadEl.classList.add('out');
+        setTimeout(function(){loadEl.style.display='none';goTo(0);animate();},900);
+      },350);
+    },400);
+  }
+},100);
+</script>
+</body>
+</html>
