@@ -3505,7 +3505,10 @@ function buildProposalHTML(d){
       if(isNaN(total)||total<=0) return;
       const months = new Array(12).fill(0);
       const state = flujoData[ss.id];
-      if(tipo==='mensual'){ months.fill(total); }
+      if(tipo==='mensual'){
+        const startMes = (state?.startMes || 1) - 1;
+        for(let i=startMes; i<12; i++) months[i] = total;
+      }
       else if(tipo==='anual'){ const m=(typeof state==='number'?state:12)-1; months[m]=total; }
       else { const dist=Array.isArray(state)?state:[100,...new Array(11).fill(0)]; dist.forEach((p,i)=>months[i]=total*p/100); }
       flujoRows.push({ label:`${seg.name} · ${ss.name}`, tipo, total, months });
@@ -5127,19 +5130,35 @@ function renderFlujoCaja(){
     items.forEach(({segName, ssId, ssName, tipo:t, total}) => {
       const label2 = `${segName} · ${ssName}`;
       if(t === 'mensual'){
-        const monthly = total; // monthly amount repeats each month
+        // Use flujoState to store start month (default 1)
+        const startMes = (typeof flujoState[ssId] === 'object' && flujoState[ssId]?.startMes) ? flujoState[ssId].startMes : 1;
+        flujoState[ssId] = { startMes };
+        const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+        const opts = meses.map((m,i) => '<option value="'+(i+1)+'"'+(i+1===startMes?' selected':'')+'>'+m+' (M'+(i+1)+')</option>').join('');
+        const monthly = total;
         html += `
           <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:8px;">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
               <div style="font-weight:600;font-size:13px;">${label2}</div>
-              <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:${color};">${moneda} ${fmtNum(total)} × 12 meses = ${moneda} ${fmtNum(total*12)}</div>
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div>
+                  <label style="font-size:11px;color:var(--soft);margin-right:6px;">Inicio pagos:</label>
+                  <select onchange="setFlujoMensualSelect(this,'${ssId}')"
+                    style="padding:5px 8px;border:1px solid var(--border);border-radius:8px;font-size:12px;background:var(--white);color:#5B8CCC;font-weight:600;cursor:pointer;">
+                    ${opts}
+                  </select>
+                </div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:${color};font-weight:700;">${moneda} ${fmtNum(monthly)}/mes</div>
+              </div>
             </div>
             <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:4px;">
-              ${Array.from({length:12},(_,i)=>`
-                <div style="text-align:center;">
+              ${Array.from({length:12},(_,i)=>{
+                const active = i+1 >= startMes;
+                return `<div style="text-align:center;">
                   <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--soft);margin-bottom:2px;">M${i+1}</div>
-                  <div style="background:rgba(91,140,204,.12);border:1px solid rgba(91,140,204,.2);border-radius:6px;padding:4px 2px;font-family:'JetBrains Mono',monospace;font-size:9px;color:${color};text-align:center;">${moneda} ${fmtNum(monthly)}</div>
-                </div>`).join('')}
+                  <div style="background:${active?'rgba(91,140,204,.12)':'rgba(0,0,0,.03)'};border:1px solid ${active?'rgba(91,140,204,.2)':'rgba(0,0,0,.06)'};border-radius:6px;padding:4px 2px;font-family:'JetBrains Mono',monospace;font-size:9px;color:${active?color:'var(--soft)'};text-align:center;">${active ? moneda+' '+fmtNum(monthly) : '—'}</div>
+                </div>`;
+              }).join('')}
             </div>
           </div>`;
       } else if(t === 'anual'){
@@ -5202,6 +5221,11 @@ function renderFlujoCaja(){
 function setFlujoAnualSelect(sel, ssId){
   flujoState[ssId] = parseInt(sel.value);
   renderFlujoTabla(null, null);
+}
+
+function setFlujoMensualSelect(sel, ssId){
+  flujoState[ssId] = { startMes: parseInt(sel.value) };
+  renderFlujoCaja(); // re-render to update the mini grid
 }
 
 function setFlujoAnualBtn(btn){
@@ -5279,7 +5303,8 @@ function renderFlujoTabla(subsegmentos, moneda){
   const monthlyByRow = subsegmentos.map(({ssId,tipo,total,segName,ssName}) => {
     const months = new Array(12).fill(0);
     if(tipo==='mensual'){
-      months.fill(total);
+      const startMes = (flujoState[ssId]?.startMes || 1) - 1; // 0-indexed
+      for(let i=startMes; i<12; i++) months[i] = total;
     } else if(tipo==='anual'){
       const mes = (typeof flujoState[ssId]==='number' ? flujoState[ssId] : 12) - 1;
       months[mes] = total;
