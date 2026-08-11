@@ -999,7 +999,7 @@ input[type=color]{width:100%;height:42px;border-radius:var(--rs);border:1.5px so
   </div>
 
   <!-- ===== TAB ALCANCE PMO ===== -->
-  <div class="tab-content" id="t-alcance">
+  <div class="tab-content" id="t-alcance" oninput="savePMOState()" onchange="savePMOState()">
     <div class="sec-h">
       <div class="kicker">12 · PMO</div>
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
@@ -5373,6 +5373,103 @@ const PMO_FUERA_DEFAULT = [
   'Desarrollos o personalizaciones no contempladas en el alcance inicial',
 ];
 
+function savePMOState(){
+  try {
+    const g = id => document.getElementById(id)?.value?.trim() || '';
+    const state = {
+      nombre: g('pmo-nombre'),
+      fecha: g('pmo-fecha'),
+      horas: g('pmo-horas'),
+      duracion: g('pmo-duracion'),
+      tipoPresup: document.getElementById('pmo-tipo-presup')?.value || '',
+      tipoAlcance: document.getElementById('pmo-tipo-alcance')?.value || '',
+      gpCeo: g('pmo-gp-ceo'),
+      gpCliente: g('pmo-gp-cliente'),
+      patrocinador: g('pmo-patrocinador'),
+      sistemaActual: g('pmo-sistema-actual'),
+      infra: g('pmo-infra'),
+      volumen: g('pmo-volumen'),
+      usuarios: g('pmo-usuarios'),
+      sucursales: g('pmo-sucursales'),
+      objetivo: g('pmo-objetivo'),
+      objetivosEsp: g('pmo-objetivos-esp'),
+      descripcion: g('pmo-descripcion'),
+      comentariosVenta: g('pmo-comentarios-venta'),
+      comentariosInternos: g('pmo-comentarios-internos'),
+      comentarios: g('pmo-comentarios'),
+      blueprint: PMO_BLUEPRINT.map(q => ({
+        id: q.id,
+        valor: document.getElementById(q.id+'-val')?.value || '',
+        nota: document.getElementById(q.id+'-nota')?.value || ''
+      })),
+      riesgos: [...document.querySelectorAll('#pmo-riesgos-list > div')].map(div => ({
+        text: div.querySelector('input')?.value?.trim() || '',
+        interno: div.querySelector('button[data-interno]')?.getAttribute('data-interno') === 'true'
+      })).filter(r => r.text),
+      fuera: [...document.querySelectorAll('#pmo-fuera-list input')].map(i => i.value.trim()).filter(Boolean),
+      addons: [...document.querySelectorAll('#pmo-addons-table > div')].map(div => {
+        const inputs = div.querySelectorAll('input');
+        return { addon: inputs[0]?.value||'', proveedor: inputs[1]?.value||'', integra: inputs[2]?.value||'' };
+      }).filter(a => a.addon),
+      contactos: [...document.querySelectorAll('#pmo-contactos-list > div')].map(div => {
+        const inputs = div.querySelectorAll('input');
+        return { nombre: inputs[0]?.value||'', cargo: inputs[1]?.value||'', tel: inputs[2]?.value||'', email: inputs[3]?.value||'' };
+      }).filter(c => c.nombre),
+    };
+    localStorage.setItem('ceo_pmo_state', JSON.stringify(state));
+  } catch(e) { console.warn('PMO save error:', e); }
+}
+
+function loadPMOState(){
+  try {
+    const raw = localStorage.getItem('ceo_pmo_state');
+    if(!raw) return;
+    const s = JSON.parse(raw);
+    const set = (id, val) => { const el = document.getElementById(id); if(el && val) el.value = val; };
+    set('pmo-nombre', s.nombre); set('pmo-fecha', s.fecha);
+    set('pmo-horas', s.horas); set('pmo-duracion', s.duracion);
+    set('pmo-tipo-presup', s.tipoPresup); set('pmo-tipo-alcance', s.tipoAlcance);
+    set('pmo-gp-ceo', s.gpCeo); set('pmo-gp-cliente', s.gpCliente);
+    set('pmo-patrocinador', s.patrocinador); set('pmo-sistema-actual', s.sistemaActual);
+    set('pmo-infra', s.infra); set('pmo-volumen', s.volumen);
+    set('pmo-usuarios', s.usuarios); set('pmo-sucursales', s.sucursales);
+    set('pmo-objetivo', s.objetivo); set('pmo-objetivos-esp', s.objetivosEsp);
+    set('pmo-descripcion', s.descripcion);
+    set('pmo-comentarios-venta', s.comentariosVenta);
+    set('pmo-comentarios-internos', s.comentariosInternos);
+    set('pmo-comentarios', s.comentarios);
+
+    // Blueprint
+    if(s.blueprint) s.blueprint.forEach(q => {
+      const v = document.getElementById(q.id+'-val');
+      const n = document.getElementById(q.id+'-nota');
+      if(v && q.valor) v.value = q.valor;
+      if(n && q.nota) n.value = q.nota;
+    });
+
+    // Riesgos
+    const rEl = document.getElementById('pmo-riesgos-list');
+    if(rEl && s.riesgos?.length){
+      rEl.innerHTML = '';
+      s.riesgos.forEach(r => addRiesgoPMO(r.text, r.interno));
+    }
+
+    // Fuera
+    const fEl = document.getElementById('pmo-fuera-list');
+    if(fEl && s.fuera?.length){ fEl.innerHTML=''; s.fuera.forEach(f => addFueraPMO(f)); }
+
+    // Add-ons
+    const aEl = document.getElementById('pmo-addons-table');
+    if(aEl && s.addons?.length){ aEl.innerHTML=''; s.addons.forEach(a => addAddonPMO(a.addon, a.proveedor, a.integra)); }
+
+    // Contactos
+    const cEl = document.getElementById('pmo-contactos-list');
+    if(cEl && s.contactos?.length){ cEl.innerHTML=''; s.contactos.forEach(ct => addContactoPMO(ct.nombre, ct.cargo, ct.tel, ct.email)); }
+
+    console.log('✅ PMO state restored from localStorage');
+  } catch(e) { console.warn('PMO load error:', e); }
+}
+
 function initPMOTab(){
   // Render blueprint questions
   const bpEl = document.getElementById('pmo-blueprint-preguntas');
@@ -5415,6 +5512,8 @@ function initPMOTab(){
   // Sync modules from segsState
   renderPMOModulos();
   renderPMOAddons();
+  // Load saved state AFTER defaults are rendered so it overwrites them
+  loadPMOState();
 }
 
 function renderPMOModulos(){
@@ -5527,6 +5626,13 @@ function addContactoPMO(nombre='', cargo='', tel='', email=''){
 }
 
 function collectPMOData(){
+  // If DOM fields are empty (tab not yet opened), try localStorage
+  const tabOpened = !!document.getElementById('pmo-nombre');
+  const fromStorage = !tabOpened ? (() => {
+    try { return JSON.parse(localStorage.getItem('ceo_pmo_state') || 'null'); } catch(e){ return null; }
+  })() : null;
+  if(fromStorage) return { ...fromStorage, fecha_doc: new Date().toLocaleDateString('es-DO',{day:'2-digit',month:'long',year:'numeric'}) };
+
   const g = id => document.getElementById(id)?.value?.trim() || '';
 
   const blueprint = PMO_BLUEPRINT.map(q => ({
