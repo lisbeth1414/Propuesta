@@ -1043,8 +1043,21 @@ input[type=color]{width:100%;height:42px;border-radius:var(--rs);border:1.5px so
         <div class="field" style="grid-column:1/-1;"><label>Objetivo del proyecto</label><textarea id="pmo-objetivo" style="min-height:80px;resize:vertical;" placeholder="Objetivo principal — qué problema resuelve este proyecto para el cliente..."></textarea></div>
         <div class="field" style="grid-column:1/-1;"><label>Objetivos específicos del proyecto</label><textarea id="pmo-objetivos-esp" style="min-height:100px;resize:vertical;" placeholder="• Eficientizar el tiempo de sus operaciones&#10;• Mantener el control de su inventario actualizado&#10;• Unificar la gestión de servicio y finanzas&#10;• Reportería más ágil y rápida"></textarea></div>
         <div class="field" style="grid-column:1/-1;"><label>Infraestructura a utilizar</label><textarea id="pmo-infra" style="min-height:72px;resize:vertical;" placeholder="Ej. Cloud Azure Private — 1 E16s v5 (16 vCPUs, 128 GB RAM), Linux SUSE, 2 disks P30. Costo estimado: US$1,499/mes.&#10;O: Cloud SAP (Public Cloud), On Premise, GIGAS Cloud..."></textarea></div>
-        <div class="field" style="grid-column:1/-1;"><label>Comentarios del proceso de venta</label><textarea id="pmo-comentarios-venta" style="min-height:100px;resize:vertical;" placeholder="Historial de negociación, particularidades del cliente, personas involucradas, fechas clave..."></textarea></div>
+        <div class="field" style="grid-column:1/-1;">
+          <label style="display:flex;align-items:center;gap:8px;">
+            Comentarios del proceso de venta
+            <span style="padding:2px 8px;border-radius:999px;background:rgba(255,140,0,.12);border:1px solid rgba(255,140,0,.35);color:#c85000;font-size:10px;font-weight:600;">🔒 Solo interno · no aparece en el documento</span>
+          </label>
+          <textarea id="pmo-comentarios-venta" style="min-height:100px;resize:vertical;" placeholder="Historial de negociación, particularidades del cliente, personas involucradas, fechas clave..."></textarea>
+        </div>
         <div class="field" style="grid-column:1/-1;"><label>Comentarios y observaciones adicionales</label><textarea id="pmo-comentarios" style="min-height:100px;resize:vertical;" placeholder="Consideraciones especiales, dependencias, notas técnicas relevantes..."></textarea></div>
+        <div class="field" style="grid-column:1/-1;">
+          <label style="display:flex;align-items:center;gap:8px;">
+            Comentarios internos
+            <span style="padding:2px 8px;border-radius:999px;background:rgba(255,140,0,.12);border:1px solid rgba(255,140,0,.35);color:#c85000;font-size:10px;font-weight:600;">🔒 Solo interno · nunca aparece en el documento</span>
+          </label>
+          <textarea id="pmo-comentarios-internos" style="min-height:80px;resize:vertical;border-color:rgba(255,140,0,.3);background:rgba(255,140,0,.03);" placeholder="Notas internas del equipo CEO — precios negociados, condiciones especiales, alertas internas..."></textarea>
+        </div>
       </div>
     </div>
 
@@ -5453,17 +5466,35 @@ function addAddonPMO(addon='', proveedor='', integra=''){
   el.appendChild(div);
 }
 
-function addRiesgoPMO(text=''){
+function addRiesgoPMO(text='', interno=false){
   const el = document.getElementById('pmo-riesgos-list');
   if(!el) return;
   const div = document.createElement('div');
   div.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:6px;';
   div.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="#e08030" stroke-width="2" style="width:14px;height:14px;flex-shrink:0;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
     <input type="text" value="${text}" placeholder="Describe el riesgo..." style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:12.5px;">
+    <button onclick="toggleInternoRiesgo(this)" data-interno="${interno}" title="Solo interno — no aparece en el documento del cliente"
+      style="padding:4px 8px;border-radius:6px;border:1px solid;font-size:10px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .2s;
+      background:${interno?'rgba(255,140,0,.12)':'rgba(0,0,0,.04)'};
+      border-color:${interno?'rgba(255,140,0,.4)':'var(--border)'};
+      color:${interno?'#c85000':'var(--soft)'};">
+      ${interno?'🔒 Interno':'👁 Visible'}
+    </button>
     <button onclick="this.parentNode.remove()" style="background:none;border:none;cursor:pointer;color:var(--soft);padding:4px;">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><path d="M18 6 6 18M6 6l12 12"/></svg>
     </button>`;
   el.appendChild(div);
+}
+
+function toggleInternoRiesgo(btn){
+  const interno = btn.getAttribute('data-interno') !== 'true';
+  btn.setAttribute('data-interno', interno);
+  btn.style.background = interno?'rgba(255,140,0,.12)':'rgba(0,0,0,.04)';
+  btn.style.borderColor = interno?'rgba(255,140,0,.4)':'var(--border)';
+  btn.style.color = interno?'#c85000':'var(--soft)';
+  btn.textContent = interno?'🔒 Interno':'👁 Visible';
+  // Dim the row
+  btn.closest('div').style.opacity = interno?'.5':'1';
 }
 
 function addFueraPMO(text=''){
@@ -5504,7 +5535,15 @@ function collectPMOData(){
     nota: q.nota ? g(q.id+'-nota') : ''
   }));
 
-  const riesgos = [...document.querySelectorAll('#pmo-riesgos-list input')].map(i => i.value.trim()).filter(Boolean);
+  // Only collect riesgos NOT marked as internal
+  const riesgos = [...document.querySelectorAll('#pmo-riesgos-list > div')].filter(div => {
+    const btn = div.querySelector('button[data-interno]');
+    return btn ? btn.getAttribute('data-interno') !== 'true' : true;
+  }).map(div => div.querySelector('input')?.value?.trim()).filter(Boolean);
+  const riesgosInternos = [...document.querySelectorAll('#pmo-riesgos-list > div')].filter(div => {
+    const btn = div.querySelector('button[data-interno]');
+    return btn && btn.getAttribute('data-interno') === 'true';
+  }).map(div => div.querySelector('input')?.value?.trim()).filter(Boolean);
   const fuera = [...document.querySelectorAll('#pmo-fuera-list input')].map(i => i.value.trim()).filter(Boolean);
   const contactos = [...document.querySelectorAll('#pmo-contactos-list > div')].map(div => {
     const inputs = div.querySelectorAll('input');
@@ -5535,7 +5574,9 @@ function collectPMOData(){
     objetivo: g('pmo-objetivo'),
     objetivosEsp: g('pmo-objetivos-esp'),
     descripcion: g('pmo-descripcion'),
-    comentariosVenta: g('pmo-comentarios-venta'),
+    comentariosVenta: g('pmo-comentarios-venta'), // internal only
+    comentariosInternos: g('pmo-comentarios-internos'), // internal only
+    riesgosInternos,
     comentarios: g('pmo-comentarios'),
     blueprint, riesgos, fuera, contactos, modulos, addons,
     cliente: collectData().cliente,
@@ -5740,11 +5781,7 @@ tr:last-child td{border-bottom:none;}
   </div>` : ''}
 
   <!-- COMENTARIOS VENTA -->
-  ${d.comentariosVenta ? `
-  <div class="section">
-    <div class="section-title">Comentarios del Proceso de Venta</div>
-    <p style="color:#444;line-height:1.7;white-space:pre-line;">${d.comentariosVenta}</p>
-  </div>` : ''}
+  <!-- Comentarios de venta: solo interno, no aparece en documento -->
 
   <!-- COMENTARIOS -->
   ${d.comentarios ? `
