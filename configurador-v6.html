@@ -5044,6 +5044,18 @@ const FLUJO_DEFAULTS = {
 // State: { [ssId]: number[] (12 values) or number (month for anual) }
 let flujoState = {};
 
+// PMO state — persists independently of DOM
+let _pmoTabVisited = false;
+const pmoState = {
+  nombre:'', fecha:'', horas:'', duracion:'',
+  tipoPresup:'Presupuesto cerrado', tipoAlcance:'Alcance cerrado',
+  gpCeo:'', gpCliente:'', patrocinador:'',
+  sistemaActual:'', infra:'', volumen:'', usuarios:'',
+  sucursales:'', objetivo:'', objetivosEsp:'', descripcion:'',
+  comentariosVenta:'', comentariosInternos:'', comentarios:'',
+  blueprint:{}, riesgos:[], fuera:[], addons:[], contactos:[], modulos:[],
+};
+
 function renderFlujoCaja(){
   const data = collectData();
   const moneda = data.cliente?.moneda || 'US$';
