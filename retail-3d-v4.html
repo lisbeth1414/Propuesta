@@ -17,7 +17,7 @@ canvas{display:block;position:fixed;inset:0;}
 #l-fill{height:100%;background:#1a6fc4;width:0%;border-radius:2px;transition:width .2s;}
 #l-txt{font-size:.55rem;letter-spacing:.15em;text-transform:uppercase;color:#bbb;font-family:monospace;}
 
-#brand{position:fixed;top:28px;left:40px;font-family:monospace;font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.35);z-index:20;}
+#brand{position:fixed;top:28px;left:40px;font-family:monospace;font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(0,0,0,.4);z-index:20;}
 #brand span{color:#E8721C;}
 
 /* Cart */
@@ -42,29 +42,29 @@ canvas{display:block;position:fixed;inset:0;}
 
 /* Scene label */
 #scene-ui{position:fixed;bottom:44px;left:44px;z-index:10;pointer-events:none;max-width:440px;}
-#s-kicker{font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.6);font-family:monospace;margin-bottom:8px;}
-#s-title{font-size:clamp(1.9rem,3.5vw,3.2rem);font-weight:700;line-height:1.02;letter-spacing:-.03em;color:#fff;margin-bottom:10px;text-shadow:0 2px 20px rgba(0,0,0,.5);}
+#s-kicker{font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(232,114,28,.9);font-family:monospace;margin-bottom:8px;}
+#s-title{font-size:clamp(1.9rem,3.5vw,3.2rem);font-weight:700;line-height:1.02;letter-spacing:-.03em;color:#1a1a1a;margin-bottom:10px;text-shadow:none;}
 #s-title em{color:#E8721C;font-style:italic;}
-#s-body{font-size:.82rem;line-height:1.65;color:rgba(255,255,255,.5);max-width:380px;text-shadow:0 1px 8px rgba(0,0,0,.5);}
+#s-body{font-size:.82rem;line-height:1.65;color:rgba(20,20,40,.55);max-width:380px;text-shadow:none;}
 
 /* Aisle nav */
 #aisle-nav{position:fixed;left:36px;top:50%;transform:translateY(-50%);z-index:20;display:flex;flex-direction:column;gap:10px;}
 .an{display:flex;align-items:center;gap:8px;cursor:pointer;opacity:.3;transition:opacity .3s;}
 .an.on{opacity:1;}
 .an-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
-.an-lbl{font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;color:#fff;font-family:monospace;white-space:nowrap;text-shadow:0 1px 4px rgba(0,0,0,.8);}
+.an-lbl{font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;color:#1a1a1a;font-family:monospace;white-space:nowrap;}
 
 /* Dot nav */
 #dot-nav{position:fixed;right:36px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:9px;z-index:20;}
-.dn{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.25);border:none;cursor:pointer;transition:all .3s;}
+.dn{width:5px;height:5px;border-radius:50%;background:rgba(0,0,0,.2);border:none;cursor:pointer;transition:all .3s;}
 .dn.on{background:#E8721C;transform:scale(1.7);}
 
 /* Next */
-#btn-nxt{position:fixed;bottom:44px;right:36px;width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;cursor:pointer;z-index:20;display:flex;align-items:center;justify-content:center;transition:all .22s;backdrop-filter:blur(8px);}
-#btn-nxt:hover{background:rgba(255,255,255,.25);}
+#btn-nxt{position:fixed;bottom:44px;right:36px;width:46px;height:46px;border-radius:50%;background:rgba(0,0,0,.08);border:1px solid rgba(0,0,0,.15);color:#333;cursor:pointer;z-index:20;display:flex;align-items:center;justify-content:center;transition:all .22s;backdrop-filter:blur(8px);}
+#btn-nxt:hover{background:rgba(0,0,0,.15);}
 
 /* Hint */
-#hint{position:fixed;bottom:44px;left:50%;transform:translateX(-50%);font-family:monospace;font-size:.5rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.25);z-index:10;pointer-events:none;}
+#hint{position:fixed;bottom:44px;left:50%;transform:translateX(-50%);font-family:monospace;font-size:.5rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(0,0,0,.25);z-index:10;pointer-events:none;}
 
 /* Toast */
 #toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.85);z-index:60;opacity:0;pointer-events:none;transition:all .28s;text-align:center;}
@@ -496,23 +496,23 @@ R.toneMappingExposure=1.4;
 document.body.insertBefore(R.domElement,document.getElementById('loading'));
 
 var W=new THREE.Scene();
-W.fog=new THREE.Fog(0x0a0c10,18,48);
-W.background=new THREE.Color(0x0a0c10);
+W.fog=new THREE.Fog(0xf0f0f8,22,55);
+W.background=new THREE.Color(0xf0f0f8);
 
 var CAM=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,0.1,200);
 CAM.position.set(0,2.8,20);
 
 // ── BRIGHT RETAIL LIGHTING ────────────────────────────────────
 // Strong ambient — supermarket feel
-W.add(new THREE.AmbientLight(0xd0e0ff, 0.35));
+W.add(new THREE.AmbientLight(0xffffff, 2.2));
 
 // Hemisphere for sky/ground
-var hemi=new THREE.HemisphereLight(0xfff8f0,0x080a10,0.3);
+var hemi=new THREE.HemisphereLight(0xffffff,0xe8eef5,1.0);
 W.add(hemi);
 
 // Ceiling fluorescent spots
 function mkFluro(x,z){
-  var l=new THREE.SpotLight(0xfff5e8,4.0,14,Math.PI/6,0.5,1.8);
+  var l=new THREE.SpotLight(0xfff8f2,2.0,14,Math.PI/5,0.55,1.5);
   l.position.set(x,7,z);
   l.castShadow=true;
   l.shadow.mapSize.set(512,512);
@@ -532,7 +532,7 @@ fluroLights.push(mkFluro(0-6,8));
 fluroLights.push(mkFluro(6,8));
 
 // ── FLOOR — white tile ────────────────────────────────────────
-var floorMat=new THREE.MeshStandardMaterial({color:0x0e0e16,roughness:0.06,metalness:0.92});
+var floorMat=new THREE.MeshStandardMaterial({color:0xf5f5f5,roughness:0.12,metalness:0.4});
 var floor=new THREE.Mesh(new THREE.PlaneGeometry(60,40),floorMat);
 floor.rotation.x=0-Math.PI/2; floor.receiveShadow=true; W.add(floor);
 
@@ -540,14 +540,14 @@ floor.rotation.x=0-Math.PI/2; floor.receiveShadow=true; W.add(floor);
 function tileLine(x1,z1,x2,z2){
   var pts=[new THREE.Vector3(x1,.003,z1),new THREE.Vector3(x2,.003,z2)];
   var geo=new THREE.BufferGeometry().setFromPoints(pts);
-  W.add(new THREE.Line(geo,new THREE.LineBasicMaterial({color:0x181824,transparent:true,opacity:.8})));
+  W.add(new THREE.Line(geo,new THREE.LineBasicMaterial({color:0xd8d8d8,transparent:true,opacity:.7})));
 }
 for(var tx=0-28;tx<=28;tx+=2) tileLine(tx,0-18,tx,18);
 for(var tz=0-18;tz<=18;tz+=2) tileLine(0-28,tz,28,tz);
 
 // ── CEILING ───────────────────────────────────────────────────
 var ceil=new THREE.Mesh(new THREE.PlaneGeometry(50,32),
-  new THREE.MeshStandardMaterial({color:0x080810,roughness:.98}));
+  new THREE.MeshStandardMaterial({color:0xfafafa,roughness:.95}));
 ceil.rotation.x=Math.PI/2; ceil.position.y=7.5; W.add(ceil);
 
 // Fluorescent tube fixtures
@@ -556,7 +556,7 @@ function mkTubeFixture(x,z){
     new THREE.MeshStandardMaterial({color:0xe0e0e0,roughness:.8}));
   fix.position.set(x,7.44,z); W.add(fix);
   var tube=new THREE.Mesh(new THREE.CylinderGeometry(.02,.02,2.5,8),
-    new THREE.MeshStandardMaterial({color:0xffffff,emissive:0xfff8e0,emissiveIntensity:3,roughness:1}));
+    new THREE.MeshStandardMaterial({color:0xffffff,emissive:0xffffff,emissiveIntensity:4,roughness:1}));
   tube.rotation.z=Math.PI/2; tube.position.set(x,7.42,z); W.add(tube);
 }
 [0-10,0-3.5,3.5,10].forEach(function(x){
@@ -565,7 +565,7 @@ function mkTubeFixture(x,z){
 mkTubeFixture(0,8); mkTubeFixture(0-6,8); mkTubeFixture(6,8);
 
 // ── WALLS ─────────────────────────────────────────────────────
-var wallMat=new THREE.MeshStandardMaterial({color:0x0a0a14,roughness:.92});
+var wallMat=new THREE.MeshStandardMaterial({color:0xf2f2f2,roughness:.88});
 var bw=new THREE.Mesh(new THREE.PlaneGeometry(44,9),wallMat);
 bw.position.set(0,4.5,0-9.5); W.add(bw);
 [0-22,22].forEach(function(x){
@@ -577,10 +577,10 @@ bw.position.set(0,4.5,0-9.5); W.add(bw);
 var ceoStrip=new THREE.Mesh(new THREE.BoxGeometry(14,.08,.05),
   new THREE.MeshStandardMaterial({color:0xE8721C,emissive:0xE8721C,emissiveIntensity:2}));
 ceoStrip.position.set(0,6.5,0-9.45); W.add(ceoStrip);
-var ceoL=new THREE.PointLight(0xE8721C,1.5,14); ceoL.position.set(0,5.8,0-8); W.add(ceoL);
+var ceoL=new THREE.PointLight(0xE8721C,2.0,16); ceoL.position.set(0,5.8,0-8); W.add(ceoL);
 
 // Entrance arch — bright metal
-var archMat=new THREE.MeshStandardMaterial({color:0x111122,metalness:.8,roughness:.2});
+var archMat=new THREE.MeshStandardMaterial({color:0xdddddd,metalness:.7,roughness:.2});
 var archNeonMat=new THREE.MeshStandardMaterial({color:0xE8721C,emissive:0xE8721C,emissiveIntensity:3});
 [0-2.8,2.8].forEach(function(x){
   var p=new THREE.Mesh(new THREE.BoxGeometry(.15,5.5,.15),archMat); p.position.set(x,2.75,15); W.add(p);
@@ -592,7 +592,7 @@ var archL=new THREE.PointLight(0xE8721C,1,8); archL.position.set(0,4.5,15.5); W.
 
 // Entry floor mat
 var entryMat2=new THREE.Mesh(new THREE.PlaneGeometry(6,3),
-  new THREE.MeshStandardMaterial({color:0x0e0e1c,roughness:.5}));
+  new THREE.MeshStandardMaterial({color:0xe0e0e8,roughness:.5}));
 entryMat2.rotation.x=0-Math.PI/2; entryMat2.position.set(0,.004,13); W.add(entryMat2);
 
 // ── GONDOLA SHELVES ───────────────────────────────────────────
@@ -605,9 +605,9 @@ function buildGondola(ax,scIdx){
   var col=new THREE.Color(sc.hex);
 
   // Shelf frame — white/grey metal
-  var frameMat=new THREE.MeshStandardMaterial({color:0x1c1c28,metalness:.6,roughness:.4});
-  var backMat=new THREE.MeshStandardMaterial({color:0x0d0d18,roughness:.95});
-  var shelfMat=new THREE.MeshStandardMaterial({color:0x111120,roughness:.7,metalness:.2});
+  var frameMat=new THREE.MeshStandardMaterial({color:0xc8c8c8,metalness:.5,roughness:.4});
+  var backMat=new THREE.MeshStandardMaterial({color:0xe8e8e8,roughness:.9});
+  var shelfMat=new THREE.MeshStandardMaterial({color:0xf0f0f0,roughness:.6,metalness:.1});
 
   [0-1,1].forEach(function(side){
     var sx=ax+side*1.6;
@@ -699,9 +699,9 @@ function buildGondola(ax,scIdx){
 SCENES.filter(function(s){return s.products.length;}).forEach(function(sc,i){buildGondola(AISLE_X[i],i);});
 
 // ── CHECKOUT COUNTER ──────────────────────────────────────────
-var ctrMat=new THREE.MeshStandardMaterial({color:0x0e0e20,roughness:.4,metalness:.5});
+var ctrMat=new THREE.MeshStandardMaterial({color:0xe0e0e8,roughness:.35,metalness:.3});
 var ctrTop=new THREE.Mesh(new THREE.BoxGeometry(8,.06,1.3),
-  new THREE.MeshStandardMaterial({color:0x181828,roughness:.08,metalness:.9}));
+  new THREE.MeshStandardMaterial({color:0xffffff,roughness:.05,metalness:.6}));
 ctrTop.position.set(0,1.1,0-7.5); W.add(ctrTop);
 var ctrBody=new THREE.Mesh(new THREE.BoxGeometry(8,1.04,1.3),ctrMat);
 ctrBody.position.set(0,.54,0-7.5); ctrBody.castShadow=true; W.add(ctrBody);
@@ -751,11 +751,11 @@ var sc2=mkScanner(7.5,1.5);
 
 // Shopping carts
 function mkCart(x,z){
-  var cMat=new THREE.MeshStandardMaterial({color:0x2a2a3e,metalness:.7,roughness:.3});
+  var cMat=new THREE.MeshStandardMaterial({color:0xc0c0c8,metalness:.6,roughness:.3});
   var basket=new THREE.Mesh(new THREE.BoxGeometry(.6,.44,.38),cMat);
   basket.position.set(x,.72,z); W.add(basket);
   var eg=new THREE.EdgesGeometry(new THREE.BoxGeometry(.6,.44,.38));
-  var em=new THREE.LineSegments(eg,new THREE.LineBasicMaterial({color:0x4a4a6e}));
+  var em=new THREE.LineSegments(eg,new THREE.LineBasicMaterial({color:0x999999}));
   em.position.set(x,.72,z); W.add(em);
   var handle=new THREE.Mesh(new THREE.TorusGeometry(.2,.012,8,20,Math.PI),
     new THREE.MeshStandardMaterial({color:0xaaaaaa,metalness:.6}));
