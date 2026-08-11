@@ -86,14 +86,14 @@ canvas{display:block;position:fixed;inset:0;}
 }
 #cco-overlay.open{opacity:1;pointer-events:all;}
 .cco-win{
-  width:920px;height:570px;
+  width:1100px;height:660px;
   background:#f0f0f0;
   border-radius:6px;
   overflow:hidden;
   display:flex;flex-direction:column;
   font-family:'Segoe UI',Arial,sans-serif;
-  font-size:12px;
-  transform:scale(.88);
+  font-size:13px;
+  transform:scale(.85);
   transition:transform .5s cubic-bezier(.16,1,.3,1);
   box-shadow:0 40px 100px rgba(0,0,0,.8);
 }
@@ -127,9 +127,9 @@ canvas{display:block;position:fixed;inset:0;}
 .cco-row.sel *{color:#fff!important;}
 .ri{font-size:9.5px;color:#aaa;text-align:center;}
 .rid{font-size:9px;color:#888;font-family:monospace;}
-.rn{font-size:10.5px;color:#222;font-weight:500;}
-.rs{font-size:8.5px;color:#999;margin-top:1px;}
-.rr{text-align:right;font-size:10.5px;color:#333;}
+.rn{font-size:12px;color:#222;font-weight:600;}
+.rs{font-size:10px;color:#888;margin-top:2px;}
+.rr{text-align:right;font-size:11px;color:#333;}
 .rr.m{color:#bbb;font-size:9.5px;}
 .rr.b{font-weight:700;}
 .badge{display:inline-block;padding:1px 5px;border-radius:9px;font-size:8px;font-weight:700;letter-spacing:.04em;}
@@ -144,7 +144,7 @@ canvas{display:block;position:fixed;inset:0;}
 .tbv{font-size:11px;font-weight:600;color:#333;}
 .tb-main{margin-left:auto;text-align:right;}
 .tb-main .tbl{font-size:9px;}
-.tb-big{font-size:26px;font-weight:700;color:#1a1a1a;line-height:1;margin-top:2px;}
+.tb-big{font-size:30px;font-weight:700;color:#1a1a1a;line-height:1;margin-top:2px;}
 .tb-big .cur{font-size:13px;font-weight:600;color:#666;margin-right:2px;}
 .tb-open{font-size:10.5px;font-weight:600;color:#E8721C;margin-top:2px;}
 
@@ -164,7 +164,7 @@ canvas{display:block;position:fixed;inset:0;}
 .ad{background:#f5f5f5;color:#ccc;cursor:default;}
 
 /* RIGHT */
-.cco-right{width:260px;flex-shrink:0;background:#fff;display:flex;flex-direction:column;}
+.cco-right{width:300px;flex-shrink:0;background:#fff;display:flex;flex-direction:column;}
 .cco-rcpt-h{padding:8px 10px;border-bottom:1px solid #eee;}
 .cco-rcpt-id{font-size:9px;color:#666;font-family:monospace;}
 .cco-rcpt-pl{font-size:9px;color:#1a6fc4;font-weight:600;margin-top:2px;}
@@ -176,9 +176,9 @@ canvas{display:block;position:fixed;inset:0;}
 .sum-ttl{font-size:8.5px;text-transform:uppercase;letter-spacing:.1em;color:#ccc;margin-bottom:8px;font-weight:600;}
 .sum-line{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f5f5f5;}
 .sum-line:last-child{border:none;}
-.sl-n{font-size:9.5px;color:#333;flex:1;line-height:1.3;}
+.sl-n{font-size:11px;color:#333;flex:1;line-height:1.3;}
 .sl-s{font-size:8px;color:#bbb;margin-top:1px;}
-.sl-p{font-family:monospace;font-size:9.5px;font-weight:600;color:#1a1a1a;white-space:nowrap;margin-left:8px;}
+.sl-p{font-family:monospace;font-size:11px;font-weight:700;color:#1a1a1a;white-space:nowrap;margin-left:8px;}
 .cco-np{padding:6px 10px;border-top:1px solid #eee;}
 .np-g{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;}
 .np{padding:6px;text-align:center;font-size:12px;font-weight:600;color:#333;background:#f5f5f5;border:1px solid #e0e0e0;border-radius:2px;cursor:pointer;}
@@ -496,23 +496,23 @@ R.toneMappingExposure=1.4;
 document.body.insertBefore(R.domElement,document.getElementById('loading'));
 
 var W=new THREE.Scene();
-W.fog=new THREE.Fog(0xd4e4f0,20,55);
-W.background=new THREE.Color(0xd4e4f0);
+W.fog=new THREE.Fog(0x0a0c10,18,48);
+W.background=new THREE.Color(0x0a0c10);
 
 var CAM=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,0.1,200);
 CAM.position.set(0,2.8,20);
 
 // ── BRIGHT RETAIL LIGHTING ────────────────────────────────────
 // Strong ambient — supermarket feel
-W.add(new THREE.AmbientLight(0xffffff, 1.8));
+W.add(new THREE.AmbientLight(0xd0e0ff, 0.35));
 
 // Hemisphere for sky/ground
-var hemi=new THREE.HemisphereLight(0xfff8f0,0xe8eef5,0.8);
+var hemi=new THREE.HemisphereLight(0xfff8f0,0x080a10,0.3);
 W.add(hemi);
 
 // Ceiling fluorescent spots
 function mkFluro(x,z){
-  var l=new THREE.SpotLight(0xfff5e8,2.5,16,Math.PI/5,0.6,1.5);
+  var l=new THREE.SpotLight(0xfff5e8,4.0,14,Math.PI/6,0.5,1.8);
   l.position.set(x,7,z);
   l.castShadow=true;
   l.shadow.mapSize.set(512,512);
@@ -532,7 +532,7 @@ fluroLights.push(mkFluro(0-6,8));
 fluroLights.push(mkFluro(6,8));
 
 // ── FLOOR — white tile ────────────────────────────────────────
-var floorMat=new THREE.MeshStandardMaterial({color:0xf0f0f0,roughness:0.08,metalness:0.1});
+var floorMat=new THREE.MeshStandardMaterial({color:0x0e0e16,roughness:0.06,metalness:0.92});
 var floor=new THREE.Mesh(new THREE.PlaneGeometry(60,40),floorMat);
 floor.rotation.x=0-Math.PI/2; floor.receiveShadow=true; W.add(floor);
 
@@ -540,14 +540,14 @@ floor.rotation.x=0-Math.PI/2; floor.receiveShadow=true; W.add(floor);
 function tileLine(x1,z1,x2,z2){
   var pts=[new THREE.Vector3(x1,.003,z1),new THREE.Vector3(x2,.003,z2)];
   var geo=new THREE.BufferGeometry().setFromPoints(pts);
-  W.add(new THREE.Line(geo,new THREE.LineBasicMaterial({color:0xd8d8d8,transparent:true,opacity:.6})));
+  W.add(new THREE.Line(geo,new THREE.LineBasicMaterial({color:0x181824,transparent:true,opacity:.8})));
 }
 for(var tx=0-28;tx<=28;tx+=2) tileLine(tx,0-18,tx,18);
 for(var tz=0-18;tz<=18;tz+=2) tileLine(0-28,tz,28,tz);
 
 // ── CEILING ───────────────────────────────────────────────────
 var ceil=new THREE.Mesh(new THREE.PlaneGeometry(50,32),
-  new THREE.MeshStandardMaterial({color:0xf8f8f8,roughness:.95}));
+  new THREE.MeshStandardMaterial({color:0x080810,roughness:.98}));
 ceil.rotation.x=Math.PI/2; ceil.position.y=7.5; W.add(ceil);
 
 // Fluorescent tube fixtures
@@ -565,7 +565,7 @@ function mkTubeFixture(x,z){
 mkTubeFixture(0,8); mkTubeFixture(0-6,8); mkTubeFixture(6,8);
 
 // ── WALLS ─────────────────────────────────────────────────────
-var wallMat=new THREE.MeshStandardMaterial({color:0xf5f5f5,roughness:.85});
+var wallMat=new THREE.MeshStandardMaterial({color:0x0a0a14,roughness:.92});
 var bw=new THREE.Mesh(new THREE.PlaneGeometry(44,9),wallMat);
 bw.position.set(0,4.5,0-9.5); W.add(bw);
 [0-22,22].forEach(function(x){
@@ -580,7 +580,7 @@ ceoStrip.position.set(0,6.5,0-9.45); W.add(ceoStrip);
 var ceoL=new THREE.PointLight(0xE8721C,1.5,14); ceoL.position.set(0,5.8,0-8); W.add(ceoL);
 
 // Entrance arch — bright metal
-var archMat=new THREE.MeshStandardMaterial({color:0xcccccc,metalness:.8,roughness:.2});
+var archMat=new THREE.MeshStandardMaterial({color:0x111122,metalness:.8,roughness:.2});
 var archNeonMat=new THREE.MeshStandardMaterial({color:0xE8721C,emissive:0xE8721C,emissiveIntensity:3});
 [0-2.8,2.8].forEach(function(x){
   var p=new THREE.Mesh(new THREE.BoxGeometry(.15,5.5,.15),archMat); p.position.set(x,2.75,15); W.add(p);
@@ -592,7 +592,7 @@ var archL=new THREE.PointLight(0xE8721C,1,8); archL.position.set(0,4.5,15.5); W.
 
 // Entry floor mat
 var entryMat2=new THREE.Mesh(new THREE.PlaneGeometry(6,3),
-  new THREE.MeshStandardMaterial({color:0xe8e8e8,roughness:.5}));
+  new THREE.MeshStandardMaterial({color:0x0e0e1c,roughness:.5}));
 entryMat2.rotation.x=0-Math.PI/2; entryMat2.position.set(0,.004,13); W.add(entryMat2);
 
 // ── GONDOLA SHELVES ───────────────────────────────────────────
@@ -605,9 +605,9 @@ function buildGondola(ax,scIdx){
   var col=new THREE.Color(sc.hex);
 
   // Shelf frame — white/grey metal
-  var frameMat=new THREE.MeshStandardMaterial({color:0xd0d0d0,metalness:.5,roughness:.4});
-  var backMat=new THREE.MeshStandardMaterial({color:0xe8e8e8,roughness:.9});
-  var shelfMat=new THREE.MeshStandardMaterial({color:0xf0f0f0,roughness:.7,metalness:.1});
+  var frameMat=new THREE.MeshStandardMaterial({color:0x1c1c28,metalness:.6,roughness:.4});
+  var backMat=new THREE.MeshStandardMaterial({color:0x0d0d18,roughness:.95});
+  var shelfMat=new THREE.MeshStandardMaterial({color:0x111120,roughness:.7,metalness:.2});
 
   [0-1,1].forEach(function(side){
     var sx=ax+side*1.6;
@@ -699,9 +699,9 @@ function buildGondola(ax,scIdx){
 SCENES.filter(function(s){return s.products.length;}).forEach(function(sc,i){buildGondola(AISLE_X[i],i);});
 
 // ── CHECKOUT COUNTER ──────────────────────────────────────────
-var ctrMat=new THREE.MeshStandardMaterial({color:0xe8e8e8,roughness:.4,metalness:.3});
+var ctrMat=new THREE.MeshStandardMaterial({color:0x0e0e20,roughness:.4,metalness:.5});
 var ctrTop=new THREE.Mesh(new THREE.BoxGeometry(8,.06,1.3),
-  new THREE.MeshStandardMaterial({color:0xffffff,roughness:.1,metalness:.5}));
+  new THREE.MeshStandardMaterial({color:0x181828,roughness:.08,metalness:.9}));
 ctrTop.position.set(0,1.1,0-7.5); W.add(ctrTop);
 var ctrBody=new THREE.Mesh(new THREE.BoxGeometry(8,1.04,1.3),ctrMat);
 ctrBody.position.set(0,.54,0-7.5); ctrBody.castShadow=true; W.add(ctrBody);
@@ -720,7 +720,7 @@ function mkTerminal(x){
     new THREE.MeshStandardMaterial({color:0xcccccc,roughness:.5}));
   neck.position.set(x,1.3,0-7.75); W.add(neck);
   var screen=new THREE.Mesh(new THREE.BoxGeometry(.85,.58,.04),
-    new THREE.MeshStandardMaterial({color:0x1a2a3a,emissive:0x0a1520,emissiveIntensity:1,roughness:.2}));
+    new THREE.MeshStandardMaterial({color:0x0a1a2a,emissive:0x0a2535,emissiveIntensity:2,roughness:.2}));
   screen.position.set(x,1.72,0-7.85); screen.rotation.x=0-0.22; W.add(screen);
   // SAP blue glow
   var scrL=new THREE.PointLight(0x1a6fc4,.5,2.5); scrL.position.set(x,2,0-7.4); W.add(scrL);
@@ -751,11 +751,11 @@ var sc2=mkScanner(7.5,1.5);
 
 // Shopping carts
 function mkCart(x,z){
-  var cMat=new THREE.MeshStandardMaterial({color:0xbbbbbb,metalness:.7,roughness:.3});
+  var cMat=new THREE.MeshStandardMaterial({color:0x2a2a3e,metalness:.7,roughness:.3});
   var basket=new THREE.Mesh(new THREE.BoxGeometry(.6,.44,.38),cMat);
   basket.position.set(x,.72,z); W.add(basket);
   var eg=new THREE.EdgesGeometry(new THREE.BoxGeometry(.6,.44,.38));
-  var em=new THREE.LineSegments(eg,new THREE.LineBasicMaterial({color:0x999999}));
+  var em=new THREE.LineSegments(eg,new THREE.LineBasicMaterial({color:0x4a4a6e}));
   em.position.set(x,.72,z); W.add(em);
   var handle=new THREE.Mesh(new THREE.TorusGeometry(.2,.012,8,20,Math.PI),
     new THREE.MeshStandardMaterial({color:0xaaaaaa,metalness:.6}));
