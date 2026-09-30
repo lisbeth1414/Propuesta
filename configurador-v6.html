@@ -4558,9 +4558,15 @@ function buildPresentacionHTML(d){
             </div>`).join('') || '<div style="font-size:.68rem;color:rgba(255,255,255,.25);font-style:italic;">—</div>'}
         </div>`).join('')}
       </div>
-      <div style="background:linear-gradient(135deg,${acd},${shade(acd,-15)});border-radius:12px;padding:16px 22px;display:flex;justify-content:space-between;align-items:center;">
-        <div><div style="font-size:.88rem;color:rgba(255,255,255,.7);font-weight:500;">Total estimado del proyecto</div><div style="font-size:.72rem;color:rgba(255,255,255,.45);margin-top:2px;">Incluye todos los conceptos</div></div>
-        <div style="font-family:'Fraunces',serif;font-size:1.7rem;font-weight:700;color:#fff;">${moneda} ${fmtN(grandTotal)}</div>
+      <div style="margin-bottom:0;border-radius:12px;overflow:hidden;">
+        <div style="background:linear-gradient(135deg,${acd},${shade(acd,-15)});padding:14px 22px;display:flex;justify-content:space-between;align-items:center;">
+          <div><div style="font-size:.88rem;color:rgba(255,255,255,.85);font-weight:600;">Total año 1</div><div style="font-size:.7rem;color:rgba(255,255,255,.5);margin-top:2px;">Únicos + anuales + mensuales × 12</div></div>
+          <div style="font-family:'Fraunces',serif;font-size:1.6rem;font-weight:700;color:#fff;">${moneda} ${fmtN(resumen.unico + resumen.anual + resumen.mensual * 12)}</div>
+        </div>
+        <div style="background:rgba(255,255,255,.07);padding:11px 22px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(255,255,255,.1);">
+          <div><div style="font-size:.82rem;color:rgba(255,255,255,.7);font-weight:500;">Total años sucesivos</div><div style="font-size:.68rem;color:rgba(255,255,255,.4);margin-top:2px;">Anuales + mensuales × 12</div></div>
+          <div style="font-family:'Fraunces',serif;font-size:1.25rem;font-weight:700;color:rgba(255,255,255,.75);">${moneda} ${fmtN(resumen.anual + resumen.mensual * 12)}</div>
+        </div>
       </div>
       <div class="slide-footer"><span class="ft-dark">CEO Consultoría · Confidencial</span><span class="ft-dark">${cliente.nombre} · ${new Date().getFullYear()}</span></div>
     </div>`);
