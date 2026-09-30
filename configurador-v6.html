@@ -2190,23 +2190,39 @@ function renderResumen(){
 
   if(!rows.length){ root.innerHTML = ''; return; }
 
-  // Calcular totales por pagoTipo para año 1 y años sucesivos
+  // Calcular totales por pagoTipo usando ss.total (ya con descuentos) y pagoTipo dominante por subsegmento
   const tallySidebar = { unico: 0, mensual: 0, anual: 0 };
   segsState.forEach(seg => {
     if(!seg.on) return;
     const segCard = document.getElementById('seg-'+seg.id);
     if(!segCard) return;
-    segCard.querySelectorAll('.dyn-item').forEach(item => {
-      if(item.querySelector('.disc-val')) return; // skip descuentos
-      const tipoSel = item.querySelector('.pago-tipo-sel');
-      const tipo = tipoSel ? tipoSel.value : 'unico';
-      const totalEl = item.querySelector('.total');
-      const v = parseFloat((totalEl?.textContent||'').replace(moneda,'').replace(/[^0-9.\-]/g,''));
-      if(!isNaN(v) && v > 0) tallySidebar[tipo] += v;
+    // Recorrer subsegmentos por su total neto
+    segCard.querySelectorAll('[id^="tot-ss-"]').forEach(totEl => {
+      const ssId = totEl.id.replace('tot-ss-','');
+      const ssTotal = parseFloat((totEl.textContent||'').replace(moneda,'').replace(/[^0-9.\-]/g,''));
+      if(isNaN(ssTotal) || ssTotal <= 0) return;
+      // Determinar pagoTipo dominante por suma bruta de conceptos
+      const ssBlock = segCard.querySelector('[data-ssid="'+ssId+'"]') || segCard;
+      const grossByTipo = {unico:0, mensual:0, anual:0};
+      ssBlock.querySelectorAll('.dyn-item').forEach(item => {
+        if(item.querySelector('.disc-val')) return;
+        const tipoSel = item.querySelector('.pago-tipo-sel');
+        const tipo = tipoSel ? tipoSel.value : 'unico';
+        const tEl = item.querySelector('.total');
+        const v = parseFloat((tEl?.textContent||'').replace(moneda,'').replace(/[^0-9.\-]/g,''));
+        if(!isNaN(v) && v > 0) grossByTipo[tipo] += v;
+      });
+      const grossTotal = Object.values(grossByTipo).reduce((a,b)=>a+b,0);
+      if(grossTotal <= 0){ tallySidebar.unico += ssTotal; return; }
+      // Distribuir ssTotal proporcionalmente por tipo (respeta descuentos)
+      Object.keys(grossByTipo).forEach(tipo => {
+        if(grossByTipo[tipo] > 0)
+          tallySidebar[tipo] += ssTotal * (grossByTipo[tipo] / grossTotal);
+      });
     });
   });
-  const anio1 = tallySidebar.unico + tallySidebar.anual + tallySidebar.mensual * 12;
-  const sucesivos = tallySidebar.anual + tallySidebar.mensual * 12;
+  const anio1 = Math.round((tallySidebar.unico + tallySidebar.anual + tallySidebar.mensual * 12)*100)/100;
+  const sucesivos = Math.round((tallySidebar.anual + tallySidebar.mensual * 12)*100)/100;
 
   root.innerHTML = `
     <div class="seg-resumen">
